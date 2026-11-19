@@ -7,39 +7,56 @@ description: "Nạp PDF AWS SAA-C03 bằng pdfplumber, chuẩn hóa mục Câu N
 
 ## Mô tả
 
-Xây dựng pipeline nạp tài liệu từ PDF vào Supabase/pgvector: trích văn bản bằng **pdfplumber** (chạy cục bộ, không dùng LlamaParse hay dịch vụ parse trả phí), nhận diện cấu trúc mục “Câu N”, tạo chunk cha–con, gắn metadata và embedding Gemini 768 chiều. Kết quả ghi vào bảng `documents` và `chunks`.
+Pipeline nạp tài liệu từ PDF vào Supabase/pgvector: trích văn bản bằng **pdfplumber** (chạy cục bộ, không dùng LlamaParse hay dịch vụ parse trả phí), nhận diện cấu trúc mục “Câu N”, tách bảng thành Markdown, tạo chunk cha–con, gắn metadata nguồn và sinh embedding Gemini 768 chiều. Kết quả ghi vào `documents`, `chunks`, `questions`.
+
+Mã nguồn: `ingestion/` — `inspect.py` (khảo sát), `loaders/` (PDF, bảng), `sections.py`, `questions.py`, `chunking.py`, `embeddings.py`, `store.py`, `pipeline.py`.
 
 ## Khi nào dùng
 
-- Giai đoạn 1: khảo sát PDF, kiểm tra text layer, thống kê số mục, nhãn lĩnh vực, trang.
-- Giai đoạn 3: nạp dữ liệu thật, tạo index và version index.
-- Khi bổ sung tài liệu mới hoặc nạp lại sau khi sửa logic chunking.
+- Giai đoạn 1: khảo sát PDF, nạp dữ liệu thật, kiểm tra chất lượng chunk.
+- Giai đoạn 3: nạp bổ sung tài liệu hoặc nạp lại sau khi sửa logic chunking.
+- Khi cần tái lập kho tri thức từ `data/raw/`.
 
 ## Các bước
 
-1. Đặt PDF gốc vào `data/raw/` (không commit) và ghi nhận nguồn, giấy phép.
-2. Khảo sát bằng pdfplumber: số trang, trang không có text layer, bảng/hình, lỗi font.
-3. Tách cấu trúc mục “Câu N”: tiêu đề, lĩnh vực, giải thích tổng quan, đáp án đúng, phân tích phương án sai, tài liệu tham khảo.
-4. Chunking cha–con: parent là cả mục; child theo loại đoạn (tổng quan, đáp án, phân tích, tham khảo); mỗi child có tiêu đề ngữ cảnh (số câu, tiêu đề, lĩnh vực đã chuẩn hóa).
-5. Gắn metadata: số câu, lĩnh vực, dịch vụ AWS, loại đoạn, số trang, URL tham khảo, version.
-6. Sinh embedding Gemini 768 chiều và upsert vào `documents`/`chunks` theo version.
-7. Hậu kiểm: đếm chunk, phát hiện trùng, kiểm tra embedding đủ 768 chiều, lưu báo cáo vào `docs/`.
+1. Áp migration theo thứ tự: `20261118000000_init_schema.sql` rồi `20261119000000_ingestion_schema.sql`.
+2. Đặt PDF gốc vào `data/raw/` (không commit). Không đặt tài liệu vào `data/external_test/`.
+3. Khảo sát cấu trúc: `python -m ingestion.inspect --input data/raw` (ghi `docs/ingestion-analysis.md`).
+4. Nạp toàn bộ: `make ingest`. Nạp lại bắt buộc: `make ingest ARGS=--force`.
+   Trên Windows, nếu đường dẫn dự án chứa ký tự có dấu, GNU Make không tự tìm thấy
+   Makefile (lỗi cp1252 đã ghi ở Giai đoạn 0) — dùng `make -f Makefile ingest`.
+5. Nạp một tệp: `python -m ingestion.pipeline --input data/raw/<file>.pdf`.
+6. Đọc thống kê tại `data/processed/ingestion_stats.json` và đối chiếu hậu kiểm.
 
-## Lệnh
+## Cơ chế chống trùng
+
+- `documents.source_key` là khóa duy nhất theo đường dẫn tương đối.
+- Mỗi tài liệu lưu `checksum` SHA-256 của PDF và `pipeline_version`.
+- Lần chạy sau bỏ qua tài liệu khi checksum, phiên bản pipeline, số chunk và số câu khớp; không gọi lại Gemini.
+- `--force` xóa và ghi lại từng tài liệu (cascade sang chunk và câu hỏi), sau đó sinh lại embedding.
+- ID tài liệu/chunk/câu hỏi là UUIDv5 tất định, nên chạy lại cho cùng kết quả.
+
+## Metadata và cấu trúc
+
+- Chunk cha: 800–1200 token ước lượng (dung sai có ghi trong báo cáo), cả mục hoặc một phần mục.
+- Chunk con: 300–500 token, có `parent_id`, chồng lấn mục tiêu 10–15%.
+- Bảng: một chunk `content_type='table'`, nội dung Markdown, metadata `{type, page, table_index, rows, cols}`.
+- Câu hỏi: `external_id`, `question`, `options` A–D, `correct_answer`, `explanation`, `domain`, `topic`, `source_page`, `language`, `checksum`.
+- Không đọc hay nạp bất kỳ tệp nào trong `data/external_test/`.
+
+## Kiểm thử
 
 ```bash
-python -m ingestion.inspect --input data/raw/<file>.pdf
-python -m ingestion.pipeline --input data/raw/<file>.pdf --version v1
-make ingest
+pytest tests/ingestion -q
+make lint
+make test
 ```
-
-`make ingest` hiện là chỗ giữ chỗ, sẽ được nối vào Giai đoạn 3.
 
 ## Tiêu chí nghiệm thu
 
-- 100% trang được xử lý; mọi trang thiếu text layer được báo cáo rõ.
-- Mỗi chunk có `document_id`, `chunk_index`, metadata trang và loại đoạn.
-- Quan hệ cha–con đúng: mọi chunk con trỏ tới mục cha cùng “Câu N”.
-- Embedding là vector 768 chiều, không có chunk rỗng.
-- Không import hoặc gọi dịch vụ parse PDF bên ngoài; chỉ dùng pdfplumber.
-- Báo cáo thống kê số mục/chunk/lĩnh vực được lưu lại và tái lập được.
+- 100% trang được xử lý; trang thiếu text layer được ghi vào `error_pages`.
+- Mọi chunk có metadata nguồn: tài liệu, trang, đề mục; mọi chunk con trỏ tới cha cùng tài liệu.
+- Không có chunk rỗng, không có embedding NULL, vector đúng 768 chiều.
+- Chạy hai lần liên tiếp không tăng số bản ghi.
+- Chỉ dùng pdfplumber; không thêm dịch vụ parse PDF bên ngoài.
+- Thống kê tái lập được trong `data/processed/ingestion_stats.json`.

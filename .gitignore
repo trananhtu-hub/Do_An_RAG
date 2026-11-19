@@ -14,5 +14,7 @@ build/
 .ruff_cache/
 .mypy_cache/
 data/raw/
+data/processed/embed_cache.json
+data/processed/embed_cache.tmp
 .DS_Store
 Thumbs.db

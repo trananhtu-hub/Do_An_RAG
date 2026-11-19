@@ -27,6 +27,26 @@ jobs:
       - name: Kiểm thử (pytest)
         run: pytest -q
 
+  ingestion:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: |
+            backend/requirements-dev.txt
+            ingestion/requirements.txt
+      - name: Cài phụ thuộc
+        run: pip install -r backend/requirements-dev.txt -r ingestion/requirements.txt
+      - name: Lint (ruff)
+        run: ruff check ingestion scripts tests
+      - name: Định dạng (black)
+        run: black --check ingestion scripts tests
+      - name: Kiểm thử (pytest)
+        run: pytest tests/ingestion -q
+
   frontend:
     runs-on: ubuntu-latest
     defaults:

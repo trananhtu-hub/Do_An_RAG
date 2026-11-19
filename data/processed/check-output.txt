@@ -1,0 +1,49 @@
+{
+  "database": {
+    "documents": 7,
+    "pages": 545,
+    "chunks": 1775,
+    "parents": 514,
+    "children": 1261,
+    "questions": 390,
+    "domains": {
+      "Cost-Optimized": 38,
+      "High-Performing": 131,
+      "Resilient": 105,
+      "Secure": 116
+    }
+  },
+  "integrity": {
+    "empty_chunks": 0,
+    "null_embeddings": 0,
+    "wrong_dimensions": 0,
+    "children_without_parent": 0,
+    "missing_token_counts": 0,
+    "missing_checksums": 0,
+    "duplicate_chunk_indexes": 0
+  },
+  "domain_shares_percent": {
+    "Cost-Optimized": 9.74,
+    "High-Performing": 33.59,
+    "Resilient": 26.92,
+    "Secure": 29.74
+  },
+  "unknown_domains": [],
+  "question_coverage_percent": 100.0,
+  "expected_questions": 390,
+  "table_samples": [],
+  "checks": {
+    "no_empty_chunks": true,
+    "no_null_embeddings": true,
+    "embedding_dim_768": true,
+    "children_have_parent": true,
+    "token_counts_present": true,
+    "checksums_present": true,
+    "no_duplicate_chunk_index": true,
+    "domains_canonical": true,
+    "domain_total_100": true,
+    "question_coverage_ge_95": true,
+    "tables_sampled_ok": true
+  },
+  "passed": true
+}

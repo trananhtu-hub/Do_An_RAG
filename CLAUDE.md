@@ -64,7 +64,7 @@ Tài liệu này được nạp vào mỗi phiên làm việc. Chỉ ghi những
 | `make dev` | Chạy backend (cổng 8000) và frontend (cổng 3000) |
 | `make lint` | ruff + black --check (backend) và eslint (frontend) |
 | `make test` | pytest backend |
-| `make ingest` | Chưa triển khai — Giai đoạn 1/3 |
+| `make ingest` | Nạp PDF trong `data/raw` vào Supabase (hỗ trợ `--force`) — Giai đoạn 1 |
 | `make eval` | Chưa triển khai — Giai đoạn 2/8 |
 | `curl http://localhost:8000/health` | Kiểm tra backend |
 | `cd frontend && npm run build` | Build production frontend |
@@ -127,5 +127,6 @@ Không thêm biến cho dịch vụ parse PDF bên ngoài.
 ## 10. Trạng thái dự án
 
 - **Giai đoạn 0 — Hoàn thành:** khung repo, backend `/health`, frontend khung, migration khởi tạo, CI, skills, báo cáo tại `docs/phase-0-report.md`.
-- **Giai đoạn 1 — Tiếp theo:** khảo sát PDF bằng pdfplumber, chuẩn hóa cấu trúc mục “Câu N”, thiết kế schema dữ liệu.
-- Chưa có xử lý dữ liệu thật và chưa có chức năng RAG trong mã nguồn.
+- **Giai đoạn 1 — Hoàn thành:** pipeline nạp tri thức (pdfplumber, trích câu hỏi, chunking cha–con, embedding Gemini 768, Supabase); kho hiện có 7 tài liệu, 1.775 chunk, 390 câu hỏi; báo cáo tại `docs/phase-1-report.md`.
+- **Giai đoạn 2 — Tiếp theo:** xây bộ kiểm thử và khung đánh giá (chưa bắt đầu).
+- Kho tri thức đã có dữ liệu thật; chưa có chức năng RAG trong mã nguồn (Giai đoạn 4–7).

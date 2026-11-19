@@ -1,4 +1,5 @@
 PYTHON ?= python
+ARGS ?=
 
 export PYTHONUTF8 := 1
 export PYTHONIOENCODING := utf-8
@@ -16,28 +17,28 @@ help:
 	@echo "make dev      - Chạy backend (cổng 8000) và frontend (cổng 3000)"
 	@echo "make lint     - ruff + black --check (backend), eslint (frontend)"
 	@echo "make test     - pytest (backend)"
-	@echo "make ingest   - Chưa triển khai (Giai đoạn 1/3)"
+	@echo "make ingest   - Nạp PDF vào Supabase (thêm ARGS=--force để nạp lại)"
 	@echo "make eval     - Chưa triển khai (Giai đoạn 2/8)"
 
 install:
 	$(PYTHON) -m venv .venv
 	"$(VENV_PY)" -m pip install --upgrade pip
-	"$(VENV_PY)" -m pip install -r backend/requirements-dev.txt
+	"$(VENV_PY)" -m pip install -r backend/requirements-dev.txt -r ingestion/requirements.txt
 	npm --prefix frontend install
 
 dev:
 	"$(VENV_PY)" scripts/dev.py
 
 test:
-	"$(VENV_PY)" -m pytest backend -q
+	"$(VENV_PY)" -m pytest backend tests/ingestion -q
 
 lint:
-	"$(VENV_PY)" -m ruff check backend
-	"$(VENV_PY)" -m black --check backend
+	"$(VENV_PY)" -m ruff check backend ingestion scripts tests
+	"$(VENV_PY)" -m black --check backend ingestion scripts tests
 	npm --prefix frontend run lint
 
 ingest:
-	@echo "Chưa triển khai — sẽ có ở Giai đoạn 1/3 (xem CLAUDE.md)."
+	"$(VENV_PY)" -m ingestion.pipeline $(ARGS)
 
 eval:
 	@echo "Chưa triển khai — sẽ có ở Giai đoạn 2/8 (xem CLAUDE.md)."
