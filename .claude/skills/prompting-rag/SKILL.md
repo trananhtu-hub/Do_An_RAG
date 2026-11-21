@@ -17,7 +17,7 @@ Thiết kế và đánh giá prompt cho tầng sinh câu trả lời theo CLAUDE
 
 ## Cấu trúc prompt hiện có
 
-`prompts/v1/` gồm 5 tệp, mỗi tệp có mục tiêu, quy tắc, định dạng đầu ra và ví dụ:
+`prompts/v1/` gồm 5 tệp, mỗi tệp có mục tiêu, quy tắc và định dạng đầu ra; bốn tệp có mục ví dụ riêng (`system_cot.md` nêu ví dụ ngay trong các bước):
 
 | Tệp | Vai trò |
 | :--- | :--- |

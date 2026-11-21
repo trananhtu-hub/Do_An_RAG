@@ -104,6 +104,9 @@ chuỗi dự phòng, retry/backoff, ghi `query_logs`). Không bao gồm streamin
 | Chuỗi dự phòng | `python evaluation/fallback_demo.py` | 3/3 câu do adapter dự phòng trả lời | 3/3 (khóa hỏng) + 1 câu (thiếu khóa, factory bỏ qua Gemini) | ĐẠT |
 | Lỗi schema sau retry | `python evaluation/gen_bench.py --before-after` | 0 lỗi cuối | 80/80 câu có JSON hợp lệ; 1 câu phải thử lại đúng 1 lần; **0 lỗi cuối** | ĐẠT |
 | Ghi `query_logs` | `python evaluation/verify_query_logs.py` | Đủ model, prompt_version, token, cost, latency, fallback_used | Đã đọc lại dòng thật, khớp toàn bộ trường | ĐẠT |
+| Phiên bản prompt | Kiểm tra `prompts/v1/` | Không ghi đè phiên bản cũ | Chỉ có `v1` với 5 tệp; không phiên bản nào bị sửa | ĐẠT |
+| Chất lượng tiếng Việt | Đọc 10 câu trả lời (GD-001..GD-010) | Đúng ngữ pháp, thuật ngữ chuẩn | 10/10 đạt; chi tiết mục 4.5 | ĐẠT |
+| Chi phí trung bình | `evaluation/results/gen_bench_20261121-162241.json` | Ghi USD/câu | 0,0 USD/câu đo được (dự phòng, giá 0); ước tính Gemini 0,0119 USD/câu (mục 5) | ĐẠT (có ghi chú) |
 | `make lint` / `make test` | `make lint`, `make test` | Chạy được | GNU Make 4.4.1 bản Windows32 không mở được đường dẫn `D:\Đồ Án RAG` (ký tự `Đ`, ổ D không có tên 8.3) | KHÔNG CHẠY ĐƯỢC — đã chạy đúng các lệnh bên trong target |
 
 ## 3. So sánh trước/sau CoT
@@ -209,6 +212,27 @@ query_logs (dòng mới nhất):
   metadata.schema_retries: 0
 ```
 
+### 4.5 Chất lượng tiếng Việt
+
+Đọc 10 câu trả lời đầu của điều kiện "sau CoT" trong
+`evaluation/results/gen_bench_20261121-162241.json` (GD-001..GD-010, điểm judge 1,0):
+
+- **Ngữ pháp:** câu đủ chủ–vị, dùng đúng dấu câu; các từ nối ("Theo tài liệu", "Ngoài ra",
+  "Tóm lại") đặt đúng chỗ; không có câu cụt hay cú pháp lai tiếng Anh.
+- **Thuật ngữ:** giữ nguyên tiếng Anh và viết đúng chuẩn AWS — EC2, EBS, instance store,
+  Reserved Instance, Savings Plans, On-Demand, Spot, Auto Scaling, Availability Zone,
+  ALB/NLB, cross-zone load balancing, Fargate, IAM role, external ID, confused deputy,
+  access key, Secrets Manager, Parameter Store, WAF, Shield, geo restriction, Origin Access
+  Control, CloudTrail, Object Lock, presigned URL.
+- **Cấu trúc:** câu nhiều ý dùng gạch đầu dòng; GD-004 (so sánh ALB/NLB) dùng bảng cùng
+  tiêu chí và ghi rõ ô "không có trong tài liệu"; câu K3 (GD-007, GD-010) phân rã ý theo
+  từng ràng buộc trước khi kết luận.
+- **Độ chắc chắn:** không câu nào dùng từ ngữ suy đoán kiểu "chắc là"; `confidence` 0,88–0,97
+  khớp với việc mọi khẳng định đều có trích dẫn.
+
+Kết luận: đạt trên 10/10 câu. Đây là đánh giá thủ công trên mẫu nhỏ, không phải thang đo tự
+động, và không loại trừ lỗi diễn đạt nhỏ ngoài 10 câu này.
+
 ## 5. Chi phí và độ trễ
 
 - **Độ trễ:** trung bình 10,9 giây/câu (trước CoT) và 10,8 giây/câu (sau CoT) trên DeepSeek.
@@ -251,10 +275,11 @@ query_logs (dòng mới nhất):
 
 | Tiêu chí | Kết quả |
 | :--- | :--- |
-| Prompt v1 đủ 5 tệp, có mục tiêu/quy tắc/định dạng/ví dụ, không ghi đè phiên bản cũ | Đạt |
+| Prompt v1 đủ 5 tệp, có mục tiêu/quy tắc/định dạng; 4 tệp có mục ví dụ riêng (`system_cot.md` nêu ví dụ ngay trong các bước), không ghi đè phiên bản cũ | Đạt |
 | CoT tách bước suy luận trước kết luận; câu nhiều ràng buộc có bảng kiểm | Đạt |
 | Schema JSON + Pydantic, retry tối đa 1 lần khi sai schema | Đạt |
 | Mọi khẳng định có trích dẫn `[tài liệu – mục Y]`; hậu kiểm đối chiếu ngữ cảnh | Đạt (10/10 câu, 100% hiệu lực) |
+| Câu trả lời tiếng Việt đúng ngữ pháp, giữ thuật ngữ AWS chuẩn | Đạt (10/10 câu đọc thủ công, mục 4.5) |
 | Từ chối đúng khi thiếu căn cứ; phân biệt `no_evidence`/`out_of_scope` | Đạt (10/10 câu ngoài phạm vi) |
 | Không từ chối sai câu trong phạm vi | Đạt (0/20) |
 | `LLMProvider` + `GeminiAdapter` + `OpenAICompatAdapter` + `FallbackChain` | Đạt |
