@@ -15,6 +15,7 @@ Phạm vi: xây dựng và chạy pipeline nạp tri thức từ PDF AWS SAA-C03
 | `ingestion/loaders/` | Loader pdfplumber: giữ thứ tự trang, chuẩn hóa Unicode NFC, trích bảng sang Markdown/HTML kèm metadata `{type, page, rows, cols}`, đếm trang lỗi/rỗng, bỏ qua `data/external_test` |
 | `ingestion/sections.py` | Phân tích cấu trúc mục “Câu N:” của ngân hàng câu hỏi |
 | `ingestion/questions.py` | Trích câu hỏi có cấu trúc: `id, question, options A–D, answer, explanation, domain, topic, source_page, language` |
+| `ingestion/answer_overrides.json` | Đáp án bổ sung thủ công cho 21 câu không trích được từ PDF, kèm căn cứ (`explicit`/`elimination`) và ghi chú; chỉ áp dụng khi trích tự động thất bại |
 | `ingestion/domains.py` | Chuẩn hóa 4 lĩnh vực blueprint + 7 câu gán tay (`MISSING_DOMAIN_OVERRIDES`) |
 | `ingestion/chunking.py` | Chunking cha–con: cha 800–1200 token (cả mục), con 300–500 token, chồng lấn ~12%; `chunk_id` UUIDv5 tất định, checksum SHA-256, `parent_id` cho chunk con |
 | `ingestion/embeddings.py` | Gemini `gemini-embedding-001` 768 chiều: `batchEmbedContents`, pacing 28k token/phút, retry/backoff, xoay vòng nhiều khóa, callback checkpoint |
@@ -45,12 +46,13 @@ Phạm vi: xây dựng và chạy pipeline nạp tri thức từ PDF AWS SAA-C03
 
 | Hạng mục | Lệnh | Kỳ vọng | Thực tế | Đạt |
 | :--- | :--- | :--- | :--- | :--- |
-| Unit test pipeline nạp | `pytest tests/ingestion -q` | Tất cả đạt | `40 passed in 0.32s` | Đạt |
+| Unit test pipeline nạp | `pytest tests/ingestion -q` | Tất cả đạt | `43 passed in 0.32s` | Đạt |
 | Unit test bảng | `pytest tests/ingestion/test_tables.py -q` | Tất cả đạt | `3 passed in 0.01s` | Đạt |
-| Toàn bộ test repo | `make -f Makefile test` | Tất cả đạt | `43 passed, 1 warning in 0.82s` | Đạt |
+| Toàn bộ test repo | `make -f Makefile test` | Tất cả đạt | `46 passed, 1 warning in 0.63s` | Đạt |
 | Lint | `make -f Makefile lint` | Không lỗi | ruff: All checks passed; black: 35 tệp không đổi; eslint: sạch | Đạt |
 | Nạp lần 1 | `make -f Makefile ingest` (`data/processed/ingest-run1.log`) | Ghi đủ tài liệu, exit 0 | 6 tài liệu nạp + 1 bỏ qua (đã có), 1.775 chunk, 390 câu, 1.240,17 giây, `exit=0` | Đạt |
 | Nạp lần 2 (idempotent) | `make -f Makefile ingest` (`data/processed/ingest-run2.log`) | Không tạo bản ghi trùng, số đếm không đổi | 0 nạp mới, 7 bỏ qua, chunk 1.775, câu hỏi 390 (không đổi), 1,0 giây, `exit=0` | Đạt |
+| Nạp lại với đáp án bổ sung (`PIPELINE_VERSION` 1.0.1) | `make -f Makefile ingest ARGS=--force` | 390/390 câu có đáp án, số đếm không đổi | 7 nạp, 0 bỏ qua, 0 lỗi; 1.775 chunk, 390 câu; 89,91 giây; 1.775 vector dùng bộ đệm; hậu kiểm `correct_answer` NULL = 0 | Đạt |
 | Chunk rỗng | `check_ingestion.py` | `empty_chunks = 0` | 0 | Đạt |
 | Embedding NULL | `check_ingestion.py` | `null_embeddings = 0` | 0 | Đạt |
 | Đúng 768 chiều | `check_ingestion.py` | `wrong_dimensions = 0` | 0 | Đạt |
@@ -96,8 +98,8 @@ Nguồn: `data/processed/ingestion_stats.json` (lần chạy 2, khớp lần 1) 
 | Chỉ số | Giá trị |
 | :--- | :--- |
 | Tổng câu hỏi | 390 (độ phủ 100% so với kỳ vọng 390) |
-| Có đáp án đúng trích được | 369/390 |
-| Không trích được đáp án đúng | 21 (ghi nhận ở `docs/ingestion-analysis.md`) |
+| Có đáp án đúng | 390/390 (369 trích tự động + 21 bổ sung thủ công) |
+| Trong đó bổ sung thủ công | 21 câu từ `ingestion/answer_overrides.json`; metadata `answer_source = manual_review`, kèm `answer_override_basis` (15 `explicit`, 6 `elimination`) và `answer_override_note` |
 | Domain — Secure | 116 (29,74%) |
 | Domain — Resilient | 105 (26,92%) |
 | Domain — High-Performing | 131 (33,59%) |
@@ -106,7 +108,7 @@ Nguồn: `data/processed/ingestion_stats.json` (lần chạy 2, khớp lần 1) 
 ## 4. Vấn đề và rủi ro
 
 1. **Hạn mức Gemini miễn phí chặn quá trình nạp.** Free tier giới hạn 1.000 request embedding/ngày **tính theo project × model** (không theo khóa) và 30.000 token/phút; `batchEmbedContents` tính từng đoạn văn là một request. Cần 1.717 request cho toàn bộ chunk. Đã xử lý bằng: (a) bộ đệm embedding ra đĩa — cạn hạn mức ở 991/1.717 vector nhưng không mất dữ liệu; (b) khóa mới phải thuộc **project mới** (khóa trong cùng project dùng chung hạn mức đã cạn — đã kiểm chứng bằng thực nghiệm); (c) hỗ trợ khai báo nhiều khóa dạng `khóa1,khóa2` để tự xoay vòng. Bằng chứng: `data/processed/ingest-run1-failed-429.log` (lần thử đầu, chưa có bộ đệm), `ingest-run1a-quota.log`, `ingest-run1b-quota.log`.
-2. **21/390 câu không trích được đáp án đúng** (để `correct_answer = NULL`). Ảnh hưởng trực tiếp đến việc dùng ngân hàng câu hỏi làm ground truth ở Giai đoạn 2 — cần rà soát/bổ sung thủ công 21 câu này trước khi chọn tập test.
+2. **21/390 câu không trích được đáp án tự động** — đã bổ sung thủ công trong `ingestion/answer_overrides.json` (15 câu có căn cứ trực tiếp, 6 câu loại trừ), có ghi chú và được nạp lại; hiện 390/390 câu có `correct_answer`. Hạn chế còn lại: 12/21 câu chỉ dựng được một phương án (đáp án đúng) vì phần phân tích nhiễu không có trong PDF — khi dùng làm câu trắc nghiệm ở Giai đoạn 2 cần soạn phương án nhiễu thủ công; 9 câu còn lại có 3–4 phương án.
 3. **Phân bố domain lệch blueprint:** blueprint SAA-C03 yêu cầu trọng số 30/26/24/20 (Secure/Resilient/High-Performing/Cost-Optimized), nhưng ngân hàng câu hỏi thực tế có Cost-Optimized chỉ 9,74% và High-Performing 33,59%. Giai đoạn 2 cần tạo câu tự biên soạn để cân bằng (đồng thời phục vụ W13).
 4. **Kho dữ liệu có 0 bảng:** nhánh trích bảng (W2) chưa được kiểm chứng trên dữ liệu thật, chỉ qua unit test với PDF tổng hợp. Rủi ro khi thêm tài liệu mới có bảng ở Giai đoạn 3.
 5. **Sai lệch nhỏ về kích thước chunk cha:** mục tiêu 800–1200 token; một số mục “Câu N” rất dài của ngân hàng câu hỏi tạo chunk cha tới ~1.318 token do không thể cắt ngang ranh giới câu hỏi. Chunk con vẫn trong dải 300–500 token.
@@ -115,7 +117,7 @@ Nguồn: `data/processed/ingestion_stats.json` (lần chạy 2, khớp lần 1) 
 
 ## 5. Đề xuất cho giai đoạn 2
 
-1. **Rà soát 21 câu thiếu đáp án** và bổ sung thủ công trước khi đóng băng tập test; nếu không, loại khỏi tập đánh giá để tránh nhiễu.
+1. **Rà soát 21 câu đã bổ sung thủ công** khi xây ground truth; với 12 câu chỉ có một phương án, soạn phương án nhiễu trước khi dùng làm MCQ; không dùng đáp án thủ công để tinh chỉnh mô hình.
 2. **Tách dev/test từ 390 câu đã nạp**, đóng băng tập test ngay từ đầu Giai đoạn 2; không dùng tập test để tinh chỉnh (quy tắc bất biến 4).
 3. **Tự biên soạn câu hỏi mới** cho các domain thiếu (đặc biệt Cost-Optimized) để bám trọng số blueprint 30/26/24/20 và xử lý W13 (tránh LLM đã thấy đề công khai).
 4. **Chuẩn bị ground truth truy xuất** cho Giai đoạn 4: với mỗi câu trong tập dev/test, xác định chunk/tài liệu chứa bằng chứng, lưu thành tệp JSON trong `evaluation/`.
@@ -128,7 +130,7 @@ Nguồn: `data/processed/ingestion_stats.json` (lần chạy 2, khớp lần 1) 
 | 1 | Script phân tích cấu trúc PDF, chạy trước pipeline, kết quả `docs/ingestion-analysis.md` | `ingestion/inspect.py` + `docs/ingestion-analysis.md` | ✓ |
 | 2 | Loader pdfplumber giữ thứ tự trang, chuẩn hóa Unicode NFC | `ingestion/loaders/`, unit test chuẩn hóa | ✓ |
 | 3 | Trích bảng → Markdown/HTML kèm metadata `{type, page, rows, cols}` | Đã cài đặt + 3 unit test; kho dữ liệu hiện có 0 bảng | ✓ (điều chỉnh) |
-| 4 | Trích câu hỏi cấu trúc đủ trường | 390 câu; 369 có đáp án (21 thiếu, đã ghi nhận) | ✓ |
+| 4 | Trích câu hỏi cấu trúc đủ trường | 390 câu; 390 có đáp án (369 tự động + 21 bổ sung thủ công có căn cứ) | ✓ |
 | 5 | Chunking cha–con 800–1200/300–500 token, chồng lấn 10–15%, `parent_id` | 514 cha + 1.261 con; chồng lấn ~12%; `parent_id` đủ | ✓ |
 | 6 | Embedding Gemini 768 chiều, batch, retry, checksum nội dung | `gemini-embedding-001`, 1.717 vector, 0 retry cuối cùng, checksum từng chunk | ✓ |
 | 7 | Ghi Supabase `documents`, `chunks`, `questions`, chỉ mục HNSW + GIN | 7/1.775/390 bản ghi; chỉ mục tạo qua migration | ✓ |
@@ -197,6 +199,16 @@ exit=0
 ```
 
 (Ba lần đầu đều dừng do hạn mức; từ lần 16:05 trở đi có bộ đệm nên không mất vector nào. Lần chạy 20:07 UTC với khóa thuộc project mới hoàn tất toàn bộ.)
+
+**A.6 Nạp lại với đáp án bổ sung** (UTC 2026-11-20 03:59–04:01, `data/processed/ingestion_stats.json`):
+
+```
+{"time": "2026-11-20T03:59:36+00:00", "event": "start", "input": "D:\\Đồ Án RAG\\data\\raw", "version": "v1", "force": true, "pipeline_version": "1.0.1"}
+{"time": "2026-11-20T04:00:53+00:00", "event": "embed_start", "chunks": 1775, "cached": 1775, "missing": 0, "keys": 1}
+{"time": "2026-11-20T04:01:06+00:00", "event": "summary", "ingested": 7, "skipped": 0, "failed": 0, "chunks": 1775, "questions": 390, "seconds": 89.91, ...}
+```
+
+Hậu kiểm: `Câu hỏi: 390, có correct_answer: 390, NULL: 0`; `answer_source` có `manual_review: 21`.
 
 ---
 

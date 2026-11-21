@@ -1,0 +1,109 @@
+{
+  "data/raw/aws-saa-question-bank.pdf": {
+    "67": {
+      "correct_answer": "Việc triển khai máy chủ Bastion Windows với địa chỉ IP tĩnh (Elastic IP) trong mạng con công cộng và hạn chế quyền truy cập RDP vào máy chủ Bastion chỉ từ các địa chỉ IP công cộng của công ty",
+      "basis": "elimination",
+      "note": "Ba phương án còn lại bị bác bỏ; giải thích nêu bastion phải ở mạng con công cộng với Elastic IP và dùng RDP."
+    },
+    "112": {
+      "correct_answer": "Việc sử dụng Amazon SQS và Amazon SWF để xây dựng kiến trúc tách rời giữa tài nguyên AWS và tại chỗ",
+      "basis": "explicit",
+      "note": "Mở đầu giải thích nêu SQS và SWF là dịch vụ xây dựng kiến trúc tách rời; các phương án RDS/DynamoDB/VPC peering bị bác bỏ."
+    },
+    "142": {
+      "correct_answer": "Việc cấu hình Nhóm bảo mật của phiên bản EC2 để cho phép lưu lượng truy cập đến qua cổng 22 từ địa chỉ IP của bạn",
+      "basis": "elimination",
+      "note": "Giải thích yêu cầu mở cổng 22 trong nhóm bảo mật; NACL là không cần thiết, cổng 3389 là RDP."
+    },
+    "143": {
+      "correct_answer": "Việc tạo kết nối VPC peering giữa các VPC DEV và PROD",
+      "basis": "elimination",
+      "note": "Giải thích nêu phải thiết lập kết nối VPC peering giữa hai VPC; chỉ thêm mục bảng định tuyến là chưa đủ."
+    },
+    "190": {
+      "correct_answer": "Sử dụng phiên bản Amazon EC2 Spot cho khối lượng công việc hàng loạt không ưu tiên và có thể bị gián đoạn",
+      "basis": "explicit",
+      "note": "Giải thích mô tả EC2 Spot là dung lượng dự phòng với giá chiết khấu; Reserved/On-Demand phù hợp workload ổn định."
+    },
+    "233": {
+      "correct_answer": "Việc tạo một hoặc nhiều bản sao đọc (Read Replicas) của phiên bản cơ sở dữ liệu nguồn và phục vụ lưu lượng truy cập đọc từ các bản sao",
+      "basis": "explicit",
+      "note": "Giải thích mô tả Read Replicas để mở rộng khả năng đọc; Multi-AZ, sao chép dự phòng và SQS đều bị bác bỏ."
+    },
+    "234": {
+      "correct_answer": "Sử dụng tính năng RDS Enhanced Monitoring (Giám sát nâng cao) để xem các chỉ số hệ điều hành theo thời gian thực",
+      "basis": "explicit",
+      "note": "Giải thích nêu kịch bản yêu cầu chỉ số Enhanced Monitoring; các chỉ số CloudWatch thông thường bị loại."
+    },
+    "256": {
+      "correct_answer": "Tạo chính sách vòng đời (lifecycle policy) trên bucket S3 để tự động chuyển các đối tượng sang lớp lưu trữ Glacier",
+      "basis": "explicit",
+      "note": "Giải thích mô tả chính sách vòng đời S3 chuyển đối tượng sang lớp lưu trữ Glacier."
+    },
+    "268": {
+      "correct_answer": "Trên Nhóm bảo mật, thêm quy tắc đến cho phép lưu lượng SSH; trên NACL, thêm cả quy tắc vào và quy tắc ra để cho phép lưu lượng SSH đến phiên bản EC2",
+      "basis": "explicit",
+      "note": "Giải thích liệt kê hai bước: quy tắc đến trong nhóm bảo mật và cả quy tắc vào/ra trong NACL."
+    },
+    "272": {
+      "correct_answer": "Tăng thời gian lưu giữ tin nhắn của hàng đợi SQS lên tối đa 14 ngày bằng hành động SetQueueAttributes",
+      "basis": "explicit",
+      "note": "Giải thích: thời gian lưu giữ mặc định 4 ngày; tăng tối đa 14 ngày bằng SetQueueAttributes."
+    },
+    "278": {
+      "correct_answer": "Sử dụng AWS Glue — dịch vụ ETL được quản lý hoàn toàn — để chuẩn bị và tải dữ liệu luồng nhấp chuột trong Amazon S3",
+      "basis": "explicit",
+      "note": "Giải thích mô tả AWS Glue là dịch vụ trích xuất, chuyển đổi và tải được quản lý hoàn toàn."
+    },
+    "280": {
+      "correct_answer": "Việc tạo một ổ đĩa EBS được mã hóa và gắn nó vào phiên bản EC2; dữ liệu ở trạng thái tĩnh, dữ liệu truyền tải và các ảnh chụp nhanh đều được mã hóa",
+      "basis": "explicit",
+      "note": "Giải thích mô tả phạm vi mã hóa EBS: dữ liệu tĩnh, dữ liệu truyền tải, ảnh chụp nhanh và ổ đĩa tạo từ ảnh chụp nhanh."
+    },
+    "295": {
+      "correct_answer": "Ảnh chụp nhanh EBS được tạo không đồng bộ và ở trạng thái pending cho đến khi hoàn tất; ổ đĩa EBS vẫn sử dụng bình thường trong thời gian đó",
+      "basis": "explicit",
+      "note": "Giải thích: ảnh chụp nhanh tạo không đồng bộ, trạng thái pending đến khi hoàn tất; ổ đĩa vẫn dùng bình thường."
+    },
+    "296": {
+      "correct_answer": "Tin nhắn gửi đến chủ đề SNS được sao chép và đẩy đến tất cả các hàng đợi SQS đã đăng ký chủ đề đó",
+      "basis": "elimination",
+      "note": "Giải thích mô tả fanout: SNS sao chép tin nhắn đến nhiều hàng đợi SQS; ba phương án còn lại bị bác bỏ."
+    },
+    "299": {
+      "correct_answer": "Amazon DynamoDB — cơ sở dữ liệu NoSQL được quản lý hoàn toàn, không giới hạn dung lượng bảng",
+      "basis": "explicit",
+      "note": "Giải thích nêu trực tiếp: 'Amazon DynamoDB là câu trả lời phù hợp'."
+    },
+    "316": {
+      "correct_answer": "Amazon Kinesis — dịch vụ thu thập, xử lý và phân tích dữ liệu theo thời gian thực",
+      "basis": "explicit",
+      "note": "Giải thích nêu trực tiếp: 'dịch vụ phù hợp để sử dụng ở đây là Amazon Kinesis'."
+    },
+    "320": {
+      "correct_answer": "AWS CloudTrail — dịch vụ ghi nhật ký các thao tác trên Bảng điều khiển quản lý AWS và các lệnh gọi API",
+      "basis": "elimination",
+      "note": "Giải thích mô tả CloudTrail; CloudWatch, X-Ray và API Gateway đều bị bác bỏ."
+    },
+    "321": {
+      "correct_answer": "Việc sử dụng CloudTrail và chọn mã hóa các tệp nhật ký bằng khóa AWS Key Management Service (AWS KMS)",
+      "basis": "explicit",
+      "note": "Giải thích nêu có thể chọn mã hóa tệp nhật ký bằng khóa AWS KMS; các phương án Glacier/SSE/AES-128 bị bác bỏ."
+    },
+    "322": {
+      "correct_answer": "Cấu hình kiểm tra trạng thái (health check) đúng cho nhóm mục tiêu của Application Load Balancer",
+      "basis": "explicit",
+      "note": "Giải thích nêu nguyên nhân do cấu hình health check trong nhóm mục tiêu; AMI/loại phiên bản/mạng con bị loại."
+    },
+    "338": {
+      "correct_answer": "Khi bạn cần băng thông cao hơn, hiệu suất gói mỗi giây (PPS) cao hơn và độ trễ giữa các phiên bản thấp hơn",
+      "basis": "elimination",
+      "note": "Giải thích: Enhanced Networking cho băng thông và PPS cao hơn, độ trễ thấp hơn; ba phương án còn lại bị bác bỏ."
+    },
+    "361": {
+      "correct_answer": "Sử dụng Amazon EFS — hệ thống tệp được quản lý hoàn toàn cho phép kết nối đồng thời từ nhiều phiên bản EC2",
+      "basis": "explicit",
+      "note": "Giải thích nêu trực tiếp: 'hãy luôn cân nhắc sử dụng EFS thay vì sử dụng EBS Volumes'."
+    }
+  }
+}

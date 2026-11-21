@@ -6,7 +6,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_INPUT = PROJECT_ROOT / "data" / "raw"
 DEFAULT_VERSION = "v1"
-PIPELINE_VERSION = "1.0.0"
+PIPELINE_VERSION = "1.0.1"
 DEFAULT_STATS_PATH = PROJECT_ROOT / "data" / "processed" / "ingestion_stats.json"
 DEFAULT_EMBED_CACHE_PATH = PROJECT_ROOT / "data" / "processed" / "embed_cache.json"
 DEFAULT_ANALYSIS_PATH = PROJECT_ROOT / "docs" / "ingestion-analysis.md"

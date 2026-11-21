@@ -127,6 +127,8 @@ Không thêm biến cho dịch vụ parse PDF bên ngoài.
 ## 10. Trạng thái dự án
 
 - **Giai đoạn 0 — Hoàn thành:** khung repo, backend `/health`, frontend khung, migration khởi tạo, CI, skills, báo cáo tại `docs/phase-0-report.md`.
-- **Giai đoạn 1 — Hoàn thành:** pipeline nạp tri thức (pdfplumber, trích câu hỏi, chunking cha–con, embedding Gemini 768, Supabase); kho hiện có 7 tài liệu, 1.775 chunk, 390 câu hỏi; báo cáo tại `docs/phase-1-report.md`.
-- **Giai đoạn 2 — Tiếp theo:** xây bộ kiểm thử và khung đánh giá (chưa bắt đầu).
-- Kho tri thức đã có dữ liệu thật; chưa có chức năng RAG trong mã nguồn (Giai đoạn 4–7).
+- **Giai đoạn 1 — Hoàn thành:** pipeline nạp tri thức (pdfplumber, trích câu hỏi, chunking cha–con, embedding Gemini 768, Supabase); kho hiện có 7 tài liệu, 1.775 chunk, 390 câu hỏi (390/390 có đáp án, trong đó 21 câu bổ sung thủ công có căn cứ tại `ingestion/answer_overrides.json`); báo cáo tại `docs/phase-1-report.md`.
+- **Giai đoạn 2–3 (cách đánh số của đề bài đồ án) — tương ứng Giai đoạn 4–5 dưới đây:**
+  - **Giai đoạn 4 — Hoàn thành:** tầng truy hồi lai (vector HNSW + full-text + trigram + RRF k=60 + reranker đa ngôn ngữ + top-k thích ứng + mở rộng mục cha); dev set 40 câu; báo cáo tại `docs/phase-2-report.md` (đề bài gọi là Giai đoạn 2).
+  - **Giai đoạn 5 — Một phần:** tầng sinh câu trả lời có kiểm chứng (prompt v1, schema JSON, CoT, hậu kiểm trích dẫn, từ chối `no_evidence`/`out_of_scope`), lớp `LLMProvider` (Gemini + adapter tương thích OpenAI + chuỗi dự phòng), ghi `query_logs`. Khóa Gemini hết hạn mức (HTTP 429) nên benchmark chạy bằng provider dự phòng; tiêu chí CoT tăng ≥5 điểm % chưa đạt. Báo cáo tại `docs/phase-3-report.md` (đề bài gọi là Giai đoạn 3).
+- Kho tri thức đã có dữ liệu thật; chưa có session/streaming/giao diện RAG (Giai đoạn 6–7).

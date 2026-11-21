@@ -223,7 +223,7 @@ Phân bố token mục lý thuyết: <300: 32; 300–799: 82; 800–1.200: 1; >1
 ## 6. Hàm ý cho pipeline Giai đoạn 1
 
 1. **Chunking cha–con:** mỗi đề mục là đơn vị ngữ nghĩa. Với ngân hàng câu hỏi, chunk cha là một câu (hoặc một phần của câu nếu >1.200 token); với tài liệu lý thuyết, các mục ngắn cùng lĩnh vực được gộp đến ngưỡng 800–1.200 token. Chunk con 300–500 token, chồng lấn 10–15%, luôn mang tiêu đề mục và số trang.
-2. **Trích câu hỏi:** lấy số câu từ `Câu N:`, tiêu đề từ dòng tiêu đề (nối các dòng bị ngắt), lĩnh vực từ `Lĩnh vực:`, đáp án đúng từ các mẫu câu, phương án nhiễu từ các đoạn phân tích. Câu không xác định được đáp án được lưu với `correct_answer = null` và cảnh báo, không suy diễn.
+2. **Trích câu hỏi:** lấy số câu từ `Câu N:`, tiêu đề từ dòng tiêu đề (nối các dòng bị ngắt), lĩnh vực từ `Lĩnh vực:`, đáp án đúng từ các mẫu câu, phương án nhiễu từ các đoạn phân tích. Câu không xác định được đáp án được lưu với `correct_answer = null` và cảnh báo, không suy diễn; 21 câu như vậy đã được bổ sung thủ công trong `ingestion/answer_overrides.json` (kèm căn cứ `explicit`/`elimination` và ghi chú), pipeline chỉ áp dụng khi trích tự động thất bại.
 3. **Phương án A–D:** không có trong PDF. Tái dựng từ đáp án đúng và các đoạn nhiễu; ghi rõ nguồn trong metadata và không tạo phương án giả khi thiếu căn cứ.
 4. **Lĩnh vực:** chuẩn hóa 9 nhãn gốc về 4 mã; 7 câu thiếu dòng lĩnh vực dùng bảng gán thủ công và metadata `domain_source = override`.
 5. **Bảng:** corpus hiện tại không có bảng; chức năng trích bảng vẫn được kiểm thử bằng mẫu tổng hợp.
@@ -233,4 +233,4 @@ Phân bố token mục lý thuyết: <300: 32; 300–799: 82; 800–1.200: 1; >1
 
 ## 7. Kết luận
 
-Corpus gồm 7 tài liệu, 545 trang, 390 câu hỏi và 115 mục lý thuyết. Cấu trúc đề mục ổn định (`Câu N:` và `Mục X.Y:`), lớp văn bản đầy đủ, không có bảng/ảnh. Ba rủi ro chính cần xử lý minh bạch: thiếu phương án A–D, 7 câu thiếu nhãn lĩnh vực và một phần câu hỏi không có mẫu đáp án chính xác rõ ràng.
+Corpus gồm 7 tài liệu, 545 trang, 390 câu hỏi và 115 mục lý thuyết. Cấu trúc đề mục ổn định (`Câu N:` và `Mục X.Y:`), lớp văn bản đầy đủ, không có bảng/ảnh. Ba rủi ro chính cần xử lý minh bạch: thiếu phương án A–D, 7 câu thiếu nhãn lĩnh vực và 21 câu không có mẫu đáp án chính xác rõ ràng (đã bổ sung thủ công có căn cứ trong `ingestion/answer_overrides.json`).

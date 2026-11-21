@@ -1,0 +1,82 @@
+{
+  "broken_gemini_key": [
+    {
+      "question": "S3 Standard phù hợp với loại dữ liệu nào và độ bền được cam kết ra sao?",
+      "provider": "deepseek_fallback",
+      "model": "deepseek-flash",
+      "fallback_used": "deepseek_fallback",
+      "attempts": [
+        "gemini_primary",
+        "deepseek_fallback"
+      ],
+      "latency_ms": 5838.6,
+      "abstained": true,
+      "answer": "Tài liệu hiện có chưa đề cập đến đặc điểm và độ bền được cam kết của lớp S3 Standard. Mình không thể trả lời chính xác phần này. Bạn có thể hỏi về các chủ đề đang có như S3 Standard-IA (Mục 1.4), S3 One Zone-IA (Mục 1.5) hoặc S3 Glacier Instant Retrieval (Mục 1.6).",
+      "citation_validity": 1.0,
+      "citations": [],
+      "input_tokens": 6314,
+      "output_tokens": 618
+    },
+    {
+      "question": "Khác biệt chính giữa S3 Standard-IA và S3 One Zone-IA là gì?",
+      "provider": "deepseek_fallback",
+      "model": "deepseek-flash",
+      "fallback_used": "deepseek_fallback",
+      "attempts": [
+        "gemini_primary",
+        "deepseek_fallback"
+      ],
+      "latency_ms": 12539.5,
+      "abstained": false,
+      "answer": "**Khác biệt chính: số Availability Zone (và do đó là độ bền vững/khả năng sẵn sàng) cùng mức giá.**\n\n| Tiêu chí | S3 Standard-IA | S3 One Zone-IA |\n| :--- | :--- | :--- |\n| Số Availability Zone | Thuộc nhóm lớp đa Availability Zone, dữ liệu được lưu trên tối thiểu ba AZ, độ bền t",
+      "citation_validity": 1.0,
+      "citations": [
+        "S3 Storage Classes – Mục 1.1",
+        "S3 Storage Classes – Mục 1.5",
+        "S3 Storage Classes – Mục 1.1",
+        "S3 Storage Classes – Mục 1.5"
+      ],
+      "input_tokens": 7562,
+      "output_tokens": 2416
+    },
+    {
+      "question": "Khi nào nên dùng S3 Glacier Deep Archive thay vì S3 Glacier Flexible Retrieval?",
+      "provider": "deepseek_fallback",
+      "model": "deepseek-flash",
+      "fallback_used": "deepseek_fallback",
+      "attempts": [
+        "gemini_primary",
+        "deepseek_fallback"
+      ],
+      "latency_ms": 17328.5,
+      "abstained": false,
+      "answer": "Cả hai đều là lớp lưu trữ lạnh trong nhóm lưu trữ lạnh của S3, có chi phí lưu trữ thấp nhất nhưng đổi lại thời gian truy xuất lâu hơn hoặc phí truy xuất cao hơn [S3 Storage Classes – Mục 1.1]. Điểm khác biệt quyết định nằm ở **thời gian khôi phục chấp nhận được** và **thời gian l",
+      "citation_validity": 1.0,
+      "citations": [
+        "S3 Storage Classes – Mục 1.1",
+        "S3 Storage Classes – Mục 1.8",
+        "S3 Storage Classes – Mục 1.7",
+        "S3 Storage Classes – Mục 1.8"
+      ],
+      "input_tokens": 7458,
+      "output_tokens": 3690
+    }
+  ],
+  "missing_gemini_key": [
+    {
+      "question": "S3 Standard phù hợp với loại dữ liệu nào và độ bền được cam kết ra sao?",
+      "provider": "deepseek_fallback",
+      "model": "deepseek-flash",
+      "fallback_used": null,
+      "attempts": [],
+      "latency_ms": 3441.0,
+      "abstained": true,
+      "answer": "Tài liệu hiện có chưa đề cập đến đặc điểm của lớp S3 Standard (loại dữ liệu phù hợp và độ bền cam kết). Mình không thể trả lời chính xác phần này.\n\nBạn có thể hỏi về các chủ đề đang có trong tài liệu như: S3 Standard-IA (Mục 1.4), S3 One Zone-IA (Mục 1.5), hoặc S3 Glacier Instant",
+      "citation_validity": 1.0,
+      "citations": [],
+      "input_tokens": 6314,
+      "output_tokens": 728
+    }
+  ],
+  "all_fell_back": true
+}

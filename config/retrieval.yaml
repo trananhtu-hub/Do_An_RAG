@@ -1,0 +1,159 @@
+# Cấu hình tầng truy hồi lai — Chatbot RAG AWS SAA-C03.
+# Mọi tham số vận hành nằm ở đây; mã nguồn không hard-code giá trị.
+# Sửa xong chạy: python evaluation/retrieval_bench.py --config config/retrieval.yaml
+
+version: 1
+
+embedding:
+  model: gemini-embedding-001
+  dimensions: 768
+  task_type: RETRIEVAL_QUERY
+  timeout_ms: 8000
+  max_retries: 2
+  cache_size: 512
+
+vector:
+  enabled: true
+  # Trọng số khi hợp nhất RRF (không phải trọng số cộng điểm thô).
+  weight: 1.0
+  candidates: 50
+  # Cosine similarity tối thiểu để giữ ứng viên (1 - khoảng cách cosine).
+  similarity_threshold: 0.5
+  ef_search: 100
+
+# Full-text search PostgreSQL (KHÔNG phải BM25 — xem W12 trong CLAUDE.md).
+lexical:
+  enabled: true
+  weight: 0.3
+  candidates: 50
+  min_term_length: 2
+  max_terms: 24
+  trigram:
+    enabled: true
+    weight: 0.2
+    candidates: 30
+    # Số thuật ngữ tiếng Anh tối thiểu phải khớp (dùng chỉ mục GIN trigram).
+    min_matched_terms: 1
+    min_term_length: 2
+    max_terms: 8
+
+fusion:
+  method: rrf
+  # RRF: score(d) = tổng weight / (k + rank), rank bắt đầu từ 1.
+  k: 60
+  candidates: 30
+
+rerank:
+  enabled: true
+  model: BAAI/bge-reranker-v2-m3
+  candidates: 30
+  batch_size: 16
+  max_length: 512
+  timeout_ms: 3000
+  device: auto
+  precision: fp16
+  warmup: true
+  # Đưa nội dung mục cha (kèm tài liệu/mục/tiêu đề) vào cross-encoder.
+  content_scope: parent
+  context_header: true
+  # Ngân hàng câu hỏi là nguồn phụ khi hỏi lý thuyết; vẫn dùng khi hỏi số câu cụ thể.
+  source_filter:
+    enabled: true
+    exclude_kinds: [question]
+    bypass_patterns:
+      - '\bcâu\s*(?:hỏi\s*)?(?:số\s*)?\d+'
+      - '\bquestion\s*\d+'
+
+classifier:
+  # Heuristic chạy trước; LLM nhẹ chỉ được gọi khi độ tin cậy thấp.
+  llm_enabled: true
+  llm_model: gemini-3.8-flash
+  llm_timeout_ms: 1500
+  min_confidence: 0.6
+
+top_k:
+  adaptive: true
+  default: 5
+  min: 3
+  max: 8
+  token_budget: 6000
+  relative_score_floor: 0.35
+  type_ranges:
+    tra_cuu: [3, 5]
+    so_sanh: [4, 8]
+    nhieu_rang_buoc: [5, 8]
+    tron_thuat_ngu: [4, 7]
+
+decomposition:
+  # Benchmark dev set (Giai đoạn 2) chưa thấy cải thiện Recall/MRR ở chế độ heuristic;
+  # bật lại khi có số đo cho chế độ LLM.
+  enabled: false
+  llm_enabled: true
+  llm_model: gemini-3.8-flash
+  llm_timeout_ms: 2500
+  max_subqueries: 3
+  min_query_words: 18
+  trigger_types: [so_sanh, nhieu_rang_buoc]
+
+parent_child:
+  expand_parent: true
+
+cache:
+  enabled: true
+  ttl_seconds: 3600
+  max_entries: 512
+
+latency:
+  subquery_workers: 3
+
+benchmark:
+  dev_set: evaluation/dev_set.jsonl
+  output_dir: evaluation/results
+  profiles:
+    - name: vector_only
+      overrides:
+        lexical:
+          enabled: false
+        rerank:
+          enabled: false
+        top_k:
+          adaptive: false
+        decomposition:
+          enabled: false
+        classifier:
+          llm_enabled: false
+    - name: hybrid_rrf
+      overrides:
+        rerank:
+          enabled: false
+        top_k:
+          adaptive: false
+        decomposition:
+          enabled: false
+        classifier:
+          llm_enabled: false
+    - name: hybrid_rrf_rerank
+      overrides:
+        top_k:
+          adaptive: false
+        decomposition:
+          enabled: false
+        classifier:
+          llm_enabled: false
+    - name: hybrid_rrf_rerank_adaptive
+      overrides:
+        top_k:
+          adaptive: true
+        decomposition:
+          enabled: false
+        classifier:
+          llm_enabled: false
+    - name: hybrid_rrf_rerank_adaptive_decomposition
+      overrides:
+        top_k:
+          adaptive: true
+        decomposition:
+          enabled: true
+          llm_enabled: false
+        classifier:
+          llm_enabled: false

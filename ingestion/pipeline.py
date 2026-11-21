@@ -35,7 +35,7 @@ from .loaders import (
     load_pdf,
     source_key_for,
 )
-from .questions import ExtractedQuestion, extract_questions
+from .questions import ExtractedQuestion, extract_questions, load_answer_overrides
 from .sections import build_sections
 from .store import Store, StoredDocument
 
@@ -177,12 +177,20 @@ def _is_current(
     return expected_questions == stored.question_count
 
 
-def _parse_document(path: Path, version: str) -> ParsedDocument:
+def _parse_document(
+    path: Path,
+    version: str,
+    answer_overrides: dict[str, dict[int, dict[str, str]]] | None = None,
+) -> ParsedDocument:
     started = time.perf_counter()
     document = load_pdf(path)
     sections = build_sections(document)
     chunks = build_chunks(document, sections, version)
-    questions = extract_questions(document, sections)
+    questions = extract_questions(
+        document,
+        sections,
+        (answer_overrides or {}).get(document.source_key),
+    )
     metadata = _document_metadata(document, chunks, questions, version)
     return ParsedDocument(
         document=document,
@@ -258,7 +266,13 @@ def run_ingestion(
     with Store(settings.database_url) as store:
         store.ensure_indexes()
         existing = store.existing_documents()
+        answer_overrides = load_answer_overrides()
         paths = _input_paths(input_dir)
+        unmatched_overrides = sorted(
+            set(answer_overrides) - {source_key_for(path) for path in paths}
+        )
+        if unmatched_overrides:
+            log_event("override_unmatched", documents=unmatched_overrides)
         log_event(
             "scan",
             input=str(input_dir),
@@ -288,7 +302,7 @@ def run_ingestion(
         for path, checksum in to_process:
             source_key = source_key_for(path)
             try:
-                item = _parse_document(path, version)
+                item = _parse_document(path, version, answer_overrides)
                 parsed.append(item)
                 log_event(
                     "parse",

@@ -9,7 +9,7 @@ description: "Nạp PDF AWS SAA-C03 bằng pdfplumber, chuẩn hóa mục Câu N
 
 Pipeline nạp tài liệu từ PDF vào Supabase/pgvector: trích văn bản bằng **pdfplumber** (chạy cục bộ, không dùng LlamaParse hay dịch vụ parse trả phí), nhận diện cấu trúc mục “Câu N”, tách bảng thành Markdown, tạo chunk cha–con, gắn metadata nguồn và sinh embedding Gemini 768 chiều. Kết quả ghi vào `documents`, `chunks`, `questions`.
 
-Mã nguồn: `ingestion/` — `inspect.py` (khảo sát), `loaders/` (PDF, bảng), `sections.py`, `questions.py`, `chunking.py`, `embeddings.py`, `store.py`, `pipeline.py`.
+Mã nguồn: `ingestion/` — `inspect.py` (khảo sát), `loaders/` (PDF, bảng), `sections.py`, `questions.py`, `chunking.py`, `embeddings.py`, `store.py`, `pipeline.py`, `answer_overrides.json` (đáp án bổ sung thủ công).
 
 ## Khi nào dùng
 
@@ -44,6 +44,14 @@ Mã nguồn: `ingestion/` — `inspect.py` (khảo sát), `loaders/` (PDF, bản
 - Câu hỏi: `external_id`, `question`, `options` A–D, `correct_answer`, `explanation`, `domain`, `topic`, `source_page`, `language`, `checksum`.
 - Không đọc hay nạp bất kỳ tệp nào trong `data/external_test/`.
 
+## Đáp án bổ sung thủ công
+
+- `ingestion/answer_overrides.json` chỉ dùng cho câu mà bộ trích tự động không tìm ra đáp án. Khóa cấp một là `documents.source_key` đầy đủ (ví dụ `data/raw/aws-saa-question-bank.pdf`, không phải tên tệp trần), khóa cấp hai là số câu.
+- Mỗi mục gồm `correct_answer`, `basis` (`explicit` = giải thích nêu trực tiếp, `elimination` = loại trừ các phương án còn lại) và `note` nêu căn cứ tiếng Việt.
+- Override **không ghi đè** đáp án đã trích tự động. Khi được áp dụng, metadata câu hỏi có `answer_source = manual_review`, `answer_override_basis`, `answer_override_note`.
+- Pipeline ghi sự kiện `override_unmatched` nếu khóa tệp không khớp tài liệu nào trong `data/raw` — kiểm tra log này sau mỗi lần nạp.
+- Chỉ bổ sung khi có căn cứ trong chính nội dung PDF; không suy diễn từ kiến thức bên ngoài. Ghi rõ hạn chế nếu chỉ dựng được đáp án mà không có phương án nhiễu.
+
 ## Kiểm thử
 
 ```bash
@@ -57,6 +65,7 @@ make test
 - 100% trang được xử lý; trang thiếu text layer được ghi vào `error_pages`.
 - Mọi chunk có metadata nguồn: tài liệu, trang, đề mục; mọi chunk con trỏ tới cha cùng tài liệu.
 - Không có chunk rỗng, không có embedding NULL, vector đúng 768 chiều.
+- Mọi câu hỏi có `correct_answer`; câu bổ sung thủ công có metadata `manual_review` kèm căn cứ.
 - Chạy hai lần liên tiếp không tăng số bản ghi.
 - Chỉ dùng pdfplumber; không thêm dịch vụ parse PDF bên ngoài.
 - Thống kê tái lập được trong `data/processed/ingestion_stats.json`.

@@ -1,0 +1,72 @@
+# Cấu hình tầng sinh câu trả lời — Chatbot RAG AWS SAA-C03 (Giai đoạn 3).
+# Không hard-code tham số trong mã nguồn; mọi giá trị vận hành nằm ở đây.
+# Khóa API luôn đọc từ biến môi trường, không ghi vào tệp này.
+
+version: 1
+prompt_version: v1
+
+# Mức suy luận mặc định của Gemini 3.8 Flash: low | medium | high.
+# Gemini 3.8 Flash không nhận temperature/top_p/top_k; chỉ dùng thinkingLevel.
+default_thinking_level: medium
+
+# Giới hạn đầu ra cho một câu trả lời JSON (gồm cả bước suy luận).
+max_output_tokens: 8192
+
+# Số lần thử lại khi JSON/schema sai (đề bài yêu cầu tối đa 1 lần).
+schema_retries: 1
+
+# Câu trả lời không từ chối phải có ít nhất một trích dẫn.
+require_citation: true
+
+# Dưới ngưỡng này phải nêu rõ giới hạn độ tin cậy trong câu trả lời.
+confidence_warning_threshold: 0.55
+
+# Ngân sách ngữ cảnh đưa vào prompt (chỉ chunk đã truy hồi).
+max_context_tokens: 8000
+chars_per_token: 3.5
+
+providers:
+  - name: gemini_primary
+    type: gemini
+    enabled: true
+    model: gemini-3.8-flash
+    api_key_env: GEMINI_API_KEY
+    thinking_level: medium
+    timeout_ms: 240000
+    max_retries: 1
+    backoff_base_s: 3.0
+    backoff_max_s: 30.0
+    max_output_tokens: 8192
+    # Giá niêm yết Gemini 3.8 Flash (USD / 1 triệu token), hiệu lực đến 2026-12-31.
+    pricing:
+      input_per_million: 0.75
+      output_per_million: 3.75
+
+  # Dự phòng DeepSeek qua giao diện tương thích OpenAI (chat/completions).
+  # base_url và model đọc từ .env để đổi nhà cung cấp mà không sửa mã.
+  - name: deepseek_fallback
+    type: openai_compat
+    enabled: true
+    api_key_env: OPENAI_API_KEY
+    base_url_env: OPENAI_BASE_URL
+    model_env: OPENAI_MODEL
+    base_url: https://api.deepseek.com/v1
+    model: deepseek-chat
+    timeout_ms: 180000
+    max_retries: 1
+    backoff_base_s: 2.0
+    backoff_max_s: 20.0
+    max_output_tokens: 8192
+    # Không ước tính chi phí dự phòng; báo cáo chỉ tính giá Gemini đã niêm yết.
+    pricing:
+      input_per_million: 0.0
+      output_per_million: 0.0
+
+# Thứ tự thử provider; provider thiếu khóa/địa chỉ bị bỏ qua khi khởi tạo.
+chain:
+  - gemini_primary
+  - deepseek_fallback
+
+logging:
+  enabled: true
+  table: query_logs

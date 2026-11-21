@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any
 
 from .domains import resolve_question_domain
@@ -193,6 +194,47 @@ DISCOURSE_PREFIXES = (
     "điều này có nghĩa là",
 )
 VI_CHARS = set("ăâđêôơưàáảãạằắẳẵặầấẩẫậèéẻẽẹềếểễệìíỉĩịòóỏõọồốổỗộờớởỡợùúủũụừứửữựỳýỷỹỵ")
+
+DEFAULT_ANSWER_OVERRIDES_PATH = Path(__file__).with_name("answer_overrides.json")
+
+
+def load_answer_overrides(path: Path | None = None) -> dict[str, dict[int, dict[str, str]]]:
+    """Đọc đáp án biên tập thủ công cho các câu pipeline không trích được tự động.
+
+    Tệp ánh xạ source_key -> {số câu: {correct_answer, basis, note}}.
+    Chỉ có hiệu lực khi `extract_correct_answer` trả về None, nên không thể
+    ghi đè đáp án đã trích xuất tự động.
+    """
+    target = path or DEFAULT_ANSWER_OVERRIDES_PATH
+    if not target.exists():
+        return {}
+    raw = json.loads(target.read_text(encoding="utf-8"))
+    if not isinstance(raw, dict):
+        raise ValueError(f"Tệp đáp án bổ sung không hợp lệ: {target}")
+    overrides: dict[str, dict[int, dict[str, str]]] = {}
+    for source_key, entries in raw.items():
+        if not isinstance(entries, dict):
+            raise ValueError(f"Mục {source_key} trong tệp đáp án bổ sung không hợp lệ")
+        parsed: dict[int, dict[str, str]] = {}
+        for number, entry in entries.items():
+            if not isinstance(entry, dict):
+                raise ValueError(
+                    f"Câu {number} của {source_key} trong tệp đáp án bổ sung không hợp lệ"
+                )
+            answer = str(entry.get("correct_answer", "")).strip()
+            if not answer:
+                raise ValueError(f"Câu {number} của {source_key} thiếu correct_answer")
+            try:
+                key = int(number)
+            except (TypeError, ValueError) as exc:
+                raise ValueError(f"Số câu không hợp lệ: {number}") from exc
+            parsed[key] = {
+                "correct_answer": answer,
+                "basis": str(entry.get("basis", "")).strip(),
+                "note": str(entry.get("note", "")).strip(),
+            }
+        overrides[str(source_key)] = parsed
+    return overrides
 
 
 @dataclass
@@ -446,11 +488,19 @@ def detect_language(text: str) -> str:
     return "vi" if vietnamese / len(letters) >= 0.004 else "en"
 
 
-def extract_question(section: Section, document: PdfDocument) -> ExtractedQuestion | None:
+def extract_question(
+    section: Section,
+    document: PdfDocument,
+    overrides: dict[int, dict[str, str]] | None = None,
+) -> ExtractedQuestion | None:
     if section.number is None:
         return None
     explanation, references = split_explanation(section.body)
     correct_answer, answer_source = extract_correct_answer(explanation)
+    override = (overrides or {}).get(section.number)
+    if correct_answer is None and override is not None:
+        correct_answer = override["correct_answer"]
+        answer_source = "manual_review"
     wrong_options = extract_wrong_options(explanation, correct_answer)
     options, options_source = build_options(correct_answer, wrong_options)
     domain, domain_source = resolve_question_domain(section.number, section.domain_raw)
@@ -480,6 +530,9 @@ def extract_question(section: Section, document: PdfDocument) -> ExtractedQuesti
         "question_form": "topic_title",
         "warnings": warnings,
     }
+    if override is not None and answer_source == "manual_review":
+        metadata["answer_override_basis"] = override.get("basis", "")
+        metadata["answer_override_note"] = override.get("note", "")
     checksum = sha256_text(
         json.dumps(
             {
@@ -511,12 +564,16 @@ def extract_question(section: Section, document: PdfDocument) -> ExtractedQuesti
     )
 
 
-def extract_questions(document: PdfDocument, sections: list[Section]) -> list[ExtractedQuestion]:
+def extract_questions(
+    document: PdfDocument,
+    sections: list[Section],
+    overrides: dict[int, dict[str, str]] | None = None,
+) -> list[ExtractedQuestion]:
     questions: list[ExtractedQuestion] = []
     for section in sections:
         if section.kind != "question":
             continue
-        question = extract_question(section, document)
+        question = extract_question(section, document, overrides)
         if question is not None:
             questions.append(question)
     questions.sort(key=lambda item: item.number)

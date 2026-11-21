@@ -1,6 +1,8 @@
 from __future__ import annotations
 
-from ingestion.questions import extract_questions
+import json
+
+from ingestion.questions import extract_questions, load_answer_overrides
 from ingestion.sections import build_sections
 
 QUESTION_TEXT = """Câu 1: Thiết kế lưu trữ bền vững cho ứng dụng
@@ -50,6 +52,60 @@ def test_extract_questions_du_truong_va_domain_chuan_hoa(document_factory):
     second = questions[1]
     assert second.domain == "High-Performing"
     assert second.number == 2
+
+
+def test_dap_an_bo_sung_dien_khi_trich_xuat_that_bai(document_factory):
+    text = (
+        "Câu 3: Chủ đề chưa có đáp án\n"
+        "Lĩnh vực: Thiết kế kiến trúc bảo mật\n"
+        "Giải thích tổng quan\n"
+        "Nội dung mô tả dịch vụ phù hợp.\n"
+    )
+    document = document_factory(text)
+    questions = extract_questions(
+        document,
+        build_sections(document),
+        {
+            3: {
+                "correct_answer": "Amazon Kinesis",
+                "basis": "explicit",
+                "note": "Giải thích nêu trực tiếp.",
+            }
+        },
+    )
+    assert questions[0].correct_answer == "Amazon Kinesis"
+    assert questions[0].options[0]["is_correct"] is True
+    assert questions[0].options[0]["text"] == "Amazon Kinesis"
+    assert questions[0].metadata["answer_source"] == "manual_review"
+    assert questions[0].metadata["answer_override_basis"] == "explicit"
+    assert questions[0].metadata["answer_override_note"] == "Giải thích nêu trực tiếp."
+    assert "missing_correct_answer" not in questions[0].metadata["warnings"]
+
+
+def test_dap_an_bo_sung_khong_ghi_de_dap_an_da_trich(document_factory):
+    document = document_factory(QUESTION_TEXT)
+    questions = extract_questions(
+        document,
+        build_sections(document),
+        {1: {"correct_answer": "Đáp án khác", "basis": "explicit", "note": ""}},
+    )
+    assert questions[0].correct_answer == "S3 Standard"
+    assert questions[0].metadata["answer_source"] == "vi_colon"
+    assert "answer_override_note" not in questions[0].metadata
+
+
+def test_load_answer_overrides_doc_tep_va_bo_qua_tep_khong_ton_tai(tmp_path):
+    path = tmp_path / "overrides.json"
+    path.write_text(
+        json.dumps(
+            {"a.pdf": {"5": {"correct_answer": "X", "basis": "explicit", "note": "n"}}},
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    data = load_answer_overrides(path)
+    assert data["a.pdf"][5]["correct_answer"] == "X"
+    assert load_answer_overrides(tmp_path / "khong-ton-tai.json") == {}
 
 
 def test_tieu_de_bi_ngat_dong_duoc_noi_lai(document_factory):
