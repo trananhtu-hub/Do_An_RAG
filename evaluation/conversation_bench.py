@@ -633,6 +633,7 @@ class Runner:
     def run_scenario(self, scenario: Scenario) -> dict[str, Any]:
         service = self.chat_service()
         session = service.create_session(USER_ID, title=f"{scenario.code} — {scenario.title}")
+        print(f"[{scenario.code}] bắt đầu: {scenario.title}", flush=True)
         records: list[dict[str, Any]] = []
         history_lines: list[str] = []
         try:
@@ -667,6 +668,12 @@ class Runner:
                 ]
                 record["passed"] = score >= 1.0 and all(ok for _, ok, _ in checks)
                 records.append(record)
+                print(
+                    f"[{scenario.code}] lượt {turn.number}/{len(scenario.turns)} "
+                    f"judge={score:.1f} {'ĐẠT' if record['passed'] else 'KHÔNG'} "
+                    f"({record.get('latency_ms', 0):.0f} ms)",
+                    flush=True,
+                )
                 history_lines.append(f"- Lượt {turn.number} hỏi: {turn.question}")
                 history_lines.append(
                     f"  đáp: {record.get('answer', record.get('error', ''))[:800]}"
