@@ -111,6 +111,77 @@ def test_empty_context_abstains_without_calling_model() -> None:
     assert result.latency_ms >= 0
 
 
+def test_timings_include_retrieval_and_generation_components() -> None:
+    from app.services.retrieval.types import RetrievalResult
+
+    service, _ = _service([answer_json()])
+    retrieval = RetrievalResult(
+        query="q",
+        normalized_query="q",
+        query_type="tra_cuu",
+        classification_source="rule",
+        classification_confidence=0.9,
+        subqueries=[],
+        decomposition_source="none",
+        chunks=[],
+        k=1,
+        timings_ms={"total_ms": 321.0, "rerank_ms": 123.0, "parent_ms": 45.0},
+    )
+    result = service.answer("q", chunks=[make_chunk()], retrieval_result=retrieval)
+    assert result.timings_ms["retrieval_ms"] == 321.0
+    assert result.timings_ms["rerank_ms"] == 123.0
+    assert result.timings_ms["parent_expand_ms"] == 45.0
+    assert result.timings_ms["prompt_ms"] > 0
+    assert result.timings_ms["total_ms"] == result.latency_ms
+    assert result.timings_ms["output_tokens"] == result.usage_output_tokens
+    assert result.extra["judge_provider"] == "deepseek_primary"
+
+
+def test_query_log_metadata_has_timing_fields() -> None:
+    from app.services.generation.logger import _metadata
+
+    service, _ = _service([answer_json()])
+    result = service.answer("hỏi", chunks=[make_chunk()])
+    metadata = _metadata(result)
+    for key in (
+        "retrieval_ms",
+        "rerank_ms",
+        "parent_expand_ms",
+        "prompt_ms",
+        "prefill_ms",
+        "generation_ms",
+        "output_tokens",
+        "ttft_ms",
+        "total_ms",
+        "provider",
+        "judge_provider",
+    ):
+        assert key in metadata
+    assert metadata["provider"] == "fake"
+    assert metadata["judge_provider"] == "deepseek_primary"
+    assert metadata["output_tokens"] == result.usage_output_tokens
+
+
+def test_stream_timings_separate_prefill_and_generation() -> None:
+    service, _ = _service([answer_json()])
+    deltas = list(service.answer_stream("hỏi", chunks=[make_chunk()]))
+    result = deltas[-1].result
+    assert result is not None
+    for key in (
+        "retrieval_ms",
+        "rerank_ms",
+        "parent_expand_ms",
+        "prompt_ms",
+        "prefill_ms",
+        "generation_ms",
+        "output_tokens",
+        "ttft_ms",
+        "total_ms",
+    ):
+        assert key in result.timings_ms
+    assert result.timings_ms["total_ms"] == result.latency_ms
+
+
 def test_mode_selected_from_query_type() -> None:
     from app.services.retrieval.types import RetrievalResult
 
@@ -130,6 +201,69 @@ def test_mode_selected_from_query_type() -> None:
     result = service.answer("q", chunks=[make_chunk()], retrieval_result=retrieval)
     assert result.prompt_mode == "multi_constraint"
     assert "Bảng kiểm ràng buộc" in provider.calls[0][0].content
+
+
+def test_simple_query_dung_muc_suy_luan_don_gian() -> None:
+    from app.services.retrieval.types import RetrievalResult
+
+    service, _ = _service([answer_json()], simple_query_thinking_level="none")
+    retrieval = RetrievalResult(
+        query="q",
+        normalized_query="q",
+        query_type="tra_cuu",
+        classification_source="rule",
+        classification_confidence=0.9,
+        subqueries=[],
+        decomposition_source="none",
+        chunks=[],
+        k=5,
+        timings_ms={},
+    )
+    result = service.answer("q", chunks=[make_chunk()], retrieval_result=retrieval)
+    assert result.thinking_level == "none"
+
+
+def test_cau_phuc_tap_giu_muc_mac_dinh() -> None:
+    from app.services.retrieval.types import RetrievalResult
+
+    service, _ = _service(
+        [answer_json()], default_thinking_level="high", simple_query_thinking_level="none"
+    )
+    retrieval = RetrievalResult(
+        query="q",
+        normalized_query="q",
+        query_type="nhieu_rang_buoc",
+        classification_source="rule",
+        classification_confidence=0.9,
+        subqueries=[],
+        decomposition_source="none",
+        chunks=[],
+        k=5,
+        timings_ms={},
+    )
+    result = service.answer("q", chunks=[make_chunk()], retrieval_result=retrieval)
+    assert result.thinking_level == "high"
+
+
+def test_stream_dung_muc_suy_luan_don_gian() -> None:
+    from app.services.retrieval.types import RetrievalResult
+
+    service, _ = _service([answer_json()], simple_query_thinking_level="none")
+    retrieval = RetrievalResult(
+        query="q",
+        normalized_query="q",
+        query_type="tron_thuat_ngu",
+        classification_source="rule",
+        classification_confidence=0.9,
+        subqueries=[],
+        decomposition_source="none",
+        chunks=[],
+        k=5,
+        timings_ms={},
+    )
+    deltas = list(service.answer_stream("q", chunks=[make_chunk()], retrieval_result=retrieval))
+    assert deltas[-1].result is not None
+    assert deltas[-1].result.thinking_level == "none"
 
 
 def test_fallback_metadata_survives() -> None:
@@ -204,6 +338,29 @@ class FakeStreamingProvider(FakeProvider):
             ),
             done=True,
         )
+
+
+def test_stream_schema_failure_keeps_inline_citations() -> None:
+    answer = (
+        "S3 Standard dùng cho dữ liệu nóng "
+        "[S3 Storage Classes – S3 Standard] và bền [S3 Storage Classes – S3 Standard]."
+    )
+    truncated = '{"answer": "' + answer + '", "citations": ['
+    provider = FakeStreamingProvider([truncated])
+    config = GenerationConfig.from_dict({"prompt_version": "v1"})
+    service = GenerationService(config, FallbackChain([provider]))
+
+    deltas = list(service.answer_stream("hỏi", chunks=[make_chunk()]))
+
+    result = deltas[-1].result
+    assert result is not None
+    assert result.payload.answer == answer
+    assert [citation.source for citation in result.payload.citations] == [
+        "S3 Storage Classes – S3 Standard"
+    ]
+    assert set(result.citation_report.matched) == {"S3 Storage Classes – S3 Standard"}
+    assert result.citation_report.citation_validity == 1.0
+    assert any("không đúng schema JSON" in warning for warning in result.warnings)
 
 
 def test_stream_yields_answer_when_provider_cannot_stream() -> None:

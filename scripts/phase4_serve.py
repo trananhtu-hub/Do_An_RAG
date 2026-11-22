@@ -1,11 +1,10 @@
 """Chạy backend với chuỗi provider chỉ định cho các phép đo Giai đoạn 4.
 
-Gemini đang hết hạn mức (HTTP 429) nên các phép đo TTFT/ngắt kết nối/ngân sách
-cần một chuỗi chỉ gồm provider dự phòng để kết quả phản ánh đúng tầng ứng dụng.
+DeepSeek là nhà cung cấp duy nhất cho sinh văn bản; Gemini chỉ còn embedding.
 Không sửa config mặc định; chỉ ghi đè trong tiến trình này.
 
 Chạy:
-    PYTHONUTF8=1 python scripts/phase4_serve.py --provider deepseek_fallback
+    PYTHONUTF8=1 python scripts/phase4_serve.py --provider deepseek_primary
 """
 
 from __future__ import annotations
@@ -35,7 +34,7 @@ from app.services.retrieval import build_default_service as build_retrieval  # n
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Backend Giai đoạn 4 với provider chỉ định")
-    parser.add_argument("--provider", default="deepseek_fallback")
+    parser.add_argument("--provider", default="deepseek_primary")
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8000)
     args = parser.parse_args()

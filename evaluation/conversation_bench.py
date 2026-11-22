@@ -8,8 +8,9 @@ cứng (câu viết lại, trích dẫn, từ chối, mốc thời gian).
 Chỉ đọc kịch bản từ inputs/conversations.md; không sửa kịch bản giữa các lần chạy.
 
 Ví dụ:
-    python evaluation/conversation_bench.py --workers 4
-    python evaluation/conversation_bench.py --scenarios KB-01,KB-10
+    python evaluation/conversation_bench.py --workers 1 --transport answer
+    python evaluation/conversation_bench.py --workers 1 --transport stream
+    python evaluation/conversation_bench.py --scenarios KB-01,KB-10 --transport both
 """
 
 from __future__ import annotations
@@ -50,7 +51,8 @@ CONVERSATIONS = ROOT / "inputs" / "conversations.md"
 RESULTS = ROOT / "evaluation" / "results"
 JUDGE_CACHE = RESULTS / "conversation_bench_judge_cache.json"
 USER_ID = UUID("44444444-4444-4444-8444-444444444444")
-JUDGE_VERSION = "v2"
+JUDGE_VERSION = "v3"
+HISTORY_ANSWER_CHARS = 4000
 JUDGE_VOTES = 3
 
 DOCUMENT_TITLES = (
@@ -90,7 +92,7 @@ Câu viết lại kỳ vọng: {expected_rewrite}
 Câu viết lại thực tế: {rewritten}
 Hành vi mong đợi: {expected_behavior}
 Căn cứ: {evidence}
-Tiêu chí đạt của kịch bản:
+Tiêu chí đạt liên quan đến lượt này:
 {criteria}
 
 Câu trả lời của hệ thống:
@@ -104,6 +106,10 @@ Chấm:
   đủ thực thể và độc lập khi cần; trích dẫn phù hợp với căn cứ; không mâu thuẫn lượt trước.
 - 0.5: đúng một phần, thiếu ý quan trọng nhưng không sai; hoặc câu viết lại chưa đạt.
 - 0.0: sai, bịa, bỏ ràng buộc, mâu thuẫn, từ chối khi có căn cứ, hoặc trả lời khi phải từ chối.
+
+Trích dẫn thêm ngoài cột Căn cứ: nếu mục được trích thật sự tồn tại trong tài liệu và
+nội dung mục đó hỗ trợ câu trả lời thì KHÔNG trừ điểm. Chỉ trừ khi trích sai tài liệu/mục,
+trích mục không tồn tại, hoặc trích dẫn không liên quan đến câu trả lời.
 
 Không trừ điểm vì khác cách diễn đạt hay độ dài. Trả JSON đúng dạng
 {{"score": 0.0, "reason": "..."}} và không thêm văn bản."""
@@ -148,11 +154,24 @@ class Scenario:
     documents: tuple[str, ...]
     turns: tuple[Turn, ...]
     criteria: tuple[str, ...]
+    document_sections: tuple[tuple[str, frozenset[str]], ...] = ()
+
+
+def _document_sections(documents_line: str) -> tuple[tuple[str, frozenset[str]], ...]:
+    """Ánh xạ từng tài liệu trong dòng "Tài liệu" sang các mục nó cung cấp."""
+    positions = sorted(
+        (documents_line.find(title), title) for title in DOCUMENT_TITLES if title in documents_line
+    )
+    mapping: list[tuple[str, frozenset[str]]] = []
+    for index, (position, title) in enumerate(positions):
+        end = positions[index + 1][0] if index + 1 < len(positions) else len(documents_line)
+        mapping.append((title, frozenset(_section_numbers(documents_line[position:end]))))
+    return tuple(mapping)
 
 
 def load_scenarios(path: Path = CONVERSATIONS) -> list[Scenario]:
     text = path.read_text(encoding="utf-8")
-    pattern = re.compile(r"^## (KB-\d+) — (.+?)\n(.*?)(?=^## |\Z)", re.S | re.M)
+    pattern = re.compile(r"^## ((?:KB|DV)-\d+) — (.+?)\n(.*?)(?=^## |\Z)", re.S | re.M)
     scenarios: list[Scenario] = []
     for match in pattern.finditer(text):
         code, title, body = match.group(1), match.group(2).strip(), match.group(3)
@@ -162,7 +181,18 @@ def load_scenarios(path: Path = CONVERSATIONS) -> list[Scenario]:
         documents = tuple(title_ for title_ in DOCUMENT_TITLES if title_ in documents_line)
         turns = _parse_turns(body)
         criteria = _parse_criteria(body)
-        scenarios.append(Scenario(code, title, kind, objective, documents, turns, criteria))
+        scenarios.append(
+            Scenario(
+                code,
+                title,
+                kind,
+                objective,
+                documents,
+                turns,
+                criteria,
+                _document_sections(documents_line),
+            )
+        )
     if len(scenarios) != 10:
         raise ValueError(f"Cần đúng 10 kịch bản, đọc được {len(scenarios)}")
     for scenario in scenarios:
@@ -283,6 +313,7 @@ class Judge:
                 citation_count=len(record.get("citations", [])),
             )
         else:
+            criteria = _criteria_for_turn(scenario, turn)
             prompt = JUDGE_PROMPT.format(
                 code=scenario.code,
                 title=scenario.title,
@@ -293,7 +324,8 @@ class Judge:
                 rewritten=record.get("rewritten_query", ""),
                 expected_behavior=turn.expected_behavior,
                 evidence=turn.evidence,
-                criteria="\n".join(f"- {item}" for item in scenario.criteria),
+                criteria="\n".join(f"- {item}" for item in criteria)
+                or "- (không có tiêu chí riêng; chấm theo hành vi mong đợi và căn cứ)",
                 answer=record.get("answer", "")[:6000],
                 citations=", ".join(item.get("source", "") for item in record.get("citations", []))
                 or "(không có)",
@@ -351,27 +383,96 @@ def _citation_sources(record: dict[str, Any]) -> list[str]:
     return [citation["source"] for citation in record.get("citations", [])]
 
 
-def _expected_documents(scenario: Scenario, turn: Turn) -> tuple[str, ...]:
-    found = tuple(title for title in DOCUMENT_TITLES if title in turn.evidence)
-    return found or scenario.documents
-
-
 def _section_numbers(text: str) -> set[str]:
     return set(re.findall(r"Mục\s+([\d.]+)", text))
+
+
+def _citation_requirements(
+    scenario: Scenario, turn: Turn
+) -> tuple[tuple[str, ...], tuple[str, ...]]:
+    """Trả về (tài liệu bắt buộc đủ, tài liệu chỉ cần ít nhất một).
+
+    Khi ô Căn cứ không nêu tên tài liệu, không được đòi mọi tài liệu của kịch bản:
+    chỉ đòi tài liệu thật sự chứa các mục được dẫn, hoặc tối thiểu một tài liệu
+    liên quan nếu không ánh xạ được mục nào.
+    """
+    named = tuple(title for title in DOCUMENT_TITLES if title in turn.evidence)
+    if named:
+        return named, ()
+    sections = _section_numbers(turn.evidence)
+    candidates = tuple(
+        title for title, owned in scenario.document_sections if sections and sections & set(owned)
+    )
+    if candidates:
+        return (), candidates
+    return (), scenario.documents
+
+
+def _relevant_documents(scenario: Scenario, turn: Turn) -> set[str]:
+    required, any_of = _citation_requirements(scenario, turn)
+    return set(required) | set(any_of)
+
+
+def _source_document(source: str) -> str | None:
+    lowered = source.casefold()
+    return next((title for title in DOCUMENT_TITLES if title.casefold() in lowered), None)
+
+
+def _source_has_section(source: str, section: str) -> bool:
+    pattern = rf"Mục\s+{re.escape(section)}(?!\.?\d)"
+    return re.search(pattern, source, re.I) is not None
 
 
 def _citation_document_ok(scenario: Scenario, turn: Turn, sources: list[str]) -> bool:
     if turn.expects_refusal:
         return not sources
-    expected = _expected_documents(scenario, turn)
-    lowered = [source.casefold() for source in sources]
-    if not all(doc.casefold() in " ".join(lowered) for doc in expected):
+    required, any_of = _citation_requirements(scenario, turn)
+    found = {document for document in (_source_document(source) for source in sources) if document}
+    if required and not all(document in found for document in required):
+        return False
+    if any_of and not found.intersection(any_of):
+        return False
+    if not required and not any_of and not sources:
         return False
     sections = _section_numbers(turn.evidence)
     if not sections:
         return True
-    joined = " ".join(lowered)
-    return any(section in joined for section in sections)
+    relevant = [
+        source
+        for source in sources
+        if not (required or any_of) or _source_document(source) in (set(required) | set(any_of))
+    ]
+    return any(_source_has_section(source, section) for source in relevant for section in sections)
+
+
+def _criteria_for_turn(scenario: Scenario, turn: Turn) -> tuple[str, ...]:
+    """Chỉ giữ tiêu chí thật sự nói về lượt hiện tại.
+
+    Tiêu chí có nhắc "lượt N" (kể cả khoảng "lượt 2–3") chỉ áp dụng cho các lượt đó;
+    tiêu chí nêu tài liệu/mục chỉ áp dụng khi lượt hiện tại dẫn đúng tài liệu/mục ấy.
+    Tiêu chí chung không nêu lượt hay tài liệu vẫn được giữ.
+    """
+    relevant_documents = _relevant_documents(scenario, turn)
+    relevant_sections = _section_numbers(turn.evidence)
+    selected: list[str] = []
+    for criterion in scenario.criteria:
+        mentions = {int(number) for number in re.findall(r"lượt\s+(\d+)", criterion, re.I)}
+        mentions.update(
+            int(number)
+            for start, end in re.findall(r"lượt\s+(\d+)\s*[–-]\s*(\d+)", criterion, re.I)
+            for number in range(int(start), int(end) + 1)
+        )
+        if mentions and turn.number not in mentions:
+            continue
+        documents = {title for title in DOCUMENT_TITLES if title.casefold() in criterion.casefold()}
+        if documents and not documents & relevant_documents:
+            continue
+        sections = _section_numbers(criterion)
+        if sections and not sections & relevant_sections:
+            # Tiêu chí dẫn mục không có trong Căn cứ của lượt này là của lượt khác.
+            continue
+        selected.append(criterion)
+    return tuple(selected)
 
 
 def auto_checks(
@@ -528,6 +629,23 @@ def auto_checks(
     return checks
 
 
+def _retrieved_chunks(retrieval) -> list[dict[str, Any]]:
+    last = retrieval.last() if retrieval is not None else None
+    if last is None:
+        return []
+    return [
+        {
+            "rank": chunk.rank,
+            "child_id": chunk.child_id,
+            "document": chunk.document_title or chunk.document,
+            "section": chunk.section,
+            "page": chunk.page,
+            "score": round(chunk.score, 4),
+        }
+        for chunk in last.chunks
+    ]
+
+
 def _turn_record(
     scenario: Scenario,
     turn: Turn,
@@ -536,20 +654,7 @@ def _turn_record(
     started: float,
 ) -> dict[str, Any]:
     result = answer.result
-    chunks = []
-    last = retrieval.last() if retrieval is not None else None
-    if last is not None:
-        chunks = [
-            {
-                "rank": chunk.rank,
-                "child_id": chunk.child_id,
-                "document": chunk.document_title or chunk.document,
-                "section": chunk.section,
-                "page": chunk.page,
-                "score": round(chunk.score, 4),
-            }
-            for chunk in last.chunks
-        ]
+    chunks = _retrieved_chunks(retrieval)
     if result is None:
         return {
             "number": turn.number,
@@ -565,6 +670,9 @@ def _turn_record(
         "rewrite_source": answer.turn.condensation.source,
         "depends_on_context": answer.turn.condensation.depends_on_context,
         "conversation_tokens": answer.turn.conversation.tokens,
+        "summary_used": answer.turn.conversation.summary_used,
+        "summary_source": answer.turn.summary_source,
+        "summary_latency_ms": answer.turn.summary_latency_ms,
         "answer": result.payload.answer,
         "abstained": result.payload.abstained,
         "abstention_type": result.payload.abstention_type,
@@ -579,8 +687,80 @@ def _turn_record(
         "fallback_used": result.fallback_used,
         "input_tokens": result.usage_input_tokens,
         "output_tokens": result.usage_output_tokens,
+        "ttft_ms": result.ttft_ms,
         "latency_ms": round((time.perf_counter() - started) * 1000, 1),
+        "prompt_audit": result.extra.get("prompt_audit"),
+        "timings_ms": result.timings_ms,
         "retrieved": chunks,
+    }
+
+
+def _stream_turn_record(
+    service: ChatService,
+    user_id: UUID,
+    session_id: UUID,
+    turn: Turn,
+    retrieval,
+    started: float,
+) -> dict[str, Any]:
+    """Chạy một lượt qua SSE và dựng bản ghi giống chế độ answer để chấm chung."""
+    meta: dict[str, Any] = {}
+    done: dict[str, Any] = {}
+    citations: list[dict[str, Any]] = []
+    citation_validity = 1.0
+    unmatched: list[str] = []
+    warnings: list[str] = []
+    parts: list[str] = []
+    stream_error: str | None = None
+    for event in service.stream(user_id, session_id, turn.question):
+        if event.event == "meta":
+            meta = event.data
+        elif event.event == "token":
+            parts.append(str(event.data.get("text", "")))
+        elif event.event == "citations":
+            citations = list(event.data.get("items", []))
+            citation_validity = float(event.data.get("citation_validity", 1.0))
+            unmatched = [item.get("citation", "") for item in event.data.get("unmatched", [])]
+            warnings = list(event.data.get("warnings", []))
+        elif event.event == "error":
+            stream_error = str(event.data.get("message") or event.data.get("code") or "lỗi stream")
+        elif event.event == "done":
+            done = event.data
+    if stream_error:
+        raise RuntimeError(stream_error)
+    usage = done.get("usage") or {}
+    return {
+        "number": turn.number,
+        "question": turn.question,
+        "rewritten_query": meta.get("rewritten_query", turn.question),
+        "rewrite_source": meta.get("rewrite_source", ""),
+        "depends_on_context": meta.get("depends_on_context", False),
+        "conversation_tokens": meta.get("conversation_tokens", 0),
+        "summary_used": meta.get("summary_used", False),
+        "summary_source": meta.get("summary_source"),
+        "summary_latency_ms": meta.get("summary_latency_ms", 0.0),
+        "answer": "".join(parts),
+        "abstained": done.get("abstained", False),
+        "abstention_type": done.get("abstention_type"),
+        "confidence": done.get("confidence"),
+        "citations": [
+            {"source": item.get("source", ""), "quote": item.get("quote", "")} for item in citations
+        ],
+        "citation_validity": citation_validity,
+        "unmatched_citations": unmatched,
+        "warnings": warnings,
+        "provider": done.get("provider"),
+        "model": done.get("model"),
+        "fallback_used": done.get("fallback_used", False),
+        "input_tokens": usage.get("input_tokens"),
+        "output_tokens": usage.get("output_tokens"),
+        "ttft_ms": done.get("ttft_ms"),
+        "latency_ms": round((time.perf_counter() - started) * 1000, 1),
+        "stream_latency_ms": done.get("latency_ms"),
+        "stream_status": done.get("status"),
+        "prompt_audit": done.get("prompt_audit"),
+        "timings_ms": done.get("timings_ms"),
+        "retrieved": _retrieved_chunks(retrieval),
     }
 
 
@@ -612,7 +792,7 @@ class Runner:
     def _build_judge_chain(self):
         if self.args.judge:
             return build_provider_chain(self._judge_config(self.args.judge), environ=self.env)
-        for name in ("deepseek_fallback", "gemini_primary"):
+        for name in ("deepseek_primary",):
             if name in self.gen_config.provider_map:
                 try:
                     return build_provider_chain(self._judge_config(name), environ=self.env)
@@ -630,18 +810,23 @@ class Runner:
         )
         return ChatService(InMemorySessionRepository(), generation, self.chat_config)
 
-    def run_scenario(self, scenario: Scenario) -> dict[str, Any]:
+    def run_scenario(self, scenario: Scenario, transport: str) -> dict[str, Any]:
         service = self.chat_service()
         session = service.create_session(USER_ID, title=f"{scenario.code} — {scenario.title}")
-        print(f"[{scenario.code}] bắt đầu: {scenario.title}", flush=True)
+        print(f"[{scenario.code}] bắt đầu ({transport}): {scenario.title}", flush=True)
         records: list[dict[str, Any]] = []
         history_lines: list[str] = []
         try:
             for turn in scenario.turns:
                 started = time.perf_counter()
                 try:
-                    answer = service.answer(USER_ID, session.id, turn.question)
-                    record = _turn_record(scenario, turn, answer, self.retrieval, started)
+                    if transport == "stream":
+                        record = _stream_turn_record(
+                            service, USER_ID, session.id, turn, self.retrieval, started
+                        )
+                    else:
+                        answer = service.answer(USER_ID, session.id, turn.question)
+                        record = _turn_record(scenario, turn, answer, self.retrieval, started)
                 except Exception as exc:  # noqa: BLE001 - ghi lại mọi lỗi của một lượt
                     record = {
                         "number": turn.number,
@@ -675,9 +860,14 @@ class Runner:
                     flush=True,
                 )
                 history_lines.append(f"- Lượt {turn.number} hỏi: {turn.question}")
+                if record.get("rewritten_query") and not _rewritten_equals_original(record):
+                    history_lines.append(f"  viết lại: {record['rewritten_query']}")
                 history_lines.append(
-                    f"  đáp: {record.get('answer', record.get('error', ''))[:800]}"
+                    "  đáp: " + record.get("answer", record.get("error", ""))[:HISTORY_ANSWER_CHARS]
                 )
+                sources = _citation_sources(record)
+                if sources:
+                    history_lines.append(f"  trích dẫn: {', '.join(dict.fromkeys(sources))}")
         finally:
             service.close()
 
@@ -691,6 +881,7 @@ class Runner:
             "code": scenario.code,
             "title": scenario.title,
             "kind": scenario.kind,
+            "transport": transport,
             "session_id": str(session.id),
             "turns": len(records),
             "passed_turns": sum(1 for record in records if record.get("passed")),
@@ -699,9 +890,11 @@ class Runner:
             "records": records,
         }
 
-    def run(self, scenarios: list[Scenario]) -> list[dict[str, Any]]:
+    def run(self, scenarios: list[Scenario], transport: str) -> list[dict[str, Any]]:
         with ThreadPoolExecutor(max_workers=self.args.workers) as pool:
-            results = list(pool.map(self.run_scenario, scenarios))
+            results = list(
+                pool.map(lambda scenario: self.run_scenario(scenario, transport), scenarios)
+            )
         results.sort(key=lambda item: item["code"])
         return results
 
@@ -763,37 +956,31 @@ def _turn_table(results: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
-def main() -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--workers", type=int, default=3)
-    parser.add_argument("--scenarios", default=None, help="Danh sách mã, ví dụ KB-01,KB-10")
-    parser.add_argument("--provider", default=None)
-    parser.add_argument("--judge", default=None)
-    args = parser.parse_args()
+def _judge_provider(runner: Runner) -> str:
+    return ", ".join(getattr(runner.judge.chain, "names", ())) or "không rõ"
 
-    scenarios = load_scenarios()
-    if args.scenarios:
-        wanted = {item.strip() for item in args.scenarios.split(",")}
-        scenarios = [scenario for scenario in scenarios if scenario.code in wanted]
 
-    runner = Runner(args)
+def _judge_self_preference(runner: Runner) -> bool:
+    """Judge trùng nhà cung cấp với bộ sinh câu trả lời hay không."""
+    generation = {name.split("_")[0] for name in runner.chain.names}
+    judging = {name.split("_")[0] for name in getattr(runner.judge.chain, "names", ())}
+    return bool(generation & judging)
+
+
+def _run_transport(
+    runner: Runner, scenarios: list[Scenario], transport: str, stamp: str
+) -> tuple[dict[str, Any], str, str]:
     started = time.perf_counter()
-    try:
-        results = runner.run(scenarios)
-    finally:
-        runner.judge.save()
-        runner.chain.close()
-        judge_chain = getattr(runner.judge, "chain", None)
-        if judge_chain is not None:
-            judge_chain.close()
-
+    results = runner.run(scenarios, transport)
     table = _scenario_table(results)
     turn_table = _turn_table(results)
-    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     output = {
         "timestamp": stamp,
+        "transport": transport,
         "provider_chain": list(runner.chain.names),
-        "judge": args.judge or "auto",
+        "judge": runner.args.judge or "auto",
+        "judge_provider": _judge_provider(runner),
+        "judge_self_preference": _judge_self_preference(runner),
         "judge_tokens": runner.judge.tokens,
         "judge_cost_usd": round(runner.judge.cost, 6),
         "elapsed_seconds": round(time.perf_counter() - started, 1),
@@ -801,25 +988,107 @@ def main() -> int:
         "total": len(results),
         "results": results,
     }
-    RESULTS.mkdir(parents=True, exist_ok=True)
-    (RESULTS / f"conversation_bench_{stamp}.json").write_text(
-        json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
-    (RESULTS / f"conversation_bench_{stamp}.md").write_text(
-        f"# Kết quả 10 kịch bản hội thoại ({stamp})\n\n"
+    return output, table, turn_table
+
+
+def _report_markdown(
+    stamp: str, runner: Runner, output: dict[str, Any], table: str, turn_table: str
+) -> str:
+    return (
+        f"# Kết quả 10 kịch bản hội thoại ({stamp}, {output['transport']})\n\n"
         f"- Provider chain: {', '.join(runner.chain.names)}\n"
-        f"- Judge: {args.judge or 'auto'} ({runner.judge.tokens} token, "
+        f"- Judge: {output['judge_provider']} ({runner.judge.tokens} token, "
         f"{runner.judge.cost:.6f} USD)\n"
-        f"- Thời gian chạy: {output['elapsed_seconds']} giây\n\n"
-        f"{table}\n\n## Chi tiết từng lượt\n\n{turn_table}\n",
-        encoding="utf-8",
+        f"- Judge trùng nhà cung cấp với bộ sinh: {output['judge_self_preference']}\n"
+        f"- Thời gian chạy: {output['elapsed_seconds']} giây\n"
+        f"- Đạt: {output['passed']}/{output['total']}\n\n"
+        f"{table}\n\n## Chi tiết từng lượt\n\n{turn_table}\n"
     )
-    print(table)
-    print()
-    print(turn_table)
-    print(f"\nĐã lưu evaluation/results/conversation_bench_{stamp}.json/.md")
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--workers", type=int, default=1)
+    parser.add_argument("--scenarios", default=None, help="Danh sách mã, ví dụ KB-01,KB-10")
+    parser.add_argument("--provider", default=None)
+    parser.add_argument("--judge", default=None)
+    parser.add_argument(
+        "--conversations",
+        default=None,
+        help="Đường dẫn bộ kịch bản; mặc định inputs/conversations.md (bộ nghiệm thu)",
+    )
+    parser.add_argument(
+        "--transport",
+        choices=("answer", "stream", "both"),
+        default="answer",
+        help="answer: gọi ChatService.answer; stream: gọi SSE; both: chạy cả hai và lưu chung",
+    )
+    args = parser.parse_args()
+
+    scenarios = load_scenarios(Path(args.conversations) if args.conversations else CONVERSATIONS)
+    if args.scenarios:
+        wanted = {item.strip() for item in args.scenarios.split(",")}
+        scenarios = [scenario for scenario in scenarios if scenario.code in wanted]
+
+    runner = Runner(args)
+    stamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    transports = ("answer", "stream") if args.transport == "both" else (args.transport,)
+    try:
+        runs = {
+            transport: _run_transport(runner, scenarios, transport, stamp)
+            for transport in transports
+        }
+    finally:
+        runner.judge.save()
+        runner.chain.close()
+        judge_chain = getattr(runner.judge, "chain", None)
+        if judge_chain is not None:
+            judge_chain.close()
+
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    if args.transport == "both":
+        output = {
+            "timestamp": stamp,
+            "transport": "both",
+            "provider_chain": list(runner.chain.names),
+            "judge": args.judge or "auto",
+            "judge_provider": _judge_provider(runner),
+            "judge_self_preference": _judge_self_preference(runner),
+            "judge_tokens": runner.judge.tokens,
+            "judge_cost_usd": round(runner.judge.cost, 6),
+            "runs": {transport: payload for transport, (payload, _, _) in runs.items()},
+        }
+        path = RESULTS / f"conversation_bench_both_{stamp}"
+        path.with_suffix(".json").write_text(
+            json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        sections = []
+        for payload, table, turn_table in runs.values():
+            sections.append(_report_markdown(stamp, runner, payload, table, turn_table))
+            print(table)
+            print()
+            print(turn_table)
+            print()
+        path.with_suffix(".md").write_text("\n\n---\n\n".join(sections), encoding="utf-8")
+        passed = min(payload["passed"] for payload, _, _ in runs.values())
+        saved = f"{path}.json/.md"
+    else:
+        output, table, turn_table = runs[args.transport]
+        path = RESULTS / f"conversation_bench_{args.transport}_{stamp}"
+        path.with_suffix(".json").write_text(
+            json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8"
+        )
+        path.with_suffix(".md").write_text(
+            _report_markdown(stamp, runner, output, table, turn_table), encoding="utf-8"
+        )
+        print(table)
+        print()
+        print(turn_table)
+        passed = output["passed"]
+        saved = f"{path}.json/.md"
+    print(f"\nĐã lưu {saved}")
     print(f"Judge: {runner.judge.tokens} token, {runner.judge.cost:.6f} USD")
-    return 0 if output["passed"] >= 8 else 2
+    return 0 if passed >= 8 else 2
 
 
 if __name__ == "__main__":

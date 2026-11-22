@@ -11,8 +11,10 @@ import yaml
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_CONFIG_PATH = PROJECT_ROOT / "config" / "generation.yaml"
 PROMPT_ROOT = PROJECT_ROOT / "prompts"
-THINKING_LEVELS = ("low", "medium", "high")
-PROVIDER_TYPES = ("gemini", "openai_compat")
+# "none" tắt phần suy luận ẩn của DeepSeek (reasoning_content); dùng cho câu tra cứu đơn giản.
+THINKING_LEVELS = ("none", "low", "medium", "high")
+# Chỉ DeepSeek (tương thích OpenAI) được sinh văn bản; Gemini chỉ dùng embedding.
+PROVIDER_TYPES = ("openai_compat",)
 
 
 @dataclass(frozen=True)
@@ -63,12 +65,15 @@ class GenerationConfig:
     version: int = 1
     prompt_version: str = "v1"
     default_thinking_level: str = "medium"
+    simple_query_thinking_level: str = "none"
     max_output_tokens: int = 8192
     schema_retries: int = 1
     require_citation: bool = True
     confidence_warning_threshold: float = 0.55
     max_context_tokens: int = 8000
     chars_per_token: float = 3.5
+    max_prompt_tokens: int = 12000
+    judge_provider: str = "deepseek_primary"
     providers: tuple[ProviderConfig, ...] = ()
     chain: tuple[str, ...] = ()
     logging: LoggingConfig = field(default_factory=LoggingConfig)
@@ -79,6 +84,11 @@ class GenerationConfig:
                 f"default_thinking_level phải thuộc {THINKING_LEVELS}, "
                 f"nhận {self.default_thinking_level!r}"
             )
+        if self.simple_query_thinking_level not in THINKING_LEVELS:
+            raise ValueError(
+                f"simple_query_thinking_level phải thuộc {THINKING_LEVELS}, "
+                f"nhận {self.simple_query_thinking_level!r}"
+            )
         if not 0 <= self.schema_retries <= 2:
             raise ValueError("schema_retries phải trong [0, 2]")
         if not 0.0 <= self.confidence_warning_threshold <= 1.0:
@@ -87,6 +97,8 @@ class GenerationConfig:
             raise ValueError("max_context_tokens và max_output_tokens phải lớn hơn 0")
         if self.chars_per_token <= 0:
             raise ValueError("chars_per_token phải lớn hơn 0")
+        if self.max_prompt_tokens <= 0:
+            raise ValueError("max_prompt_tokens phải lớn hơn 0")
         names = {provider.name for provider in self.providers}
         if len(names) != len(self.providers):
             raise ValueError("Tên provider phải duy nhất")
@@ -100,10 +112,6 @@ class GenerationConfig:
                 raise ValueError(f"thinking_level của {provider.name} phải thuộc {THINKING_LEVELS}")
             if provider.timeout_ms <= 0 or provider.max_retries < 0:
                 raise ValueError(f"timeout_ms/max_retries của {provider.name} không hợp lệ")
-            if provider.temperature is not None and provider.type == "gemini":
-                raise ValueError(
-                    "Gemini 3.8 Flash không nhận temperature; điều khiển bằng thinking_level"
-                )
 
     @property
     def provider_map(self) -> dict[str, ProviderConfig]:
@@ -129,12 +137,15 @@ class GenerationConfig:
             version=int(raw.get("version", 1)),
             prompt_version=str(raw.get("prompt_version", "v1")),
             default_thinking_level=str(raw.get("default_thinking_level", "medium")),
+            simple_query_thinking_level=str(raw.get("simple_query_thinking_level", "none")),
             max_output_tokens=int(raw.get("max_output_tokens", 8192)),
             schema_retries=int(raw.get("schema_retries", 1)),
             require_citation=bool(raw.get("require_citation", True)),
             confidence_warning_threshold=float(raw.get("confidence_warning_threshold", 0.55)),
             max_context_tokens=int(raw.get("max_context_tokens", 8000)),
             chars_per_token=float(raw.get("chars_per_token", 3.5)),
+            max_prompt_tokens=int(raw.get("max_prompt_tokens", 12000)),
+            judge_provider=str(raw.get("judge_provider", "deepseek_primary")),
             providers=providers,
             chain=tuple(str(name) for name in chain),
             logging=LoggingConfig(

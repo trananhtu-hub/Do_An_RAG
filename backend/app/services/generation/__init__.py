@@ -12,7 +12,6 @@ from .prompts import PromptLibrary, mode_for_query_type
 from .providers import (
     FallbackChain,
     FallbackExhausted,
-    GeminiAdapter,
     LLMConfigurationError,
     LLMError,
     LLMMessage,
@@ -52,7 +51,6 @@ __all__ = [
     "ContextBlock",
     "FallbackChain",
     "FallbackExhausted",
-    "GeminiAdapter",
     "GenerationConfig",
     "GenerationResult",
     "GenerationService",

@@ -6,7 +6,6 @@ from collections.abc import Mapping
 from ..config import GenerationConfig, ProviderConfig
 from .base import LLMConfigurationError, LLMProvider
 from .fallback import FallbackChain
-from .gemini import GeminiAdapter
 from .openai_compat import OpenAICompatAdapter
 
 
@@ -39,21 +38,6 @@ def _build_adapter(config: ProviderConfig, env: Mapping[str, str]) -> LLMProvide
     api_key = _resolve_key(config.api_key_env, env)
     if config.api_key_env and not api_key:
         return None
-    if config.type == "gemini":
-        if not api_key:
-            return None
-        return GeminiAdapter(
-            api_key,
-            name=config.name,
-            model=config.model or "gemini-3.8-flash",
-            thinking_level=config.thinking_level,
-            timeout_ms=config.timeout_ms,
-            max_retries=config.max_retries,
-            backoff_base_s=config.backoff_base_s,
-            backoff_max_s=config.backoff_max_s,
-            max_output_tokens=config.max_output_tokens,
-            pricing=config.pricing,
-        )
     if config.type == "openai_compat":
         base_url = _resolve(config.base_url_env, env) or config.base_url
         model = _resolve(config.model_env, env) or config.model

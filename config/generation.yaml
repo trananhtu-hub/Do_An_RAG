@@ -1,73 +1,43 @@
-# Cấu hình tầng sinh câu trả lời — Chatbot RAG AWS SAA-C03 (Giai đoạn 3).
-# Không hard-code tham số trong mã nguồn; mọi giá trị vận hành nằm ở đây.
-# Khóa API luôn đọc từ biến môi trường, không ghi vào tệp này.
-
 version: 1
 prompt_version: v1
-
-# Mức suy luận mặc định của Gemini 3.8 Flash: low | medium | high.
-# Gemini 3.8 Flash không nhận temperature/top_p/top_k; chỉ dùng thinkingLevel.
 default_thinking_level: medium
-
-# Giới hạn đầu ra cho một câu trả lời JSON (gồm cả bước suy luận).
-max_output_tokens: 8192
-
-# Số lần thử lại khi JSON/schema sai (đề bài yêu cầu tối đa 1 lần).
+# Câu tra cứu đơn giản (tra_cuu, tron_thuat_ngu) tắt suy luận ẩn để giảm TTFT; câu so
+# sánh/nhiều ràng buộc vẫn dùng default_thinking_level. Xem docs/phase4-fix-audit.md.
+simple_query_thinking_level: none
+# Đo trên dev set: 3072 cắt cụt 6/40 lượt (câu so sánh/nhiều ràng buộc) làm hỏng schema
+# JSON và mất trích dẫn; 6144 phủ trên mức lớn nhất từng thấy (5.605 token đầu ra).
+max_output_tokens: 6144
 schema_retries: 1
-
-# Câu trả lời không từ chối phải có ít nhất một trích dẫn.
 require_citation: true
-
-# Dưới ngưỡng này phải nêu rõ giới hạn độ tin cậy trong câu trả lời.
 confidence_warning_threshold: 0.55
-
-# Ngân sách ngữ cảnh đưa vào prompt (chỉ chunk đã truy hồi).
-max_context_tokens: 8000
+max_context_tokens: 6000
 chars_per_token: 3.5
+max_prompt_tokens: 12000
+judge_provider: deepseek_primary
 
+# DeepSeek là nhà cung cấp duy nhất cho mọi tác vụ sinh văn bản.
+# Gemini chỉ dùng cho embedding 768 chiều, không xuất hiện trong chain này.
 providers:
-  - name: gemini_primary
-    type: gemini
-    enabled: true
-    model: gemini-3.8-flash
-    api_key_env: GEMINI_API_KEY
-    thinking_level: medium
-    timeout_ms: 240000
-    max_retries: 1
-    backoff_base_s: 3.0
-    backoff_max_s: 30.0
-    max_output_tokens: 8192
-    # Giá niêm yết Gemini 3.8 Flash (USD / 1 triệu token), hiệu lực đến 2026-12-31.
-    pricing:
-      input_per_million: 0.75
-      output_per_million: 3.75
-
-  # Dự phòng DeepSeek qua giao diện tương thích OpenAI (chat/completions).
-  # base_url và model đọc từ .env để đổi nhà cung cấp mà không sửa mã.
-  - name: deepseek_fallback
+  - name: deepseek_primary
     type: openai_compat
     enabled: true
-    api_key_env: OPENAI_API_KEY
-    base_url_env: OPENAI_BASE_URL
-    model_env: OPENAI_MODEL
+    api_key_env: DEEPSEEK_API_KEY
+    base_url_env: DEEPSEEK_BASE_URL
+    model_env: DEEPSEEK_MODEL
     base_url: https://api.deepseek.com/v1
     model: deepseek-chat
     timeout_ms: 180000
     max_retries: 2
     backoff_base_s: 2.0
     backoff_max_s: 20.0
-    # Model suy luận có thể tiêu hết hạn mức vào token lý luận; 16k tránh đầu ra rỗng.
-    max_output_tokens: 16384
+    max_output_tokens: 6144
     temperature: 0.2
-    # Không ước tính chi phí dự phòng; báo cáo chỉ tính giá Gemini đã niêm yết.
     pricing:
       input_per_million: 0.0
       output_per_million: 0.0
 
-# Thứ tự thử provider; provider thiếu khóa/địa chỉ bị bỏ qua khi khởi tạo.
 chain:
-  - gemini_primary
-  - deepseek_fallback
+  - deepseek_primary
 
 logging:
   enabled: true

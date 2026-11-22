@@ -1,7 +1,8 @@
-"""Chạy 12 lượt thật trong một phiên và kiểm tra ngân sách ngữ cảnh hội thoại.
+"""Chạy 14 lượt thật trong một phiên và kiểm tra ngân sách ngữ cảnh hội thoại.
 
-Đọc `context.max_conversation_tokens` từ config/conversation.yaml, gọi /chat 12 lượt,
-rồi lấy `conversation_tokens` trong metadata từng tin nhắn trợ lý.
+Đọc `context.max_conversation_tokens` từ config/conversation.yaml, gọi /chat 14 lượt,
+rồi lấy `conversation_tokens`, `summary_used`, `summary_source` trong metadata từng
+tin nhắn trợ lý. Từ lượt 11 trở đi tóm tắt phải thực sự được dùng.
 """
 
 from __future__ import annotations
@@ -39,6 +40,8 @@ QUESTIONS = [
     "Có mất phí xóa sớm không?",
     "Storage Lens dùng để làm gì?",
     "Tóm lại nên chọn lớp nào cho log cũ?",
+    "Còn dữ liệu ít truy cập nhưng phải truy xuất nhanh thì sao?",
+    "Nhắc lại giúp tôi các mốc thời gian lưu tối thiểu đã nêu.",
 ]
 
 
@@ -91,25 +94,36 @@ def main() -> int:
                 "items"
             ]
             assistant = [item for item in messages if item["role"] == "assistant"]
-            print("\nLượt | conversation_tokens | summary_used | conversation_messages")
+            print(
+                "\nLượt | conversation_tokens | summary_used | summary_source | "
+                "summary_latency_ms | conversation_messages"
+            )
             values: list[int] = []
+            summary_flags: list[bool] = []
             for index, item in enumerate(assistant, start=1):
                 metadata = item.get("metadata") or {}
                 value = int(metadata.get("conversation_tokens") or 0)
                 values.append(value)
+                if index >= 11:
+                    summary_flags.append(bool(metadata.get("summary_used")))
                 print(
-                    f"{index:02d}   | {value:>19} | "
-                    f"{metadata.get('summary_used')} | {metadata.get('conversation_messages')}"
+                    f"{index:02d}   | {value:>19} | {str(metadata.get('summary_used')):>12} | "
+                    f"{str(metadata.get('summary_source')):>13} | "
+                    f"{metadata.get('summary_latency_ms', 0.0):>18.1f} | "
+                    f"{metadata.get('conversation_messages')}"
                 )
             maximum = max(values) if values else 0
             print(f"\nNgân sách: {budget} token; lớn nhất: {maximum} token")
+            summary_ok = bool(summary_flags) and all(summary_flags)
+            print(f"Tóm tắt được dùng từ lượt 11: {summary_ok}")
+            passed = maximum <= budget and summary_ok
             print(
-                "KẾT LUẬN: ĐẠT — ngữ cảnh sau 12 lượt nằm trong ngân sách."
-                if maximum <= budget
-                else "KẾT LUẬN: KHÔNG ĐẠT — vượt ngân sách."
+                "KẾT LUẬN: ĐẠT — ngữ cảnh trong ngân sách và tóm tắt được dùng."
+                if passed
+                else "KẾT LUẬN: KHÔNG ĐẠT — vượt ngân sách hoặc tóm tắt không được dùng."
             )
             client.delete(f"{API}/sessions/{session_id}", headers=headers)
-            return 0 if maximum <= budget else 1
+            return 0 if passed else 1
         finally:
             if user_id:
                 client.delete(f"{BASE}/auth/v1/admin/users/{user_id}", headers=_admin_headers())

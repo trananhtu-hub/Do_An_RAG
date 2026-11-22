@@ -1,0 +1,84 @@
+{
+  "timestamp": "2026-11-23T03:08:20",
+  "api_base": "http://127.0.0.1:8000",
+  "warmup": true,
+  "warmup_result": {
+    "question": "Amazon S3 là gì? Trả lời ngắn gọn.",
+    "meta_ms": 451.9,
+    "ttft_ms": 4291.3,
+    "server_ttft_ms": 3829.96,
+    "total_ms": 6939.0,
+    "provider": "deepseek_primary",
+    "model": "deepseek-flash",
+    "status": "complete",
+    "errors": []
+  },
+  "dev_sha256": "4139256b3c49fca7a6218d6c619158c8a340027f756e41d7d05cd036b0f97951",
+  "records": [
+    {
+      "code": "DV-01",
+      "kind": "Tra cứu nối tiếp",
+      "turn": 1,
+      "question": "Amazon Route 53 là gì và hosted zone dùng để làm gì?",
+      "meta_ms": 668.0,
+      "ttft_ms": 5594.4,
+      "server_ttft_ms": 4962.02,
+      "total_ms": 9012.5,
+      "provider": "deepseek_primary",
+      "model": "deepseek-flash",
+      "status": "complete",
+      "errors": []
+    }
+  ],
+  "summary": {
+    "runs": 1,
+    "valid": 1,
+    "errors": 0,
+    "ttft_ms": {
+      "n": 1,
+      "p50": 5594.4,
+      "p95": 5594.4,
+      "max": 5594.4
+    },
+    "total_ms": {
+      "n": 1,
+      "p50": 9012.5,
+      "p95": 9012.5,
+      "max": 9012.5
+    },
+    "meta_ms": {
+      "n": 1,
+      "p50": 668.0,
+      "p95": 668.0,
+      "max": 668.0
+    },
+    "by_turn": {
+      "1": {
+        "ttft_ms": {
+          "n": 1,
+          "p50": 5594.4,
+          "p95": 5594.4,
+          "max": 5594.4
+        },
+        "total_ms": {
+          "n": 1,
+          "p50": 9012.5,
+          "p95": 9012.5,
+          "max": 9012.5
+        }
+      },
+      "2": {
+        "ttft_ms": null,
+        "total_ms": null
+      },
+      "3": {
+        "ttft_ms": null,
+        "total_ms": null
+      },
+      "4": {
+        "ttft_ms": null,
+        "total_ms": null
+      }
+    }
+  }
+}

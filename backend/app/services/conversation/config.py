@@ -41,6 +41,7 @@ class SummaryConfig:
     thinking_level: str = "low"
     max_summary_tokens: int = 400
     workers: int = 2
+    await_ms: int = 5000
 
     def __post_init__(self) -> None:
         if self.trigger_turns < 2:
@@ -51,6 +52,8 @@ class SummaryConfig:
             raise ValueError("summary.trigger_tokens/max_summary_tokens phải > 0")
         if self.workers < 1:
             raise ValueError("summary.workers phải >= 1")
+        if self.await_ms <= 0:
+            raise ValueError("summary.await_ms phải > 0")
 
 
 @dataclass(frozen=True)

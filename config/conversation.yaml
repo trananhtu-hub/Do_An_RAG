@@ -22,6 +22,9 @@ summary:
   thinking_level: low
   max_summary_tokens: 400
   workers: 2
+  # Chờ tối đa chừng này mili-giây cho tóm tắt nền trước khi dùng bản tạm,
+  # để lượt kế tiếp chắc chắn dùng tóm tắt mới.
+  await_ms: 5000
 
 # Ngân sách ngữ cảnh hội thoại đưa vào prompt sinh câu trả lời.
 context:

@@ -18,3 +18,4 @@ data/processed/embed_cache.json
 data/processed/embed_cache.tmp
 .DS_Store
 Thumbs.db
+backups/

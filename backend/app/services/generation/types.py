@@ -137,3 +137,4 @@ class GenerationResult:
     streaming: bool = False
     status: str = "complete"
     conversation_tokens: int = 0
+    timings_ms: dict[str, float] = field(default_factory=dict)

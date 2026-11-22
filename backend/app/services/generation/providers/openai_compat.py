@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import time
-from collections.abc import Callable, Iterator, Sequence
+from collections.abc import Callable, Generator, Iterator, Sequence
 
 import httpx
 
@@ -77,7 +77,7 @@ class OpenAICompatAdapter:
         self,
         messages: Sequence[LLMMessage],
         *,
-        thinking_level: str | None = None,  # noqa: ARG002 - không có khái niệm này
+        thinking_level: str | None = None,
         max_output_tokens: int | None = None,
         json_mode: bool = True,
         timeout_ms: int | None = None,
@@ -89,6 +89,8 @@ class OpenAICompatAdapter:
             ],
             "max_tokens": max_output_tokens or self.max_output_tokens,
         }
+        if thinking_level is not None:
+            payload["reasoning_effort"] = thinking_level
         if self.temperature is not None:
             payload["temperature"] = self.temperature
         if json_mode:
@@ -140,7 +142,7 @@ class OpenAICompatAdapter:
         self,
         messages: Sequence[LLMMessage],
         *,
-        thinking_level: str | None = None,  # noqa: ARG002 - không có khái niệm này
+        thinking_level: str | None = None,
         max_output_tokens: int | None = None,
         json_mode: bool = True,
         timeout_ms: int | None = None,
@@ -153,16 +155,68 @@ class OpenAICompatAdapter:
             "max_tokens": max_output_tokens or self.max_output_tokens,
             "stream": True,
         }
+        if thinking_level is not None:
+            payload["reasoning_effort"] = thinking_level
         if self.temperature is not None:
             payload["temperature"] = self.temperature
         if json_mode:
             payload["response_format"] = {"type": "json_object"}
         timeout = (timeout_ms or self.timeout_ms) / 1000.0
+
+        started = time.perf_counter()
+        retried_without_thinking = False
+        while True:
+            collected, usage, finish_reason, model, response_id = yield from self._stream_attempt(
+                payload, timeout
+            )
+            text = "".join(collected).strip()
+            if text:
+                break
+            if not retried_without_thinking and payload.get("reasoning_effort") not in (
+                None,
+                "none",
+            ):
+                # Rỗng vì token suy luận chiếm hết hạn mức (finish_reason=length):
+                # một lần thử lại không suy luận, cùng model DeepSeek, không đổi provider.
+                payload["reasoning_effort"] = "none"
+                retried_without_thinking = True
+                continue
+            raise LLMError(
+                f"Endpoint tương thích OpenAI streaming trả về rỗng "
+                f"(finish_reason={finish_reason})",
+                provider=self.name,
+                retryable=True,
+            )
+        usage_estimated = usage is None or usage.total_tokens == 0
+        if usage_estimated:
+            usage = estimate_usage(messages, text)
+        elapsed_ms = round((time.perf_counter() - started) * 1000, 2)
+        yield StreamDelta(
+            response=LLMResponse(
+                text=text,
+                model=model,
+                provider=self.name,
+                usage=usage,
+                latency_ms=elapsed_ms,
+                cost_usd=self.pricing.cost_usd(usage.input_tokens, usage.output_tokens),
+                finish_reason=finish_reason,
+                raw={
+                    "id": response_id,
+                    "streamed": True,
+                    "usage_estimated": usage_estimated,
+                    "retried_without_thinking": retried_without_thinking,
+                },
+            ),
+            done=True,
+        )
+
+    def _stream_attempt(
+        self, payload: dict, timeout: float
+    ) -> Generator[StreamDelta, None, tuple[list[str], Usage | None, str | None, str, object]]:
+        """Một lượt gọi streaming; trả về (collected, usage, finish_reason, model, id)."""
         headers = {"content-type": "application/json", **self._headers}
         if self._api_key:
             headers["authorization"] = f"Bearer {self._api_key}"
-
-        started = time.perf_counter()
         collected: list[str] = []
         usage: Usage | None = None
         finish_reason: str | None = None
@@ -227,37 +281,7 @@ class OpenAICompatAdapter:
                 provider=self.name,
                 retryable=True,
             ) from exc
-
-        text = "".join(collected).strip()
-        if not text:
-            raise LLMError(
-                f"Endpoint tương thích OpenAI streaming trả về rỗng "
-                f"(finish_reason={finish_reason})",
-                provider=self.name,
-                # Phản hồi rỗng thường do token suy luận chiếm hết hạn mức; thử lại có ích.
-                retryable=True,
-            )
-        usage_estimated = usage is None or usage.total_tokens == 0
-        if usage_estimated:
-            usage = estimate_usage(messages, text)
-        elapsed_ms = round((time.perf_counter() - started) * 1000, 2)
-        yield StreamDelta(
-            response=LLMResponse(
-                text=text,
-                model=model,
-                provider=self.name,
-                usage=usage,
-                latency_ms=elapsed_ms,
-                cost_usd=self.pricing.cost_usd(usage.input_tokens, usage.output_tokens),
-                finish_reason=finish_reason,
-                raw={
-                    "id": response_id,
-                    "streamed": True,
-                    "usage_estimated": usage_estimated,
-                },
-            ),
-            done=True,
-        )
+        return collected, usage, finish_reason, model, response_id
 
     def _post(self, payload: dict, timeout: float) -> httpx.Response:
         headers = {"content-type": "application/json", **self._headers}

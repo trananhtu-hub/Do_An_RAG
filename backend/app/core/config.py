@@ -16,8 +16,11 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    # Gemini chỉ dùng cho embedding 768 chiều.
     gemini_api_key: str = ""
-    gemini_model_default: str = "gemini-3.8-flash"
+    deepseek_api_key: str = ""
+    deepseek_base_url: str = "https://api.deepseek.com/v1"
+    deepseek_model: str = "deepseek-chat"
     supabase_url: str = ""
     supabase_anon_key: str = ""
     supabase_service_role_key: str = ""
@@ -26,6 +29,10 @@ class Settings(BaseSettings):
     @property
     def has_gemini_api_key(self) -> bool:
         return bool(self.gemini_api_key)
+
+    @property
+    def has_deepseek_api_key(self) -> bool:
+        return bool(self.deepseek_api_key)
 
     @property
     def has_supabase_config(self) -> bool:

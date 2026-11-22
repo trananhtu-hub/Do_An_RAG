@@ -16,7 +16,7 @@ from .config import RetrievalConfig
 from .decompose import QueryDecomposer
 from .embedder import GeminiQueryEmbedder, QueryEmbedder
 from .fusion import RankedList, rrf_fuse
-from .llm import GeminiTextClient
+from .llm import DEFAULT_BASE_URL, DeepSeekTextClient
 from .rerank import CrossEncoderReranker, TimeoutReranker
 from .store import PgChunkStore
 from .text import (
@@ -82,7 +82,7 @@ class RetrievalService:
         reranker: TimeoutReranker | None = None,
         classifier: QueryClassifier | None = None,
         decomposer: QueryDecomposer | None = None,
-        llm: GeminiTextClient | None = None,
+        llm: DeepSeekTextClient | None = None,
         cache: TTLCache[RetrievalResult] | None = None,
         executor: ThreadPoolExecutor | None = None,
     ) -> None:
@@ -471,14 +471,14 @@ def build_default_service(config_path: str | Path | None = None) -> RetrievalSer
     env = load_environment()
     config = load_config(config_path)
     database_url = env.get("DATABASE_URL", "")
-    api_key = env.get("GEMINI_API_KEY", "")
+    gemini_key = env.get("GEMINI_API_KEY", "")
     if not database_url:
         raise RuntimeError("Thiếu DATABASE_URL trong .env")
-    if not api_key:
-        raise RuntimeError("Thiếu GEMINI_API_KEY trong .env")
+    if not gemini_key:
+        raise RuntimeError("Thiếu GEMINI_API_KEY trong .env (chỉ dùng cho embedding)")
     store = PgChunkStore(database_url, ef_search=config.vector.ef_search)
     embedder = GeminiQueryEmbedder(
-        api_key,
+        gemini_key,
         model=config.embedding.model,
         dimensions=config.embedding.dimensions,
         task_type=config.embedding.task_type,
@@ -486,7 +486,15 @@ def build_default_service(config_path: str | Path | None = None) -> RetrievalSer
         max_retries=config.embedding.max_retries,
         cache_size=config.embedding.cache_size,
     )
-    llm = GeminiTextClient(api_key)
+    deepseek_key = env.get("DEEPSEEK_API_KEY") or env.get("OPENAI_API_KEY", "")
+    llm = (
+        DeepSeekTextClient(
+            deepseek_key,
+            base_url=env.get("DEEPSEEK_BASE_URL") or DEFAULT_BASE_URL,
+        )
+        if deepseek_key
+        else None
+    )
     return RetrievalService(config, store, embedder, llm=llm)
 
 

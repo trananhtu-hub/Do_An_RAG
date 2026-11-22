@@ -43,6 +43,12 @@ class StreamEvent:
 
 
 @dataclass(frozen=True)
+class SummaryRefresh:
+    source: str
+    latency_ms: float
+
+
+@dataclass(frozen=True)
 class PreparedTurn:
     user_id: UUID
     session: SessionRecord
@@ -54,6 +60,8 @@ class PreparedTurn:
     assistant_message: MessageRecord | None = None
     replay: MessageRecord | None = None
     prepare_ms: float = 0.0
+    summary_source: str | None = None
+    summary_latency_ms: float = 0.0
 
     @property
     def is_replay(self) -> bool:
@@ -95,7 +103,7 @@ class ChatService:
         self._summary_lock = threading.Lock()
         self._summary_inflight: set[UUID] = set()
         self._summary_pending: set[UUID] = set()
-        self._futures: list[Future[Any]] = []
+        self._summary_futures: dict[UUID, Future[Any]] = {}
 
     # -- phiên ---------------------------------------------------------------
     def create_session(
@@ -156,6 +164,7 @@ class ChatService:
             if existing is not None:
                 return self._prepare_existing(session, question, existing, started)
 
+        session, summary_refresh = self._refresh_summary(user_id, session_id, session)
         history = _trim_after_topic_shift(
             self._history(user_id, session_id, start=session.summary_message_count)
         )
@@ -171,6 +180,8 @@ class ChatService:
             "depends_on_context": condensation.depends_on_context,
             "condensation_latency_ms": condensation.latency_ms,
             "conversation_tokens": conversation.tokens,
+            "summary_source": summary_refresh.source if summary_refresh else None,
+            "summary_latency_ms": summary_refresh.latency_ms if summary_refresh else 0.0,
         }
         try:
             pair = self.repository.begin_turn(
@@ -213,6 +224,8 @@ class ChatService:
             user_message=user_message,
             assistant_message=assistant_message,
             prepare_ms=round((time.perf_counter() - started) * 1000, 2),
+            summary_source=summary_refresh.source if summary_refresh else None,
+            summary_latency_ms=summary_refresh.latency_ms if summary_refresh else 0.0,
         )
 
     def _prepare_existing(
@@ -437,6 +450,8 @@ class ChatService:
             "conversation_tokens": turn.conversation.tokens,
             "conversation_messages": turn.conversation.message_count,
             "summary_used": turn.conversation.summary_used,
+            "summary_source": turn.summary_source,
+            "summary_latency_ms": turn.summary_latency_ms,
             "replayed": turn.is_replay,
             "prepare_ms": turn.prepare_ms,
         }
@@ -477,6 +492,8 @@ class ChatService:
             "confidence": result.payload.confidence,
             "abstained": result.payload.abstained,
             "abstention_type": result.payload.abstention_type,
+            "prompt_audit": result.extra.get("prompt_audit"),
+            "timings_ms": result.timings_ms,
         }
 
     # -- lưu kết quả ---------------------------------------------------------
@@ -506,6 +523,8 @@ class ChatService:
             "conversation_tokens": turn.conversation.tokens,
             "conversation_messages": turn.conversation.message_count,
             "summary_used": turn.conversation.summary_used,
+            "summary_source": turn.summary_source,
+            "summary_latency_ms": turn.summary_latency_ms,
         }
         citations: list[dict[str, Any]] = []
         if result is not None:
@@ -522,6 +541,8 @@ class ChatService:
                     "abstention_type": result.payload.abstention_type,
                     "citation_validity": result.citation_report.citation_validity,
                     "warnings": list(result.warnings),
+                    "prompt_audit": result.extra.get("prompt_audit"),
+                    "timings_ms": result.timings_ms,
                 }
             )
         if error:
@@ -539,6 +560,77 @@ class ChatService:
         return message
 
     # -- tóm tắt nền ---------------------------------------------------------
+    def _refresh_summary(
+        self, user_id: UUID, session_id: UUID, session: SessionRecord
+    ) -> tuple[SessionRecord, SummaryRefresh | None]:
+        """Bảo đảm tóm tắt mới nhất được dùng ngay ở lượt kế tiếp khi đã tới hạn.
+
+        Chờ tác vụ tóm tắt nền tối đa ``summary.await_ms``; nếu vẫn chưa xong thì
+        lưu ngay một bản tóm tắt tạm (không gọi mô hình) để lượt này dùng được.
+        """
+        cfg = self.config.summary
+        if not cfg.enabled:
+            return session, None
+        started = time.perf_counter()
+        completed = self._await_summary(session_id, cfg.await_ms)
+        refreshed = self.repository.get_session(user_id, session_id) or session
+        latency = round((time.perf_counter() - started) * 1000, 2)
+        if completed and (refreshed.summary or "").strip():
+            return refreshed, SummaryRefresh("stored", latency)
+        if not self._summary_possible(refreshed):
+            return refreshed, None
+        messages = self.repository.list_messages(user_id, session_id, limit=500)
+        if not self.summarizer.is_due(refreshed, messages):
+            return refreshed, None
+        running = self._summary_running(session_id)
+        if running:
+            outcome = self.summarizer.store_fallback(user_id, refreshed, messages)
+        else:
+            outcome = self.summarizer.maybe_summarize(
+                user_id, refreshed, messages, timeout_ms=cfg.await_ms
+            )
+        if outcome is None or not outcome.updated:
+            return refreshed, None
+        refreshed = self.repository.get_session(user_id, session_id) or refreshed
+        source = outcome.source if running else f"inline_{outcome.source}"
+        return refreshed, SummaryRefresh(source, round((time.perf_counter() - started) * 1000, 2))
+
+    def _summary_possible(self, session: SessionRecord) -> bool:
+        """Kiểm tra rẻ để bỏ qua truy vấn tin nhắn khi chắc chắn chưa tới hạn."""
+        cfg = self.config.summary
+        if session.message_count <= cfg.keep_recent_turns * 2:
+            return False
+        pending = session.message_count - session.summary_message_count
+        return pending >= cfg.trigger_turns or session.token_count >= cfg.trigger_tokens
+
+    def _summary_running(self, session_id: UUID) -> bool:
+        with self._summary_lock:
+            return session_id in self._summary_inflight
+
+    def _await_summary(self, session_id: UUID, timeout_ms: int) -> bool:
+        """Chờ tối đa ``timeout_ms`` cho chuỗi tác vụ tóm tắt của phiên.
+
+        Trả về True khi không còn tác vụ nào đang chạy.
+        """
+        deadline = time.monotonic() + max(0.0, timeout_ms / 1000.0)
+        while True:
+            with self._summary_lock:
+                future = self._summary_futures.get(session_id)
+            if future is None:
+                return True
+            remaining = deadline - time.monotonic()
+            if remaining > 0 and not future.done():
+                try:
+                    future.result(timeout=remaining)
+                except Exception:  # noqa: BLE001 - lỗi đã log trong luồng nền
+                    pass
+            if not future.done():
+                return False
+            with self._summary_lock:
+                current = self._summary_futures.get(session_id)
+            if current is None or current is future:
+                return True
+
     def _schedule_summary(self, user_id: UUID, session_id: UUID) -> None:
         if not self.config.summary.enabled:
             return
@@ -548,9 +640,12 @@ class ChatService:
                 self._summary_pending.add(session_id)
                 return
             self._summary_inflight.add(session_id)
-            future = self._executor.submit(self._run_summary, user_id, session_id)
-            self._futures = [item for item in self._futures if not item.done()]
-            self._futures.append(future)
+            self._summary_futures = {
+                key: item for key, item in self._summary_futures.items() if not item.done()
+            }
+            self._summary_futures[session_id] = self._executor.submit(
+                self._run_summary, user_id, session_id
+            )
 
     def _run_summary(self, user_id: UUID, session_id: UUID) -> None:
         try:
@@ -561,10 +656,11 @@ class ChatService:
             outcome = self.summarizer.maybe_summarize(user_id, session, messages)
             if outcome is not None and outcome.updated:
                 _LOGGER.info(
-                    "Đã cập nhật tóm tắt phiên %s (%s tin nhắn, nguồn %s)",
+                    "Đã cập nhật tóm tắt phiên %s (%s tin nhắn, nguồn %s, %.0f ms)",
                     session_id,
                     outcome.summarized_messages,
                     outcome.source,
+                    outcome.latency_ms,
                 )
         except Exception as exc:  # noqa: BLE001 - tóm tắt nền không được làm sập request
             _LOGGER.warning("Không tóm tắt được phiên %s: %s", session_id, type(exc).__name__)
@@ -580,7 +676,7 @@ class ChatService:
         deadline = time.monotonic() + timeout
         while True:
             with self._summary_lock:
-                futures = list(self._futures)
+                futures = list(self._summary_futures.values())
             for future in futures:
                 remaining = deadline - time.monotonic()
                 if remaining <= 0:
@@ -590,7 +686,8 @@ class ChatService:
                 except Exception:  # noqa: BLE001 - đã log trong luồng nền
                     pass
             with self._summary_lock:
-                if len(self._futures) == len(futures) and not self._summary_inflight:
+                changed = list(self._summary_futures.values()) != futures
+                if not changed and not self._summary_inflight:
                     return
             if time.monotonic() >= deadline:
                 return

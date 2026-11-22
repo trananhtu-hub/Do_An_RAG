@@ -72,6 +72,18 @@ def build_targets(
     return tuple(targets)
 
 
+def inline_citation_sources(answer: str) -> list[str]:
+    """Chuỗi trích dẫn dạng [Nguồn – Mục] trong câu trả lời, giữ thứ tự xuất hiện."""
+    seen: set[str] = set()
+    sources: list[str] = []
+    for match in _BRACKET.finditer(answer):
+        value = match.group(0)[1:-1].strip()
+        if value and value not in seen:
+            seen.add(value)
+            sources.append(value)
+    return sources
+
+
 def check_citations(
     payload: AnswerPayload,
     blocks: tuple[ContextBlock, ...],

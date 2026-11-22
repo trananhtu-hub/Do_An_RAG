@@ -87,15 +87,32 @@ def build_conversation_context(
         remaining -= len(block) + 1
     selected.reverse()
 
-    parts: list[str] = []
-    if summary_text:
-        parts.append(f"{SUMMARY_HEADER}\n{summary_text}")
-    if selected:
-        parts.append(f"{RECENT_HEADER}\n" + "\n".join(selected))
-    text = "\n\n".join(parts).strip()
+    def assemble() -> str:
+        parts: list[str] = []
+        if summary_text:
+            parts.append(f"{SUMMARY_HEADER}\n{summary_text}")
+        if selected:
+            parts.append(f"{RECENT_HEADER}\n" + "\n".join(selected))
+        return "\n\n".join(parts).strip()
+
+    text = assemble()
+    # Ngân sách tính bằng tokenizer thật; ước lượng ký tự/token chỉ là phương án lùi
+    # và từng để ngữ cảnh vượt 1.500 token thật trên dev set.
+    from ..generation.tokens import default_token_counter
+
+    counter = default_token_counter()
+    limit = config.max_conversation_tokens
+    while counter.count(text) > limit and selected:
+        selected.pop(0)
+        trimmed = True
+        text = assemble()
+    while counter.count(text) > limit and len(summary_text) > 1:
+        summary_text = summary_text[: max(1, int(len(summary_text) * 0.85))].rstrip()
+        trimmed = True
+        text = assemble()
     return ConversationContext(
         text=text,
-        tokens=estimate_tokens(text, config.chars_per_token),
+        tokens=counter.count(text),
         message_count=len(selected),
         summary_used=bool(summary_text),
         trimmed=trimmed,

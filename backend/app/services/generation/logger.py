@@ -100,8 +100,10 @@ class QueryLogWriter:
 
 
 def _metadata(result: GenerationResult) -> dict[str, Any]:
+    timings = result.timings_ms or {}
     return {
         "provider": result.provider,
+        "judge_provider": result.extra.get("judge_provider"),
         "prompt_mode": result.prompt_mode,
         "thinking_level": result.thinking_level,
         "schema_retries": result.schema_retries,
@@ -118,6 +120,16 @@ def _metadata(result: GenerationResult) -> dict[str, Any]:
         "query_type": result.retrieval_query_type,
         "context_tokens_estimate": result.context_tokens_estimate,
         "total_tokens": result.usage_input_tokens + result.usage_output_tokens,
+        "retrieval_ms": timings.get("retrieval_ms", 0.0),
+        "rerank_ms": timings.get("rerank_ms", 0.0),
+        "parent_expand_ms": timings.get("parent_expand_ms", 0.0),
+        "prompt_ms": timings.get("prompt_ms", 0.0),
+        "prefill_ms": timings.get("prefill_ms", 0.0),
+        "generation_ms": timings.get("generation_ms", 0.0),
+        "output_tokens": result.usage_output_tokens,
+        "ttft_ms": result.ttft_ms,
+        "total_ms": result.latency_ms,
+        "prompt_audit": result.extra.get("prompt_audit"),
     }
 
 

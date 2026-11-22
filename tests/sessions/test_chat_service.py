@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import time
 from uuid import uuid4
 
 import pytest
@@ -208,5 +209,103 @@ def test_summary_is_generated_and_reused_in_next_turn() -> None:
         assert turn.conversation.summary_used is True
         assert "TÓM TẮT HỘI THOẠI" in turn.conversation.text
         assert turn.conversation.message_count <= 2
+    finally:
+        service.close()
+
+
+_TEN_TURN_QUESTIONS = [
+    "Phân tích các ưu điểm chính của dịch vụ Amazon S3 Standard trong hệ thống.",
+    "Trình bày cách dịch vụ S3 Intelligent-Tiering tự động chuyển lớp lưu trữ dữ liệu.",
+    "Mô tả đặc điểm và ứng dụng của S3 Glacier Deep Archive trong lưu trữ dài hạn.",
+    "Phân biệt vai trò của IAM role và IAM user trong môi trường nhiều tài khoản.",
+    "Phân biệt cách hoạt động của security group và network ACL trong VPC.",
+    "Mô tả kiến trúc Multi-AZ của Amazon RDS và lợi ích khi triển khai.",
+    "Liệt kê các routing policy phổ biến của Route 53 kèm ví dụ sử dụng.",
+    "Phân tích mô hình thực thi và giới hạn của AWS Lambda trong ứng dụng.",
+    "Trình bày nguyên tắc thiết kế partition key cho bảng DynamoDB hiệu năng cao.",
+    "Phân tích lợi ích của Amazon CloudFront đối với độ trễ và băng thông.",
+    "So sánh ưu nhược điểm của bucket policy và ACL trong Amazon S3.",
+    "Trình bày đặc điểm của các loại EBS volume phổ biến trên AWS.",
+    "Phân tích cách Elastic Load Balancing phân phối lưu lượng cho ứng dụng HTTP.",
+]
+
+_SUMMARY_TEXT = "Người học đang ôn S3, IAM và kiến trúc multi-AZ."
+
+
+def _ten_turn_config(**summary: object) -> ConversationConfig:
+    raw = {
+        **CONFIG_RAW,
+        "summary": {
+            "enabled": True,
+            "trigger_turns": 10,
+            "keep_recent_turns": 6,
+            **summary,
+        },
+        "context": {
+            "max_conversation_tokens": 1500,
+            "chars_per_token": 3.0,
+            "max_message_chars": 600,
+        },
+    }
+    return ConversationConfig.from_dict(raw)
+
+
+def test_summary_is_used_on_the_turn_after_ten_turns() -> None:
+    chain = FakeChain([_SUMMARY_TEXT])
+    generation = FakeGeneration(chain=chain)
+    service = build_service(generation=generation, config=_ten_turn_config())
+    try:
+        session = service.create_session(USER_A)
+        turns = [service.answer(USER_A, session.id, question) for question in _TEN_TURN_QUESTIONS]
+
+        used = [turn.turn.conversation.summary_used for turn in turns]
+        assert used == [False] * 10 + [True] * 3
+        assert turns[10].turn.summary_source == "stored"
+        assert turns[10].message is not None
+        assert turns[10].message.metadata["summary_source"] == "stored"
+        assert "TÓM TẮT HỘI THOẠI TRƯỚC ĐÓ" in turns[10].turn.conversation.text
+        assert turns[10].turn.conversation.message_count == 12
+        assert turns[10].turn.conversation.tokens <= 1500
+
+        stored = service.get_session(USER_A, session.id)
+        assert stored.summary == _SUMMARY_TEXT
+        assert stored.summary_message_count == 8
+    finally:
+        service.close()
+
+
+class _SlowChain(FakeChain):
+    def __init__(self, texts: list[str], delay: float = 0.4) -> None:
+        super().__init__(texts)
+        self.delay = delay
+
+    def complete(self, messages, **kwargs):
+        time.sleep(self.delay)
+        return super().complete(messages, **kwargs)
+
+
+def test_slow_background_summary_falls_back_inline_on_next_turn() -> None:
+    chain = _SlowChain([_SUMMARY_TEXT])
+    generation = FakeGeneration(chain=chain)
+    service = build_service(
+        generation=generation,
+        config=_ten_turn_config(await_ms=30),
+    )
+    try:
+        session = service.create_session(USER_A)
+        for question in _TEN_TURN_QUESTIONS[:10]:
+            service.answer(USER_A, session.id, question)
+
+        outcome = service.answer(USER_A, session.id, _TEN_TURN_QUESTIONS[10])
+
+        assert outcome.turn.conversation.summary_used is True
+        assert outcome.turn.summary_source == "inline_fallback"
+        assert "Tóm tắt tạm" in outcome.turn.conversation.text
+        assert outcome.message is not None
+        assert outcome.message.metadata["summary_source"] == "inline_fallback"
+
+        service.wait_for_background(timeout=10.0)
+        stored = service.get_session(USER_A, session.id)
+        assert stored.summary == _SUMMARY_TEXT
     finally:
         service.close()

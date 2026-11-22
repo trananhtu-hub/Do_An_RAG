@@ -3,7 +3,7 @@ from __future__ import annotations
 import re
 
 from .config import DecompositionConfig
-from .llm import GeminiTextClient
+from .llm import DeepSeekTextClient
 from .text import normalize_query, word_count
 from .types import DecompositionResult, QueryClassification
 
@@ -24,7 +24,7 @@ class QueryDecomposer:
     def __init__(
         self,
         config: DecompositionConfig,
-        llm: GeminiTextClient | None = None,
+        llm: DeepSeekTextClient | None = None,
     ) -> None:
         self._config = config
         self._llm = llm

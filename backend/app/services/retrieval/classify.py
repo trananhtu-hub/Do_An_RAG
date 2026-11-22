@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from .config import QUERY_TYPES, ClassifierConfig, TopKConfig
-from .llm import GeminiTextClient
+from .llm import DeepSeekTextClient
 from .text import (
     extract_english_terms,
     normalize_query,
@@ -79,7 +79,7 @@ class QueryClassifier:
         self,
         config: ClassifierConfig,
         top_k: TopKConfig,
-        llm: GeminiTextClient | None = None,
+        llm: DeepSeekTextClient | None = None,
     ) -> None:
         self._config = config
         self._top_k = top_k

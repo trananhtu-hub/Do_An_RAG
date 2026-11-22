@@ -7,9 +7,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ..retrieval.types import RetrievalResult, RetrievedChunk
-from .citations import check_citations
+from .citations import check_citations, inline_citation_sources
 from .config import GenerationConfig, load_generation_config
-from .context import BuiltContext, build_context
+from .context import BuiltContext, build_context, fit_context_to_tokens
 from .logger import QueryLogWriter
 from .prompts import PromptLibrary, mode_for_query_type
 from .providers import (
@@ -21,7 +21,12 @@ from .providers import (
 )
 from .schema import SchemaError, parse_answer, repair_message
 from .streaming import AnswerStreamExtractor
-from .types import AnswerPayload, GenerationResult
+from .tokens import PromptAudit, PromptTokenCounter, audit_prompt
+from .types import AnswerPayload, Citation, GenerationResult
+
+# Câu tra cứu đơn giản dùng mức suy luận thấp hơn để giảm TTFT, câu so sánh/nhiều
+# ràng buộc giữ mức mặc định vì cần suy luận nhiều bước.
+_SIMPLE_QUERY_TYPES = frozenset({"tra_cuu", "tron_thuat_ngu"})
 
 SCHEMA_TEMPLATE = """{
   "answer": "...",
@@ -57,6 +62,7 @@ class GenerationService:
         self.retrieval = retrieval
         self.prompts = prompts or PromptLibrary(config.prompt_root)
         self.log_writer = log_writer
+        self.token_counter = PromptTokenCounter(chars_per_token=config.chars_per_token)
 
     def answer(
         self,
@@ -84,15 +90,18 @@ class GenerationService:
         chunks = list(chunks)
         query_type = retrieval_result.query_type if retrieval_result else None
 
+        prompt_started = time.perf_counter()
         context = build_context(
             chunks,
             max_context_tokens=self.config.max_context_tokens,
             chars_per_token=self.config.chars_per_token,
         )
         prompt_mode = mode or mode_for_query_type(query_type)
-        level = thinking_level or self.config.default_thinking_level
+        level = thinking_level or self._default_thinking_level(query_type)
 
         if context.is_empty:
+            prompt_ms = (time.perf_counter() - prompt_started) * 1000
+            latency = (time.perf_counter() - started) * 1000
             payload = self._empty_context_payload()
             result = self._result(
                 question=question,
@@ -100,7 +109,7 @@ class GenerationService:
                 response=None,
                 prompt_mode="abstain",
                 thinking_level=level,
-                latency_ms=(time.perf_counter() - started) * 1000,
+                latency_ms=latency,
                 context=context,
                 chunks=chunks,
                 query_type=query_type,
@@ -108,6 +117,16 @@ class GenerationService:
                 warnings=("Không có đoạn ngữ cảnh nào được truy xuất.",),
                 citation_report=check_citations(payload, (), ()),
                 conversation_tokens=conversation_tokens,
+                ttft_ms=latency,
+                timings_ms=self._timings(
+                    retrieval_result,
+                    prompt_ms=prompt_ms,
+                    prefill_ms=0.0,
+                    generation_ms=0.0,
+                    ttft_ms=latency,
+                    total_ms=latency,
+                    output_tokens=0,
+                ),
             )
             self._write_log(
                 result,
@@ -118,13 +137,14 @@ class GenerationService:
             )
             return result
 
-        messages = self.prompts.build(
+        messages, context, prompt_audit, budget_warnings = self._build_prompt(
             question=question,
-            context_text=context.text,
-            mode=prompt_mode,
+            context=context,
+            prompt_mode=prompt_mode,
             use_cot=use_cot,
             conversation=conversation,
         )
+        prompt_ms = (time.perf_counter() - prompt_started) * 1000
         payload, response, retries = self._complete_with_schema(messages, thinking_level=level)
         if payload.abstained:
             payload = payload.model_copy(update={"citations": []})
@@ -132,14 +152,16 @@ class GenerationService:
                 payload = payload.model_copy(update={"confidence": 0.2})
 
         citation_report = check_citations(payload, context.blocks, chunks)
-        warnings = self._warnings(payload, citation_report, context)
+        warnings = list(self._warnings(payload, citation_report, context))
+        warnings.extend(budget_warnings)
+        latency = (time.perf_counter() - started) * 1000
         result = self._result(
             question=question,
             payload=payload,
             response=response,
             prompt_mode=prompt_mode,
             thinking_level=level,
-            latency_ms=(time.perf_counter() - started) * 1000,
+            latency_ms=latency,
             context=context,
             chunks=chunks,
             query_type=query_type,
@@ -147,6 +169,17 @@ class GenerationService:
             warnings=warnings,
             citation_report=citation_report,
             conversation_tokens=conversation_tokens,
+            prompt_audit=prompt_audit,
+            ttft_ms=latency,
+            timings_ms=self._timings(
+                retrieval_result,
+                prompt_ms=prompt_ms,
+                prefill_ms=0.0,
+                generation_ms=response.latency_ms if response else 0.0,
+                ttft_ms=latency,
+                total_ms=latency,
+                output_tokens=response.usage.output_tokens if response else 0,
+            ),
         )
         self._write_log(
             result, session_id, retrieval_result, user_id=user_id, rewritten_query=rewritten_query
@@ -185,15 +218,17 @@ class GenerationService:
         chunks = list(chunks)
         query_type = retrieval_result.query_type if retrieval_result else None
 
+        prompt_started = time.perf_counter()
         context = build_context(
             chunks,
             max_context_tokens=self.config.max_context_tokens,
             chars_per_token=self.config.chars_per_token,
         )
         prompt_mode = mode or mode_for_query_type(query_type)
-        level = thinking_level or self.config.default_thinking_level
+        level = thinking_level or self._default_thinking_level(query_type)
 
         if context.is_empty:
+            prompt_ms = (time.perf_counter() - prompt_started) * 1000
             payload = self._empty_context_payload()
             latency = (time.perf_counter() - started) * 1000
             result = self._result(
@@ -212,6 +247,15 @@ class GenerationService:
                 ttft_ms=latency,
                 streaming=True,
                 conversation_tokens=conversation_tokens,
+                timings_ms=self._timings(
+                    retrieval_result,
+                    prompt_ms=prompt_ms,
+                    prefill_ms=0.0,
+                    generation_ms=0.0,
+                    ttft_ms=latency,
+                    total_ms=latency,
+                    output_tokens=0,
+                ),
             )
             if write_log:
                 self._write_log(
@@ -224,13 +268,15 @@ class GenerationService:
             yield AnswerDelta(result=result)
             return
 
-        messages = self.prompts.build(
+        messages, context, prompt_audit, budget_warnings = self._build_prompt(
             question=question,
-            context_text=context.text,
-            mode=prompt_mode,
+            context=context,
+            prompt_mode=prompt_mode,
             use_cot=use_cot,
             conversation=conversation,
         )
+        prompt_done_at = time.perf_counter()
+        prompt_ms = (prompt_done_at - prompt_started) * 1000
         extractor = AnswerStreamExtractor()
         parts: list[str] = []
         response: LLMResponse | None = None
@@ -270,12 +316,15 @@ class GenerationService:
                     payload = AnswerPayload(
                         answer=extractor.answer.strip(),
                         reasoning_steps=[],
-                        citations=[],
+                        citations=[
+                            Citation(source=source)
+                            for source in inline_citation_sources(extractor.answer)
+                        ],
                         confidence=0.0,
                     )
                     extra_warnings.append(
-                        "Đầu ra streaming không đúng schema JSON; chỉ giữ được phần nội dung "
-                        f"trả lời ({type(exc).__name__})."
+                        "Đầu ra streaming không đúng schema JSON; giữ phần nội dung trả lời "
+                        f"và trích dẫn nội tuyến ({type(exc).__name__})."
                     )
                 else:
                     payload, response, schema_retries = self._retry_streaming_failure(
@@ -300,10 +349,12 @@ class GenerationService:
 
             citation_report = check_citations(payload, context.blocks, chunks)
             warnings = list(self._warnings(payload, citation_report, context))
+            warnings.extend(budget_warnings)
             warnings.extend(extra_warnings)
             if response is not None and response.finish_reason == "max_tokens":
                 warnings.append("Mô hình chạm giới hạn token; câu trả lời có thể bị cắt.")
-            latency = (time.perf_counter() - started) * 1000
+            finished_at = time.perf_counter()
+            latency = (finished_at - started) * 1000
             ttft = (first_token_at - started) * 1000 if first_token_at else latency
             result = self._result(
                 question=question,
@@ -321,6 +372,20 @@ class GenerationService:
                 ttft_ms=ttft,
                 streaming=True,
                 conversation_tokens=conversation_tokens,
+                prompt_audit=prompt_audit,
+                timings_ms=self._timings(
+                    retrieval_result,
+                    prompt_ms=prompt_ms,
+                    prefill_ms=(
+                        (first_token_at - prompt_done_at) * 1000 if first_token_at else 0.0
+                    ),
+                    generation_ms=(
+                        (finished_at - first_token_at) * 1000 if first_token_at else 0.0
+                    ),
+                    ttft_ms=ttft,
+                    total_ms=latency,
+                    output_tokens=response.usage.output_tokens if response else 0,
+                ),
             )
             if write_log:
                 self._write_log(
@@ -344,15 +409,91 @@ class GenerationService:
                     prompt_mode=prompt_mode,
                     thinking_level=level,
                     started=started,
+                    prompt_ms=prompt_ms,
+                    prompt_done_at=prompt_done_at,
+                    first_token_at=first_token_at,
                     context=context,
                     chunks=chunks,
                     query_type=query_type,
+                    retrieval_result=retrieval_result,
                     session_id=session_id,
                     user_id=user_id,
                     rewritten_query=rewritten_query,
                     conversation_tokens=conversation_tokens,
+                    prompt_audit=prompt_audit,
                     status="error" if failed else "interrupted",
                 )
+
+    def _default_thinking_level(self, query_type: str | None) -> str:
+        if query_type in _SIMPLE_QUERY_TYPES:
+            return self.config.simple_query_thinking_level
+        return self.config.default_thinking_level
+
+    def _build_prompt(
+        self,
+        *,
+        question: str,
+        context: BuiltContext,
+        prompt_mode: str,
+        use_cot: bool,
+        conversation: str | None,
+    ) -> tuple[list[LLMMessage], BuiltContext, PromptAudit, list[str]]:
+        """Dựng prompt và ép trần ``max_prompt_tokens`` bằng tokenizer DeepSeek.
+
+        Hội thoại bị bỏ trước nếu chỉ nó đã làm vượt trần hoặc ngân sách còn lại
+        cho ngữ cảnh quá hẹp; sau đó ngữ cảnh truy xuất được cắt bằng tokenizer
+        thật. Mọi lần cắt đều ghi cảnh báo để báo cáo trung thực.
+        """
+        limit = self.config.max_prompt_tokens
+        warnings: list[str] = []
+
+        def build(ctx: BuiltContext, conv: str | None) -> list[LLMMessage]:
+            return self.prompts.build(
+                question=question,
+                context_text=ctx.text,
+                mode=prompt_mode,
+                use_cot=use_cot,
+                conversation=conv,
+            )
+
+        def audit_of(msgs: list[LLMMessage]) -> PromptAudit:
+            return audit_prompt(msgs, self.token_counter, limit_tokens=limit)
+
+        messages = build(context, conversation)
+        audit = audit_of(messages)
+        if audit.over_limit and conversation:
+            without_conversation = audit.total_tokens - audit.conversation_tokens
+            if without_conversation <= limit:
+                conversation = None
+                messages = build(context, conversation)
+                audit = audit_of(messages)
+                warnings.append(f"Đã bỏ ngữ cảnh hội thoại vì prompt vượt ngân sách {limit} token.")
+        if audit.over_limit:
+            allowed = limit - (audit.total_tokens - audit.context_tokens)
+            if conversation and allowed < 128:
+                conversation = None
+                messages = build(context, conversation)
+                audit = audit_of(messages)
+                warnings.append(
+                    f"Đã bỏ ngữ cảnh hội thoại để nhường ngân sách {limit} token cho ngữ cảnh."
+                )
+                allowed = limit - (audit.total_tokens - audit.context_tokens)
+            fitted = fit_context_to_tokens(
+                context,
+                count_tokens=self.token_counter.count,
+                max_tokens=max(0, allowed),
+            )
+            if fitted.text != context.text:
+                context = fitted
+                messages = build(context, conversation)
+                audit = audit_of(messages)
+                warnings.append(
+                    f"Đã thu ngữ cảnh truy xuất để giữ prompt trong ngân sách {limit} token "
+                    f"(còn {audit.context_tokens} token ngữ cảnh)."
+                )
+        if audit.over_limit:
+            warnings.append(f"Prompt vẫn vượt ngân sách: {audit.total_tokens} > {limit} token.")
+        return messages, context, audit, warnings
 
     def _retry_streaming_failure(
         self,
@@ -393,16 +534,23 @@ class GenerationService:
         prompt_mode: str,
         thinking_level: str,
         started: float,
+        prompt_ms: float,
+        prompt_done_at: float,
+        first_token_at: float | None,
         context: BuiltContext,
         chunks: Sequence[RetrievedChunk],
         query_type: str | None,
+        retrieval_result: RetrievalResult | None,
         session_id: str | None,
         user_id: str | None,
         rewritten_query: str | None,
         conversation_tokens: int,
+        prompt_audit: PromptAudit | None,
         status: str,
     ) -> None:
-        latency = (time.perf_counter() - started) * 1000
+        finished_at = time.perf_counter()
+        latency = (finished_at - started) * 1000
+        ttft = (first_token_at - started) * 1000 if first_token_at else latency
         payload = AnswerPayload(
             answer=partial.strip() or "[chưa có nội dung]",
             reasoning_steps=[],
@@ -424,15 +572,25 @@ class GenerationService:
             schema_retries=0,
             warnings=("Stream kết thúc trước khi hoàn tất.",),
             citation_report=check_citations(payload, (), ()),
-            ttft_ms=latency,
+            ttft_ms=ttft,
             streaming=True,
             status=status,
             conversation_tokens=conversation_tokens,
+            prompt_audit=prompt_audit,
+            timings_ms=self._timings(
+                retrieval_result,
+                prompt_ms=prompt_ms,
+                prefill_ms=((first_token_at - prompt_done_at) * 1000 if first_token_at else 0.0),
+                generation_ms=((finished_at - first_token_at) * 1000 if first_token_at else 0.0),
+                ttft_ms=ttft,
+                total_ms=latency,
+                output_tokens=response.usage.output_tokens if response else 0,
+            ),
         )
         self._write_log(
             result,
             session_id,
-            None,
+            retrieval_result,
             user_id=user_id,
             rewritten_query=rewritten_query,
         )
@@ -494,6 +652,30 @@ class GenerationService:
         assert last_error is not None
         raise last_error
 
+    def _timings(
+        self,
+        retrieval_result: RetrievalResult | None,
+        *,
+        prompt_ms: float,
+        prefill_ms: float,
+        generation_ms: float,
+        ttft_ms: float,
+        total_ms: float,
+        output_tokens: int,
+    ) -> dict[str, float]:
+        retrieval = retrieval_result.timings_ms if retrieval_result else {}
+        return {
+            "retrieval_ms": round(float(retrieval.get("total_ms", 0.0)), 2),
+            "rerank_ms": round(float(retrieval.get("rerank_ms", 0.0)), 2),
+            "parent_expand_ms": round(float(retrieval.get("parent_ms", 0.0)), 2),
+            "prompt_ms": round(prompt_ms, 2),
+            "prefill_ms": round(prefill_ms, 2),
+            "generation_ms": round(generation_ms, 2),
+            "output_tokens": float(output_tokens),
+            "ttft_ms": round(ttft_ms, 2),
+            "total_ms": round(total_ms, 2),
+        }
+
     def _result(
         self,
         *,
@@ -513,6 +695,8 @@ class GenerationService:
         streaming: bool = False,
         status: str = "complete",
         conversation_tokens: int = 0,
+        prompt_audit: PromptAudit | None = None,
+        timings_ms: dict[str, float] | None = None,
     ) -> GenerationResult:
         return GenerationResult(
             question=question,
@@ -535,11 +719,16 @@ class GenerationService:
             chunk_ids=tuple(chunk.child_id for chunk in chunks),
             context_tokens_estimate=context.estimated_tokens,
             raw_text=response.text if response else "",
-            extra={"provider_latency_ms": response.latency_ms if response else 0.0},
+            extra={
+                "provider_latency_ms": response.latency_ms if response else 0.0,
+                "judge_provider": self.config.judge_provider,
+                "prompt_audit": prompt_audit.as_dict() if prompt_audit is not None else None,
+            },
             ttft_ms=round(ttft_ms, 2),
             streaming=streaming,
             status=status,
             conversation_tokens=conversation_tokens,
+            timings_ms=dict(timings_ms or {}),
         )
 
     def _warnings(

@@ -6,7 +6,9 @@ from .config import PROJECT_ROOT
 
 _ENV_KEYS = (
     "GEMINI_API_KEY",
-    "GEMINI_MODEL_DEFAULT",
+    "DEEPSEEK_API_KEY",
+    "DEEPSEEK_BASE_URL",
+    "DEEPSEEK_MODEL",
     "OPENAI_BASE_URL",
     "OPENAI_MODEL",
     "OPENAI_API_KEY",

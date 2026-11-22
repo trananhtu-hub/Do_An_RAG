@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+from collections.abc import Callable
 from dataclasses import dataclass, replace
 from pathlib import Path
 
@@ -69,6 +70,79 @@ def build_context(
         estimated_tokens=int(used / chars_per_token),
         dropped_blocks=dropped,
     )
+
+
+def fit_context_to_tokens(
+    context: BuiltContext,
+    *,
+    count_tokens: Callable[[str], int],
+    max_tokens: int,
+) -> BuiltContext:
+    """Cắt ngữ cảnh theo tokenizer thật, không dựa vào ước lượng ký tự/token.
+
+    Giữ nguyên các khối đầu còn vừa ngân sách, cắt dần nội dung khối kế tiếp
+    và bỏ các khối sau; nhãn tài liệu/mục của khối được cắt vẫn giữ nguyên.
+    """
+    if max_tokens <= 0 or not context.blocks:
+        return BuiltContext(
+            text="", blocks=(), estimated_tokens=0, dropped_blocks=len(context.blocks)
+        )
+    if count_tokens(context.text) <= max_tokens:
+        return context
+    kept: list[ContextBlock] = []
+    rendered: list[str] = []
+    dropped = 0
+    for position, block in enumerate(context.blocks):
+        index = len(kept) + 1
+        candidate = replace(block, index=index)
+        text = _render(candidate)
+        if count_tokens("\n\n".join([*rendered, text])) <= max_tokens:
+            kept.append(candidate)
+            rendered.append(text)
+            continue
+        fitted = _fit_block(
+            block,
+            index=index,
+            rendered=rendered,
+            count_tokens=count_tokens,
+            max_tokens=max_tokens,
+        )
+        if fitted is not None:
+            kept.append(fitted[0])
+            rendered.append(fitted[1])
+            dropped += len(context.blocks) - position - 1
+        else:
+            dropped += len(context.blocks) - position
+        break
+    text = "\n\n".join(rendered)
+    return BuiltContext(
+        text=text,
+        blocks=tuple(kept),
+        estimated_tokens=count_tokens(text),
+        dropped_blocks=dropped,
+    )
+
+
+def _fit_block(
+    block: ContextBlock,
+    *,
+    index: int,
+    rendered: list[str],
+    count_tokens: Callable[[str], int],
+    max_tokens: int,
+) -> tuple[ContextBlock, str] | None:
+    low, high = 1, len(block.content)
+    best: tuple[ContextBlock, str] | None = None
+    while low <= high:
+        middle = (low + high) // 2
+        candidate = replace(block, index=index, content=_truncate(block.content, middle))
+        text = _render(candidate)
+        if count_tokens("\n\n".join([*rendered, text])) <= max_tokens:
+            best = (candidate, text)
+            low = middle + 1
+        else:
+            high = middle - 1
+    return best
 
 
 @dataclass(frozen=True)

@@ -53,6 +53,28 @@ def test_posts_to_chat_completions_with_bearer() -> None:
     assert response.usage.output_tokens == 20
 
 
+def test_reasoning_effort_included_when_thinking_level_set() -> None:
+    captured: dict = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured.update(json.loads(request.content))
+        return httpx.Response(200, json=SUCCESS)
+
+    _adapter(handler, model="deepseek-chat").complete(MESSAGES, thinking_level="none")
+    assert captured["reasoning_effort"] == "none"
+
+
+def test_reasoning_effort_absent_by_default() -> None:
+    captured: dict = {}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        captured.update(json.loads(request.content))
+        return httpx.Response(200, json=SUCCESS)
+
+    _adapter(handler, model="deepseek-chat").complete(MESSAGES)
+    assert "reasoning_effort" not in captured
+
+
 def test_temperature_included_when_configured() -> None:
     captured: dict = {}
 
@@ -161,3 +183,55 @@ def test_endpoint_with_full_path_kept() -> None:
 def test_missing_base_url_rejected() -> None:
     with pytest.raises(LLMError):
         OpenAICompatAdapter("", model="x")
+
+
+def _sse_response(chunks: list[dict], *, finish_reason: str) -> httpx.Response:
+    lines = [f"data: {json.dumps(chunk)}" for chunk in chunks]
+    tail = {"choices": [{"delta": {}, "finish_reason": finish_reason}]}
+    lines.append(f"data: {json.dumps(tail)}")
+    lines.append("data: [DONE]")
+    return httpx.Response(200, text="\n\n".join(lines) + "\n\n")
+
+
+def test_empty_stream_retried_without_thinking() -> None:
+    bodies: list[dict] = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        body = json.loads(request.content)
+        bodies.append(body)
+        if len(bodies) == 1:
+            return _sse_response([], finish_reason="length")
+        return _sse_response(
+            [
+                {
+                    "id": "c2",
+                    "model": "deepseek-chat",
+                    "choices": [{"delta": {"content": '{"answer": "ok"}'}}],
+                }
+            ],
+            finish_reason="stop",
+        )
+
+    adapter = _adapter(handler, model="deepseek-chat")
+    deltas = list(adapter.complete_stream(MESSAGES, thinking_level="medium"))
+
+    assert len(bodies) == 2
+    assert bodies[0]["reasoning_effort"] == "medium"
+    assert bodies[1]["reasoning_effort"] == "none"
+    response = deltas[-1].response
+    assert response is not None
+    assert response.text == '{"answer": "ok"}'
+    assert response.raw["retried_without_thinking"] is True
+
+
+def test_empty_stream_without_thinking_raises_once() -> None:
+    calls = {"count": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls["count"] += 1
+        return _sse_response([], finish_reason="length")
+
+    adapter = _adapter(handler, model="deepseek-chat")
+    with pytest.raises(LLMError):
+        list(adapter.complete_stream(MESSAGES, thinking_level="none"))
+    assert calls["count"] == 1

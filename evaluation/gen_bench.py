@@ -156,7 +156,7 @@ class Bench:
         if judge:
             config = self.config.with_overrides({"chain": [judge]})
             return build_provider_chain(config, environ=self.env)
-        for name in ("deepseek_fallback", "gemini_primary"):
+        for name in ("deepseek_primary",):
             if name in self.config.provider_map:
                 try:
                     return build_provider_chain(
@@ -429,7 +429,7 @@ def run_before_after(bench: Bench) -> int:
         "timestamp": stamp,
         "provider_chain": list(bench.chain.names),
         "prompt_version": bench.config.prompt_version,
-        "thinking_level": bench.args.thinking,
+        "thinking_level": bench.args.thinking or "theo loại câu hỏi",
         "judge_cost_usd": round(bench.judge_cost, 6),
         "judge_tokens": bench.judge_tokens,
         "before": graded_before,
@@ -442,7 +442,8 @@ def run_before_after(bench: Bench) -> int:
     (RESULTS / f"gen_bench_{stamp}.md").write_text(
         f"# So sánh trước/sau CoT ({stamp})\n\n"
         f"- Provider chain: {', '.join(bench.chain.names)}\n"
-        f"- Prompt: {bench.config.prompt_version}, thinking={bench.args.thinking}\n"
+        f"- Prompt: {bench.config.prompt_version}, "
+        f"thinking={bench.args.thinking or 'theo loại câu hỏi'}\n"
         f"- Judge: {bench.args.judge or 'auto'} ({bench.judge_tokens} token, "
         f"{bench.judge_cost:.6f} USD)\n\n{table}\n",
         encoding="utf-8",
@@ -595,7 +596,8 @@ def main() -> int:
     args = parser.parse_args()
     if not (args.before_after or args.scope or args.in_scope or args.citations):
         args.before_after = True
-    args.thinking = args.thinking or load_generation_config().default_thinking_level
+    # Không gán mức mặc định ở đây: để None thì GenerationService tự chọn theo loại
+    # câu hỏi (simple_query_thinking_level cho tra cứu), đúng cấu hình đang chạy.
 
     bench = Bench(args)
     try:

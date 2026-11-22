@@ -67,9 +67,9 @@ rerank:
       - '\bquestion\s*\d+'
 
 classifier:
-  # Heuristic chạy trước; LLM nhẹ chỉ được gọi khi độ tin cậy thấp.
+  # Heuristic chạy trước; LLM nhẹ (DeepSeek) chỉ được gọi khi độ tin cậy thấp.
   llm_enabled: true
-  llm_model: gemini-3.8-flash
+  llm_model: deepseek-chat
   llm_timeout_ms: 1500
   min_confidence: 0.6
 
@@ -91,7 +91,7 @@ decomposition:
   # bật lại khi có số đo cho chế độ LLM.
   enabled: false
   llm_enabled: true
-  llm_model: gemini-3.8-flash
+  llm_model: deepseek-chat
   llm_timeout_ms: 2500
   max_subqueries: 3
   min_query_words: 18

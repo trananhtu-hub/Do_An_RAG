@@ -19,7 +19,13 @@ def load_environment() -> dict[str, str]:
             if len(value) >= 2 and value[0] == value[-1] and value[0] in "\"'":
                 value = value[1:-1]
             values[key.strip()] = value
-    for key in ("GEMINI_API_KEY", "GEMINI_MODEL_DEFAULT", "DATABASE_URL"):
+    for key in (
+        "GEMINI_API_KEY",
+        "DEEPSEEK_API_KEY",
+        "DEEPSEEK_BASE_URL",
+        "DEEPSEEK_MODEL",
+        "DATABASE_URL",
+    ):
         if os.environ.get(key):
             values[key] = os.environ[key]
     return values

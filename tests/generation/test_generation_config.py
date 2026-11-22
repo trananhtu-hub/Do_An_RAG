@@ -13,36 +13,45 @@ RAW = {
     "default_thinking_level": "medium",
     "providers": [
         {
-            "name": "gemini_primary",
-            "type": "gemini",
-            "model": "gemini-3.8-flash",
-            "api_key_env": "GEMINI_API_KEY",
-            "thinking_level": "medium",
-            "pricing": {"input_per_million": 0.75, "output_per_million": 3.75},
-        },
-        {
-            "name": "deepseek_fallback",
+            "name": "deepseek_primary",
             "type": "openai_compat",
-            "enabled": False,
-            "base_url": "https://api.deepseek.com/v1",
             "model": "deepseek-chat",
-            "api_key_env": "OPENAI_API_KEY",
-        },
+            "api_key_env": "DEEPSEEK_API_KEY",
+        }
     ],
-    "chain": ["gemini_primary", "deepseek_fallback"],
+    "chain": ["deepseek_primary"],
 }
 
 
 def test_loads_shipped_config() -> None:
     config = load_generation_config()
     assert config.prompt_version == "v1"
-    assert config.chain == ("gemini_primary", "deepseek_fallback")
-    assert config.provider_map["gemini_primary"].model == "gemini-3.8-flash"
+    assert config.chain == ("deepseek_primary",)
+    assert config.provider_map["deepseek_primary"].model == "deepseek-chat"
+    assert config.judge_provider == "deepseek_primary"
     assert config.default_thinking_level == "medium"
-    assert config.max_context_tokens == 8000
+    assert config.max_context_tokens == 6000
+    assert config.max_output_tokens == 6144
+    assert config.max_prompt_tokens == 12000
 
 
-def test_gemini_rejects_temperature() -> None:
+def test_simple_query_thinking_level_hop_le_voi_none() -> None:
+    config = GenerationConfig.from_dict({**RAW, "simple_query_thinking_level": "none"})
+    assert config.simple_query_thinking_level == "none"
+
+
+def test_simple_query_thinking_level_sai_bi_tu_choi() -> None:
+    with pytest.raises(ValueError, match="simple_query_thinking_level"):
+        GenerationConfig.from_dict({**RAW, "simple_query_thinking_level": "siêu nhanh"})
+
+
+def test_shipped_config_has_no_gemini_generation_path() -> None:
+    config = load_generation_config()
+    assert all(provider.type == "openai_compat" for provider in config.providers)
+    assert all("gemini" not in provider.name for provider in config.providers)
+
+
+def test_gemini_provider_type_rejected() -> None:
     raw = {
         **RAW,
         "providers": [
@@ -50,12 +59,11 @@ def test_gemini_rejects_temperature() -> None:
                 "name": "gemini_primary",
                 "type": "gemini",
                 "model": "gemini-3.8-flash",
-                "temperature": 0.2,
             }
         ],
         "chain": ["gemini_primary"],
     }
-    with pytest.raises(ValueError, match="temperature"):
+    with pytest.raises(ValueError, match="Loại provider không hợp lệ"):
         GenerationConfig.from_dict(raw)
 
 
@@ -72,7 +80,7 @@ def test_chain_must_reference_provider() -> None:
 
 
 def test_duplicate_provider_names_rejected() -> None:
-    provider = {"name": "dup", "type": "gemini", "model": "x"}
+    provider = {"name": "dup", "type": "openai_compat", "model": "x"}
     raw = {**RAW, "providers": [provider, provider], "chain": ["dup"]}
     with pytest.raises(ValueError, match="duy nhất"):
         GenerationConfig.from_dict(raw)

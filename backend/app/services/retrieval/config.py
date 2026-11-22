@@ -100,7 +100,7 @@ class RerankConfig:
 @dataclass(frozen=True)
 class ClassifierConfig:
     llm_enabled: bool = True
-    llm_model: str = "gemini-3.8-flash"
+    llm_model: str = "deepseek-chat"
     llm_timeout_ms: int = 1500
     min_confidence: float = 0.6
 
@@ -127,7 +127,7 @@ class TopKConfig:
 class DecompositionConfig:
     enabled: bool = True
     llm_enabled: bool = True
-    llm_model: str = "gemini-3.8-flash"
+    llm_model: str = "deepseek-chat"
     llm_timeout_ms: int = 2500
     max_subqueries: int = 3
     min_query_words: int = 18
@@ -283,7 +283,7 @@ class RetrievalConfig:
             ),
             classifier=ClassifierConfig(
                 llm_enabled=bool(classifier.get("llm_enabled", True)),
-                llm_model=str(classifier.get("llm_model", "gemini-3.8-flash")),
+                llm_model=str(classifier.get("llm_model", "deepseek-chat")),
                 llm_timeout_ms=int(classifier.get("llm_timeout_ms", 1500)),
                 min_confidence=float(classifier.get("min_confidence", 0.6)),
             ),
@@ -299,7 +299,7 @@ class RetrievalConfig:
             decomposition=DecompositionConfig(
                 enabled=bool(decomposition.get("enabled", True)),
                 llm_enabled=bool(decomposition.get("llm_enabled", True)),
-                llm_model=str(decomposition.get("llm_model", "gemini-3.8-flash")),
+                llm_model=str(decomposition.get("llm_model", "deepseek-chat")),
                 llm_timeout_ms=int(decomposition.get("llm_timeout_ms", 2500)),
                 max_subqueries=int(decomposition.get("max_subqueries", 3)),
                 min_query_words=int(decomposition.get("min_query_words", 18)),

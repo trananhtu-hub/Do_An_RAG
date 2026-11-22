@@ -226,7 +226,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--limit", type=int, default=40)
     parser.add_argument("--per-call", type=int, default=3)
-    parser.add_argument("--provider", default=None, help="gemini_primary | deepseek_fallback")
+    parser.add_argument("--provider", default=None, help="deepseek_primary")
     parser.add_argument("--resume", action="store_true")
     parser.add_argument("--force", action="store_true")
     args = parser.parse_args()

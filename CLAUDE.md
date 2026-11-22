@@ -31,10 +31,10 @@ Tài liệu này được nạp vào mỗi phiên làm việc. Chỉ ghi những
 - **Frontend:** Next.js (App Router) + TypeScript, giao diện tiếng Việt có dấu.
 - **Backend:** FastAPI (Python 3.11+), cấu hình pydantic-settings, logging JSON.
 - **Cơ sở dữ liệu:** Supabase PostgreSQL + pgvector (embedding 768 chiều) + pg_trgm.
-- **LLM:** Gemini 3.8 (`gemini-3.8-flash` mặc định cho sinh câu trả lời); embedding Gemini 768 chiều.
+- **LLM:** DeepSeek (endpoint tương thích OpenAI, `.env` dùng `deepseek-v4-flash`) là **nhà cung cấp duy nhất cho mọi tác vụ sinh văn bản** — trả lời, viết lại câu hỏi, tóm tắt hội thoại, judge. Không dùng Gemini để sinh văn bản; Gemini chỉ cấp embedding 768 chiều.
 - **Parser PDF:** **pdfplumber** chạy cục bộ, mã nguồn mở. Không dùng LlamaParse, llama-cloud hay dịch vụ OCR/parse trả phí.
 - **Truy xuất (Giai đoạn 4):** vector search (HNSW) + full-text search + RRF (k = 60) + reranker đa ngôn ngữ + top-k thích ứng + mở rộng mục cha.
-- **Luồng 3 tầng:** Frontend → FastAPI → tầng truy xuất/sinh câu trả lời → Supabase (pgvector) và Gemini.
+- **Luồng 3 tầng:** Frontend → FastAPI → tầng truy xuất/sinh câu trả lời → Supabase (pgvector), Gemini (embedding) và DeepSeek (sinh văn bản).
 - **Đánh giá:** module `evaluation/` độc lập với ứng dụng.
 
 ## 3. Cấu trúc repo
@@ -83,14 +83,17 @@ Khai báo trong `.env` ở thư mục gốc (không commit); mẫu tại `.env.e
 
 | Biến | Ý nghĩa |
 | :--- | :--- |
-| `GEMINI_API_KEY` | Khóa Google AI Studio cho Gemini |
-| `GEMINI_MODEL_DEFAULT` | Model sinh mặc định, giá trị `gemini-3.8-flash` |
+| `DEEPSEEK_API_KEY` | Khóa API DeepSeek cho mọi tác vụ sinh văn bản |
+| `DEEPSEEK_BASE_URL` | Gốc endpoint tương thích OpenAI, giá trị `https://api.deepseek.com/v1` |
+| `DEEPSEEK_MODEL` | Model sinh, mặc định trong cấu hình `deepseek-chat`; dự án chạy `deepseek-v4-flash` qua `.env` |
+| `DEEPSEEK_TOKENIZER_PATH` | (Tùy chọn) đường dẫn `tokenizer.json` để đếm token chính xác |
+| `GEMINI_API_KEY` | Khóa Google AI Studio, **chỉ dùng cho embedding 768 chiều** |
 | `SUPABASE_URL` | URL dự án Supabase |
 | `SUPABASE_ANON_KEY` | Khóa công khai (RLS áp dụng) |
 | `SUPABASE_SERVICE_ROLE_KEY` | Khóa máy chủ, bỏ qua RLS — chỉ dùng backend |
 | `DATABASE_URL` | Chuỗi kết nối PostgreSQL |
 
-Không thêm biến cho dịch vụ parse PDF bên ngoài.
+Không thêm biến cho dịch vụ parse PDF bên ngoài. Không có biến cấu hình Gemini cho sinh văn bản; mọi tác vụ sinh chỉ dùng `DEEPSEEK_*`.
 
 ## 7. Quy tắc dữ liệu
 
@@ -130,5 +133,6 @@ Không thêm biến cho dịch vụ parse PDF bên ngoài.
 - **Giai đoạn 1 — Hoàn thành:** pipeline nạp tri thức (pdfplumber, trích câu hỏi, chunking cha–con, embedding Gemini 768, Supabase); kho hiện có 7 tài liệu, 1.775 chunk, 390 câu hỏi (390/390 có đáp án, trong đó 21 câu bổ sung thủ công có căn cứ tại `ingestion/answer_overrides.json`); báo cáo tại `docs/phase-1-report.md`.
 - **Giai đoạn 2–3 (cách đánh số của đề bài đồ án) — tương ứng Giai đoạn 4–5 dưới đây:**
   - **Giai đoạn 4 — Hoàn thành:** tầng truy hồi lai (vector HNSW + full-text + trigram + RRF k=60 + reranker đa ngôn ngữ + top-k thích ứng + mở rộng mục cha); dev set 40 câu; báo cáo tại `docs/phase-2-report.md` (đề bài gọi là Giai đoạn 2).
-  - **Giai đoạn 5 — Một phần:** tầng sinh câu trả lời có kiểm chứng (prompt v1, schema JSON, CoT, hậu kiểm trích dẫn, từ chối `no_evidence`/`out_of_scope`), lớp `LLMProvider` (Gemini + adapter tương thích OpenAI + chuỗi dự phòng), ghi `query_logs`. Khóa Gemini hết hạn mức (HTTP 429) nên benchmark chạy bằng provider dự phòng; tiêu chí CoT tăng ≥5 điểm % chưa đạt. Báo cáo tại `docs/phase-3-report.md` (đề bài gọi là Giai đoạn 3).
-- Kho tri thức đã có dữ liệu thật; chưa có session/streaming/giao diện RAG (Giai đoạn 6–7).
+  - **Giai đoạn 5 — Một phần:** tầng sinh câu trả lời có kiểm chứng (prompt v1, schema JSON, CoT, hậu kiểm trích dẫn, từ chối `no_evidence`/`out_of_scope`), lớp `LLMProvider` (DeepSeek qua adapter tương thích OpenAI; adapter Gemini sinh văn bản đã bị xóa ở Giai đoạn 6), ghi `query_logs`. Tiêu chí CoT tăng ≥5 điểm % chưa đạt. Báo cáo tại `docs/phase-3-report.md` (đề bài gọi là Giai đoạn 3); số liệu Gemini thời hạn mức 429 trong báo cáo đó chỉ là lịch sử.
+- **Giai đoạn 6 — Một phần (đề bài gọi là Giai đoạn 4):** phiên hội thoại đa lượt, viết lại câu hỏi, tóm tắt sau 10 lượt/4.000 token, SSE cho `/chat/stream`, RLS theo người dùng, hook `useChatStream` (chưa gắn giao diện). DeepSeek là provider duy nhất cho mọi tác vụ sinh văn bản; Gemini chỉ cấp embedding 768 chiều, không re-ingest. Kết quả: 10 kịch bản đạt 3/10 và 2/10 (ngưỡng ≥8/10); TTFT p95 10.836,8 ms một lượt và 6.905,0–8.125,2 ms trên dev đa lượt (ngưỡng ≤2.000 ms), tổng p95 19.887,6 ms (ngưỡng ≤10.000 ms); ngân sách 12–14 lượt lớn nhất 1.459/1.500 token; tóm tắt dùng từ lượt 11; cách ly 19/19; ngắt kết nối đạt; hồi quy dev set Giai đoạn 3 đạt 95,0% đúng hoàn toàn; giữ 6 lượt gần nhất trong prompt chỉ đạt một phần. Báo cáo tại `docs/phase-4-report.md` (đề bài gọi là Giai đoạn 4), audit tại `docs/phase4-fix-audit.md`.
+- **Giai đoạn 7 — Chưa bắt đầu:** giao diện chat hoàn chỉnh. Kho tri thức đã có dữ liệu thật; session/streaming đã có ở backend nhưng chưa nối vào UI.

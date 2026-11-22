@@ -5,23 +5,26 @@ from typing import Any
 
 import httpx
 
-GENERATE_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+DEFAULT_BASE_URL = "https://api.deepseek.com/v1"
+DEFAULT_MODEL = "deepseek-chat"
 
 
-class GeminiTextClient:
-    """Gọi Gemini để phân loại/tách truy vấn; lỗi được đẩy lên cho caller fallback."""
+class DeepSeekTextClient:
+    """Gọi DeepSeek cho phân loại/tách truy vấn; lỗi đẩy lên cho caller dùng heuristic."""
 
     def __init__(
         self,
         api_key: str,
         *,
+        base_url: str = DEFAULT_BASE_URL,
         transport: httpx.BaseTransport | None = None,
     ) -> None:
         keys = [part.strip() for part in str(api_key).split(",") if part.strip()]
         if not keys:
-            raise ValueError("Thiếu GEMINI_API_KEY để gọi LLM")
+            raise ValueError("Thiếu DEEPSEEK_API_KEY để gọi LLM")
         self._keys = keys
         self._key_index = 0
+        self._base_url = base_url.rstrip("/")
         self._client = httpx.Client(transport=transport)
 
     def close(self) -> None:
@@ -29,17 +32,20 @@ class GeminiTextClient:
 
     def generate_json(self, model: str, prompt: str, timeout_ms: int) -> dict[str, Any] | None:
         payload = {
-            "contents": [{"parts": [{"text": prompt}]}],
-            "generationConfig": {
-                "temperature": 0,
-                "maxOutputTokens": 256,
-                "responseMimeType": "application/json",
-            },
+            "model": model or DEFAULT_MODEL,
+            "messages": [
+                {"role": "system", "content": "Chỉ trả JSON đúng dạng yêu cầu."},
+                {"role": "user", "content": prompt},
+            ],
+            "temperature": 0,
+            "max_tokens": 256,
+            "response_format": {"type": "json_object"},
+            "stream": False,
         }
         response = self._client.post(
-            GENERATE_URL.format(model=model),
+            f"{self._base_url}/chat/completions",
             headers={
-                "x-goog-api-key": self._keys[self._key_index % len(self._keys)],
+                "authorization": f"Bearer {self._keys[self._key_index % len(self._keys)]}",
                 "content-type": "application/json",
             },
             json=payload,
@@ -51,7 +57,7 @@ class GeminiTextClient:
             return None
         try:
             data = response.json()
-            text = data["candidates"][0]["content"]["parts"][0]["text"]
+            text = data["choices"][0]["message"]["content"]
         except (ValueError, KeyError, IndexError, TypeError):
             return None
         return _parse_json_object(text)

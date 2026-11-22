@@ -38,12 +38,12 @@ class ConversationSummarizer:
         self.prompts = prompts
         self.repository = repository
 
-    def maybe_summarize(
+    def plan_summary(
         self,
-        user_id: UUID,
         session: SessionRecord,
         messages: list[MessageRecord],
-    ) -> SummaryResult | None:
+    ) -> tuple[list[MessageRecord], int] | None:
+        """Trả về (tin nhắn cần tóm tắt, mốc giữ lại) khi đã vượt ngưỡng."""
         cfg = self.config.summary
         if not cfg.enabled or len(messages) <= cfg.keep_recent_turns * 2:
             return None
@@ -66,6 +66,61 @@ class ConversationSummarizer:
         to_summarize = messages[start:cut]
         if not to_summarize:
             return None
+        return to_summarize, cut
+
+    def is_due(self, session: SessionRecord, messages: list[MessageRecord]) -> bool:
+        return self.plan_summary(session, messages) is not None
+
+    def store_fallback(
+        self,
+        user_id: UUID,
+        session: SessionRecord,
+        messages: list[MessageRecord],
+    ) -> SummaryResult | None:
+        """Lưu ngay một bản tóm tắt tạm không gọi mô hình khi tóm tắt nền chưa xong.
+
+        Bản tóm tắt của mô hình (nếu chạy nền xong) sẽ ghi đè bản tạm này với cùng mốc.
+        """
+        plan = self.plan_summary(session, messages)
+        if plan is None:
+            return None
+        to_summarize, cut = plan
+        started = time.perf_counter()
+        summary = _fallback_summary(session.summary, to_summarize)
+        summary = _truncate_summary(summary, self._summary_max_chars())
+        updated = self.repository.set_summary(
+            user_id,
+            session.id,
+            summary=summary,
+            summary_message_count=cut,
+        )
+        return SummaryResult(
+            updated=updated is not None,
+            summary=summary,
+            source="inline_fallback",
+            summarized_messages=len(to_summarize),
+            kept_messages=len(messages) - cut,
+            latency_ms=round((time.perf_counter() - started) * 1000, 2),
+            usage_tokens=0,
+        )
+
+    def _summary_max_chars(self) -> int:
+        cfg = self.config.summary
+        return max(400, int(cfg.max_summary_tokens * self.config.context.chars_per_token))
+
+    def maybe_summarize(
+        self,
+        user_id: UUID,
+        session: SessionRecord,
+        messages: list[MessageRecord],
+        *,
+        timeout_ms: int | None = None,
+    ) -> SummaryResult | None:
+        cfg = self.config.summary
+        plan = self.plan_summary(session, messages)
+        if plan is None:
+            return None
+        to_summarize, cut = plan
 
         started = time.perf_counter()
         message_text = "\n".join(
@@ -87,7 +142,7 @@ class ConversationSummarizer:
                 thinking_level=cfg.thinking_level,
                 max_output_tokens=cfg.max_output_tokens,
                 json_mode=False,
-                timeout_ms=cfg.timeout_ms,
+                timeout_ms=timeout_ms or cfg.timeout_ms,
             )
             usage_tokens = response.usage.input_tokens + response.usage.output_tokens
             summary = _clean_summary(response.text)
@@ -98,9 +153,7 @@ class ConversationSummarizer:
             warning = f"Không tóm tắt được bằng mô hình: {exc}"
             summary = _fallback_summary(session.summary, to_summarize)
 
-        max_chars = max(400, int(cfg.max_summary_tokens * self.config.context.chars_per_token))
-        if len(summary) > max_chars:
-            summary = summary[:max_chars].rstrip() + "…"
+        summary = _truncate_summary(summary, self._summary_max_chars())
         updated = self.repository.set_summary(
             user_id,
             session.id,
@@ -117,6 +170,12 @@ class ConversationSummarizer:
             usage_tokens=usage_tokens,
             warning=warning,
         )
+
+
+def _truncate_summary(summary: str, max_chars: int) -> str:
+    if len(summary) > max_chars:
+        return summary[:max_chars].rstrip() + "…"
+    return summary
 
 
 def _clean_summary(text: str) -> str:
