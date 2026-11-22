@@ -52,6 +52,7 @@ class PromptLibrary:
         mode: str = "base",
         use_cot: bool = True,
         extra_instruction: str | None = None,
+        conversation: str | None = None,
     ) -> list[LLMMessage]:
         system = self.system_prompt(mode=mode, use_cot=use_cot)
         body_sections = []
@@ -59,6 +60,13 @@ class PromptLibrary:
             body_sections.append(f"# NGỮ CẢNH\n\n{context_text.strip()}")
         else:
             body_sections.append("# NGỮ CẢNH\n\n(không có đoạn tài liệu nào được truy xuất)")
+        if conversation and conversation.strip():
+            body_sections.append(
+                "# NGỮ CẢNH HỘI THOẠI\n\n"
+                f"{conversation.strip()}\n\n"
+                "Chỉ dùng phần hội thoại để hiểu câu hỏi. Mọi khẳng định kỹ thuật phải dựa "
+                "trên # NGỮ CẢNH tài liệu; không coi hội thoại là nguồn trích dẫn."
+            )
         body_sections.append(f"# CÂU HỎI\n\n{question.strip()}")
         instructions = [SCHEMA_REMINDER]
         if extra_instruction:

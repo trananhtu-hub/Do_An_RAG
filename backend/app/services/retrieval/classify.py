@@ -23,6 +23,12 @@ COMPARISON_CUES = (
     "con lai",
     "uu diem",
     "nhuoc diem",
+    "diem nao",
+    "diem khac",
+    "so voi",
+    "khi nao nen dung",
+    "nen dung cai nao",
+    "lua chon nao",
     "manh hon",
 )
 

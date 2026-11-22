@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import math
 import random
 import time
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterator, Sequence
 from dataclasses import dataclass, field
 from typing import Any, Protocol
 
@@ -67,6 +68,15 @@ class LLMConfigurationError(LLMError):
     """Thiếu cấu hình hoặc khóa; không thử lại và không tính là lỗi tạm thời."""
 
 
+@dataclass(frozen=True)
+class StreamDelta:
+    """Một mẩu đầu ra streaming; mẩu cuối mang LLMResponse đầy đủ."""
+
+    text: str = ""
+    response: LLMResponse | None = None
+    done: bool = False
+
+
 class LLMProvider(Protocol):
     name: str
     model: str
@@ -81,7 +91,32 @@ class LLMProvider(Protocol):
         timeout_ms: int | None = None,
     ) -> LLMResponse: ...
 
+    def complete_stream(
+        self,
+        messages: Sequence[LLMMessage],
+        *,
+        thinking_level: str | None = None,
+        max_output_tokens: int | None = None,
+        json_mode: bool = True,
+        timeout_ms: int | None = None,
+    ) -> Iterator[StreamDelta]: ...
+
     def close(self) -> None: ...
+
+
+def estimate_usage(
+    messages: Sequence[LLMMessage],
+    text: str,
+    *,
+    chars_per_token: float = 3.5,
+) -> Usage:
+    """Ước lượng token khi endpoint streaming không trả usage."""
+    prompt_chars = sum(len(message.content) for message in messages)
+    scale = max(chars_per_token, 0.1)
+    return Usage.from_counts(
+        math.ceil(prompt_chars / scale),
+        math.ceil(len(text) / scale),
+    )
 
 
 def retry_call(

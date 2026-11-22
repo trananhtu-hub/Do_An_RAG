@@ -92,7 +92,7 @@ class RerankConfig:
     device: str = "auto"
     precision: str = "fp16"
     warmup: bool = True
-    content_scope: str = "parent"
+    content_scope: str = "child"
     context_header: bool = True
     source_filter: SourceFilterConfig = field(default_factory=SourceFilterConfig)
 
@@ -269,7 +269,7 @@ class RetrievalConfig:
                 device=str(rerank.get("device", "auto")),
                 precision=str(rerank.get("precision", "fp16")),
                 warmup=bool(rerank.get("warmup", True)),
-                content_scope=str(rerank.get("content_scope", "parent")),
+                content_scope=str(rerank.get("content_scope", "child")),
                 context_header=bool(rerank.get("context_header", True)),
                 source_filter=SourceFilterConfig(
                     enabled=bool(source_filter.get("enabled", False)),

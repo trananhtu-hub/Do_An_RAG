@@ -133,3 +133,7 @@ class GenerationResult:
     context_tokens_estimate: int = 0
     raw_text: str = ""
     extra: dict[str, Any] = field(default_factory=dict)
+    ttft_ms: float = 0.0
+    streaming: bool = False
+    status: str = "complete"
+    conversation_tokens: int = 0

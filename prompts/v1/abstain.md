@@ -13,6 +13,12 @@ kho tài liệu, nhưng vẫn hữu ích cho người học.
    trong tài liệu…).
 4. Ngữ cảnh mâu thuẫn nhau ở điểm quyết định và không đủ để xác định đúng.
 
+## Không từ chối khi tài liệu mô tả đủ để định nghĩa
+
+Câu hỏi dạng "X là gì?" không cần câu định nghĩa nguyên văn. Nếu ngữ cảnh mô tả X (chức năng,
+thành phần, cách hoạt động, trường hợp sử dụng), hãy tổng hợp thành định nghĩa ngắn và trích dẫn
+các câu mô tả đó. Chỉ từ chối khi ngữ cảnh chỉ nhắc tên X mà không nêu bất kỳ đặc điểm nào.
+
 ## Hai loại từ chối
 
 | Loại | `abstention_type` | Dùng khi | Mẫu |

@@ -1,0 +1,400 @@
+{
+  "timestamp": "20261122-055015",
+  "provider_chain": [
+    "gemini_primary",
+    "deepseek_fallback"
+  ],
+  "judge": "auto",
+  "judge_tokens": 8100,
+  "judge_cost_usd": 0.0,
+  "elapsed_seconds": 72.8,
+  "passed": 0,
+  "total": 1,
+  "results": [
+    {
+      "code": "KB-10",
+      "title": "Hỏi ngoài phạm vi giữa hội thoại S3",
+      "kind": "Hỏi ngoài phạm vi",
+      "session_id": "e502e733-0b10-4126-b197-7f5ad0d1bedf",
+      "turns": 4,
+      "passed_turns": 2,
+      "passed": false,
+      "notes": "lượt 2: Đã từ chối và không viết code, nhưng vẫn nêu chi tiết kỹ thuật/liệt kê tính năng liên quan đến S3 như AWS CLI/API/SDK, Multipart Upload và giới hạn kích thước đ; lượt 4: Lượt 4 không đáp ứng hành vi mong đợi: cần khẳng định S3 Standard-IA có truy xuất mili giây theo căn cứ S3 Storage Classes — Mục 1.4, nhưng câu trả lời lại nói ",
+      "records": [
+        {
+          "number": 1,
+          "question": "S3 Standard-IA khác Standard ở điểm nào?",
+          "rewritten_query": "S3 Standard-IA khác Standard ở điểm nào?",
+          "rewrite_source": "none",
+          "depends_on_context": false,
+          "conversation_tokens": 0,
+          "answer": "Dưới đây là các điểm khác biệt chính giữa **S3 Standard-IA** và **S3 Standard** theo tài liệu hiện có:\n\n| Tiêu chí | S3 Standard | S3 Standard-IA |\n| :--- | :--- | :--- |\n| Mẫu truy cập | Lớp mặc định, đa dụng cho dữ liệu truy cập thường xuyên [S3 Storage Classes – Mục 1.2] | Dành cho dữ liệu **ít truy cập nhưng cần truy xuất tức thời** [S3 Storage Classes – Mục 1.5] |\n| Thời gian lưu tối thiểu | Không có thời gian lưu tối thiểu [S3 Storage Classes – Mục 1.2] | Tối thiểu **30 ngày**; xóa hoặc ghi đè trước hạn vẫn bị tính đủ 30 ngày [S3 Storage Classes – Mục 1.5] |\n| Phí truy xuất | Không có phí truy xuất dữ liệu [S3 Storage Classes – Mục 1.2] | Có phí truy xuất theo GB; đối tượng nhỏ hơn 128 KB được tính như 128 KB [S3 Storage Classes – Mục 1.5] |\n| Độ trễ truy xuất | Mili giây cho mọi yêu cầu đọc [S3 Storage Classes – Mục 1.2] | Truy xuất tức thời (mili giây) [S3 Storage Classes – Mục 1.5] |\n| Khả năng sẵn sàng | 99,99% [S3 Storage Classes – Mục 1.12] | 99,9% [S3 Storage Classes – Mục 1.12] |\n| Độ bền / số AZ | Đa Availability Zone, độ bền thiết kế 11 số 9 [S3 Storage Classes – Mục 1.1] | Thuộc nhóm lớp đa Availability Zone, cùng độ bền 11 số 9 và tối thiểu ba AZ [S3 Storage Classes – Mục 1.1] |\n| Chi phí lưu trữ | Cao nhất trong các lớp [S3 Storage Classes – Mục 1.11] | Thấp hơn Standard, nhưng phải tính thêm phí truy xuất và phí xóa sớm [S3 Storage Classes – Mục 1.11] |\n\nLưu ý từ tài liệu: nếu dữ liệu Standard-IA thực tế được truy cập thường xuyên, phí truy xuất có thể làm tổng chi phí cao hơn S3 Standard [S3 Storage Classes – Mục 1.5]. Ngược lại, giữ dữ liệu ít truy cập ở lớp Standard làm chi phí lưu trữ cao hơn cần thiết [S3 Storage Classes – Mục 1.1].\n\nTóm lại: hai lớp giống nhau ở khả năng truy xuất mili giây và tính đa Availability Zone, khác nhau chủ yếu ở **thời gian lưu tối thiểu 30 ngày, phí truy xuất theo GB, mức sẵn sàng 99,9% so với 99,99%, và mục đích sử dụng (ít truy cập so với truy cập thường xuyên)**.",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.88,
+          "citations": [
+            {
+              "source": "S3 Storage Classes – Mục 1.2",
+              "quote": "S3 Standard là lớp mặc định, lưu dữ liệu trên tối thiểu ba Availability Zone và cung cấp độ trễ mili giây cho mọi yêu cầu đọc."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.2",
+              "quote": "Không có thời gian lưu tối thiểu, không có phí truy xuất dữ liệu."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.5",
+              "quote": "S3 Standard-IA - dữ liệu ít truy cập nhưng cần truy xuất tức thời"
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.5",
+              "quote": "Thời gian lưu tối thiểu 30 ngày; xóa hoặc ghi đè trước hạn vẫn bị tính đủ 30 ngày."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.5",
+              "quote": "Có phí truy xuất theo GB; đối tượng nhỏ hơn 128 KB được tính như 128 KB."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.5",
+              "quote": "Nếu dữ liệu thực tế được truy cập thường xuyên, phí truy xuất có thể làm tổng chi phí cao hơn S3 Standard."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Các lớp đa Availability Zone (Standard, Intelligent-Tiering, Standard-IA, Glacier Instant Retrieval, Glacier Flexible Retrieval, Glacier Deep Archive) được thiết kế cho độ bền 99,999999999% (11 số 9) và lưu dữ liệu trên tối thiểu ba Availability Zone."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "giữ dữ liệu ít truy cập ở lớp Standard làm chi phí lưu trữ cao hơn cần thiết."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.11",
+              "quote": "Phí lưu trữ theo GB-tháng, khác nhau giữa các lớp: Standard cao nhất, giảm dần qua Standard-IA"
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.12",
+              "quote": "Khả năng sẵn sàng: Standard 99,99%, Standard-IA và Glacier Instant Retrieval 99,9%"
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": "deepseek_fallback",
+          "input_tokens": 7491,
+          "output_tokens": 2950,
+          "latency_ms": 17134.2,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "27558084-6ef7-5ebb-bd1e-2465f43d06ba",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.5",
+              "page": 4,
+              "score": 0.9796
+            },
+            {
+              "rank": 2,
+              "child_id": "99887e3c-b847-5e1f-bc04-6a85073804f8",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.9706
+            },
+            {
+              "rank": 3,
+              "child_id": "54289990-be22-5db1-aded-2d6ff8ad89fd",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.6",
+              "page": 5,
+              "score": 0.9633
+            },
+            {
+              "rank": 4,
+              "child_id": "8389dfd3-7e7d-56f5-86a7-3b7e2f9696b0",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.9298
+            },
+            {
+              "rank": 5,
+              "child_id": "eef8391c-3116-5f28-93b4-42d21022a1af",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.10",
+              "page": 7,
+              "score": 0.5873
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Đây là lượt 1 (trong phạm vi) nên không áp dụng các tiêu chí từ chối của lượt 2–3. Câu trả lời so sánh đầy đủ và đúng hành vi mong đợi: Standard-IA giá lưu trữ thấp hơn nhưng có phí truy xuất, tối thiểu 30 ngày, truy xuất mili giây, đa AZ; Standard không phí truy xuất, không thời gian lưu tối thiểu, giá lưu trữ cao hơn (kèm mức sẵn sàng 99,9% vs 99,99% và lưu ý chi phí khi truy cập thường xuyên) —",
+          "auto_checks": [
+            {
+              "label": "câu viết lại giữ nguyên",
+              "passed": true,
+              "detail": "viết lại=S3 Standard-IA khác Standard ở điểm nào?"
+            },
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['S3 Storage Classes – Mục 1.2', 'S3 Storage Classes – Mục 1.2', 'S3 Storage Classes – Mục 1.5', 'S3 Storage Classes – Mục 1.5']"
+            },
+            {
+              "label": "có trích dẫn S3",
+              "passed": true,
+              "detail": "nguồn=['S3 Storage Classes – Mục 1.2', 'S3 Storage Classes – Mục 1.2', 'S3 Storage Classes – Mục 1.5']"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 2,
+          "question": "Viết cho tôi đoạn Python để upload file lên S3.",
+          "rewritten_query": "Viết cho tôi đoạn Python để upload file lên S3.",
+          "rewrite_source": "none",
+          "depends_on_context": false,
+          "conversation_tokens": 679,
+          "answer": "Câu hỏi này nằm ngoài phạm vi tài liệu SAA-C03 hiện có, nên mình không trả lời để tránh cung cấp thông tin không có căn cứ. Ngữ cảnh hiện có chỉ nêu các khái niệm liên quan ở mức kiến trúc (tải lên S3 qua AWS CLI/API/SDK, Multipart Upload, giới hạn kích thước đối tượng) mà không có mã nguồn mẫu, nên mình không thể viết đoạn Python upload file lên S3. Bạn có thể hỏi về các chủ đề đang có như Amazon S3 Multipart Upload, giới hạn kích thước đối tượng Amazon S3, hoặc S3 Glacier và chính sách vòng đời.",
+          "abstained": true,
+          "abstention_type": "out_of_scope",
+          "confidence": 0.1,
+          "citations": [],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": "deepseek_fallback",
+          "input_tokens": 8103,
+          "output_tokens": 894,
+          "latency_ms": 10606.0,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "3032480d-3982-5bb4-a9a7-5bed715393f4",
+              "document": "aws-saa-question-bank",
+              "section": "Câu 303",
+              "page": 358,
+              "score": 0.258
+            },
+            {
+              "rank": 2,
+              "child_id": "29cc84e3-1e0f-53f4-a49d-176cecb63d09",
+              "document": "aws-saa-question-bank",
+              "section": "Câu 375",
+              "page": 440,
+              "score": 0.1669
+            },
+            {
+              "rank": 3,
+              "child_id": "58e6391b-90be-5987-bc57-2c2eff8db16d",
+              "document": "aws-saa-question-bank",
+              "section": "Câu 183",
+              "page": 220,
+              "score": 0.0933
+            }
+          ],
+          "judge_score": 0.0,
+          "judge_reason": "Đã từ chối và không viết code, nhưng vẫn nêu chi tiết kỹ thuật/liệt kê tính năng liên quan đến S3 như AWS CLI/API/SDK, Multipart Upload và giới hạn kích thước đối tượng; theo tiêu chí chấm, cung cấp chi tiết kỹ thuật thì được 0.0.",
+          "auto_checks": [
+            {
+              "label": "từ chối + không trích dẫn",
+              "passed": true,
+              "detail": "abstained=True, citations=0"
+            },
+            {
+              "label": "không rò rỉ nội dung kỹ thuật",
+              "passed": true,
+              "detail": "khớp: []"
+            },
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=[]"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 3,
+          "question": "Vậy Amazon Bedrock là gì?",
+          "rewritten_query": "Vậy Amazon Bedrock là gì?",
+          "rewrite_source": "llm",
+          "depends_on_context": false,
+          "conversation_tokens": 869,
+          "answer": "Câu hỏi này nằm ngoài phạm vi tài liệu SAA-C03 hiện có, nên mình không trả lời để tránh cung cấp thông tin không có căn cứ. Ngữ cảnh hiện có chỉ liệt kê tên các dịch vụ thuộc nhóm Machine Learning nằm trong phạm vi thi, không có nội dung nào về Amazon Bedrock. Bạn có thể hỏi về chủ đề đang có như Nhóm Machine Learning (học máy) - dịch vụ trong phạm vi thi.",
+          "abstained": true,
+          "abstention_type": "out_of_scope",
+          "confidence": 0.1,
+          "citations": [],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": "deepseek_fallback",
+          "input_tokens": 8636,
+          "output_tokens": 690,
+          "latency_ms": 14401.0,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "0f6a76a8-2da7-583c-b333-e3f074aca7a6",
+              "document": "aws-saa-exam-guide",
+              "section": "Mục 5.2.8",
+              "page": 17,
+              "score": 0.0007
+            },
+            {
+              "rank": 2,
+              "child_id": "a25d2914-58f9-5ce5-b846-f1dd0c74914a",
+              "document": "VPC Networking",
+              "section": "Mục 1.8",
+              "page": 6,
+              "score": 0.0007
+            },
+            {
+              "rank": 3,
+              "child_id": "97c2e777-2a30-5ff0-9bbf-3794c108d0ba",
+              "document": "aws-saa-exam-guide",
+              "section": "Mục 5.3.4",
+              "page": 22,
+              "score": 0.0007
+            },
+            {
+              "rank": 4,
+              "child_id": "d13a8863-d588-5d8e-90bc-56da918f329e",
+              "document": "aws-saa-exam-guide",
+              "section": "Mục 5.3.2",
+              "page": 22,
+              "score": 0.0006
+            },
+            {
+              "rank": 5,
+              "child_id": "331b99fa-8e69-5b82-a705-4358fd05558b",
+              "document": "aws-saa-exam-guide",
+              "section": "Mục 5.2.6",
+              "page": 16,
+              "score": 0.0006
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Câu trả lời từ chối rõ ràng, nêu chủ đề Nhóm Machine Learning để giải thích lý do ngoài phạm vi tài liệu, không mô tả foundation model, giá hay tính năng của Amazon Bedrock, không trích dẫn.",
+          "auto_checks": [
+            {
+              "label": "từ chối + không trích dẫn",
+              "passed": true,
+              "detail": "abstained=True, citations=0"
+            },
+            {
+              "label": "không rò rỉ nội dung kỹ thuật",
+              "passed": true,
+              "detail": "khớp: []"
+            },
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=[]"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 4,
+          "question": "Quay lại S3: Standard-IA có truy xuất mili giây không?",
+          "rewritten_query": "Quay lại S3: Standard-IA có truy xuất mili giây không?",
+          "rewrite_source": "none",
+          "depends_on_context": false,
+          "conversation_tokens": 1005,
+          "answer": "Theo tài liệu hiện có, **S3 Standard-IA** được mô tả là lớp dành cho \"dữ liệu ít truy cập nhưng cần truy xuất tức thời\" [S3 Storage Classes – Mục 1.6]. Như vậy tài liệu khẳng định Standard-IA vẫn đáp ứng truy xuất tức thời, không cần chờ khôi phục.\n\nTuy nhiên, cần lưu ý một điểm về mức độ chi tiết của bằng chứng:\n\n- Cụm từ **\"mili giây\"** không được nêu trực tiếp trong phần mô tả Standard-IA; phần này chỉ dùng cụm \"truy xuất tức thời\" [S3 Storage Classes – Mục 1.6].\n- Cụm \"mili giây\" được nêu rõ ràng cho **S3 One Zone-IA**: \"Truy xuất trong mili giây; thời gian lưu tối thiểu 30 ngày; có phí truy xuất theo GB\" [S3 Storage Classes – Mục 1.5], và cho **S3 Glacier Instant Retrieval**: \"Truy xuất trong mili giây, không cần tạo yêu cầu khôi phục\" [S3 Storage Classes – Mục 1.6].\n- Standard-IA thuộc **nhóm không thường xuyên**, tức là \"chi phí lưu trữ thấp hơn nhưng có phí truy xuất hoặc thời gian lưu tối thiểu\" [S3 Storage Classes – Mục 1.1], và có thời gian lưu tối thiểu 30 ngày kèm phí truy xuất theo GB [S3 Storage Classes – Mục 1.6].\n\nTóm lại: tài liệu xác nhận Standard-IA cho phép truy xuất tức thời (không phải lớp lưu trữ lạnh phải chờ restore), nhưng để khẳng định chính xác \"mili giây\" cho riêng Standard-IA thì ngữ cảnh hiện có chưa nêu thành con số cụ thể — bạn nên đối chiếu thêm tài liệu S3 Storage Classes gốc của AWS.",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.65,
+          "citations": [
+            {
+              "source": "S3 Storage Classes – Mục 1.6",
+              "quote": "S3 Standard-IA - dữ liệu ít truy cập nhưng cần truy xuất tức thời"
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.6",
+              "quote": "Truy xuất trong mili giây, không cần tạo yêu cầu khôi phục."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.5",
+              "quote": "Truy xuất trong mili giây; thời gian lưu tối thiểu 30 ngày; có phí truy xuất theo GB."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Nhóm không thường xuyên: S3 Intelligent-Tiering, S3 Standard-IA và S3 One Zone-IA, chi phí lưu trữ thấp hơn nhưng có phí truy xuất hoặc thời gian lưu tối thiểu."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.6",
+              "quote": "Thời gian lưu tối thiểu 30 ngày; xóa hoặc ghi đè trước hạn vẫn bị tính đủ 30 ngày."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": "deepseek_fallback",
+          "input_tokens": 8917,
+          "output_tokens": 2172,
+          "latency_ms": 14718.8,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "54289990-be22-5db1-aded-2d6ff8ad89fd",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.6",
+              "page": 5,
+              "score": 0.9725
+            },
+            {
+              "rank": 2,
+              "child_id": "99887e3c-b847-5e1f-bc04-6a85073804f8",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.9634
+            },
+            {
+              "rank": 3,
+              "child_id": "27558084-6ef7-5ebb-bd1e-2465f43d06ba",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.5",
+              "page": 4,
+              "score": 0.9621
+            },
+            {
+              "rank": 4,
+              "child_id": "8389dfd3-7e7d-56f5-86a7-3b7e2f9696b0",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.9201
+            },
+            {
+              "rank": 5,
+              "child_id": "1883efa8-1770-5fb2-b9f8-db4036f41750",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.7",
+              "page": 5,
+              "score": 0.9179
+            }
+          ],
+          "judge_score": 0.0,
+          "judge_reason": "Lượt 4 không đáp ứng hành vi mong đợi: cần khẳng định S3 Standard-IA có truy xuất mili giây theo căn cứ S3 Storage Classes — Mục 1.4, nhưng câu trả lời lại nói tài liệu chưa nêu trực tiếp 'mili giây' cho Standard-IA và khuyên đối chiếu tài liệu gốc. Dù có nêu đúng ý 'truy xuất tức thời, không cần chờ khôi phục', việc không xác nhận mili giây và trích dẫn không đúng Mục 1.4 là thiếu ý quan trọng, g",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": false,
+              "detail": "nguồn=['S3 Storage Classes – Mục 1.6', 'S3 Storage Classes – Mục 1.6', 'S3 Storage Classes – Mục 1.5', 'S3 Storage Classes – Mục 1.1']"
+            },
+            {
+              "label": "trả lời mili giây",
+              "passed": true,
+              "detail": "Theo tài liệu hiện có, **S3 Standard-IA** được mô tả là lớp dành cho \"dữ liệu ít truy cập nhưng cần truy xuất tức thời\" [S3 Storage Classes – Mục 1.6]. Như vậy tài liệu khẳng định Standard-IA vẫn đáp "
+            }
+          ],
+          "passed": false
+        }
+      ]
+    }
+  ]
+}

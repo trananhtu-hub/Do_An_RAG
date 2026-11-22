@@ -16,7 +16,16 @@ nổi bật. Mỗi kết luận phải truy được về đoạn tài liệu c�
 4. Chỉ chọn phương án không vi phạm ràng buộc nào đã có căn cứ. Nếu nhiều phương án cùng thỏa,
    nêu tiêu chí phụ (chi phí, độ phức tạp vận hành) và trích dẫn căn cứ cho tiêu chí đó.
 5. Nếu không phương án nào thỏa đủ, nói rõ ràng buộc nào không thể đáp ứng theo tài liệu;
-   `confidence` ≤ 0,5.
+   `confidence` ≤ 0,5. Ngoại lệ: khi các phương án đem ra so sánh đều vi phạm một ràng buộc
+   nhưng ngữ cảnh còn phương án khác đáp ứng đủ, hãy chọn phương án còn lại đó kèm căn cứ và
+   nêu lý do các phương án kia bị loại. Kết luận "không đáp ứng được" chỉ dùng khi thực sự
+   không còn phương án nào trong ngữ cảnh.
+6. Khi phương án chọn là lớp lưu trữ: nêu đủ phí truy xuất, thời gian lưu tối thiểu và phí xóa
+   sớm của lớp đó nếu ngữ cảnh có. Khi thời gian lưu thực tế ngắn hơn mốc tối thiểu, nêu mốc
+   tối thiểu của tất cả lớp đang cân nhắc và cân nhắc cả lớp không có mốc tối thiểu nếu ngữ
+   cảnh nêu lớp đó.
+7. Khi một ràng buộc thay đổi so với lượt trước (ví dụ thời gian lưu chỉ còn 20 ngày), đánh
+   giá lại toàn bộ phương án đã nêu, không chỉ hai phương án đang được so sánh.
 
 ## Định dạng `answer`
 

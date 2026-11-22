@@ -66,7 +66,8 @@ def main() -> int:
             cursor.execute(
                 """
                 select question, model, prompt_version, prompt_tokens, completion_tokens,
-                       cost_usd, latency_ms, fallback_used, metadata
+                       cost_usd, latency_ms, fallback_used, metadata, ttft_ms,
+                       total_latency_ms, streaming, status, conversation_tokens
                 from public.query_logs
                 order by created_at desc
                 limit 1
@@ -78,12 +79,31 @@ def main() -> int:
         print("query_logs: KHÔNG có dòng nào")
         return 1
 
-    question_db, model, version, tokens_in, tokens_out, cost, latency, fallback, metadata = row
+    (
+        question_db,
+        model,
+        version,
+        tokens_in,
+        tokens_out,
+        cost,
+        latency,
+        fallback,
+        metadata,
+        ttft_ms,
+        total_latency_ms,
+        streaming,
+        status,
+        conversation_tokens,
+    ) = row
     print("query_logs (dòng mới nhất):")
     print(f"  question khớp: {question_db.strip() == question.strip()}")
     print(f"  model: {model} | prompt_version: {version}")
     print(f"  tokens: {tokens_in} vào / {tokens_out} ra")
     print(f"  cost_usd: {cost} | latency_ms: {latency} | fallback_used: {fallback}")
+    print(
+        f"  ttft_ms: {ttft_ms} | total_latency_ms: {total_latency_ms} | "
+        f"streaming: {streaming} | status: {status} | conversation_tokens: {conversation_tokens}"
+    )
     print(f"  metadata.provider: {metadata.get('provider')}")
     print(f"  metadata.citation_validity: {metadata.get('citation_validity')}")
     print(f"  metadata.schema_retries: {metadata.get('schema_retries')}")

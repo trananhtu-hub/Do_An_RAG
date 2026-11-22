@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 from app.services.generation.config import GenerationConfig
-from app.services.generation.providers import FallbackChain
+from app.services.generation.providers import FallbackChain, LLMResponse, StreamDelta
 from app.services.generation.service import GenerationService
 from conftest import FakeProvider, answer_json, make_chunk
 
@@ -167,8 +167,8 @@ def test_log_writer_called_once() -> None:
         def __init__(self) -> None:
             self.calls: list = []
 
-        def write(self, result, *, session_id=None, rewritten_query=None) -> bool:
-            self.calls.append((result, session_id, rewritten_query))
+        def write(self, result, *, session_id=None, rewritten_query=None, user_id=None) -> bool:
+            self.calls.append((result, session_id, rewritten_query, user_id))
             return True
 
     config = GenerationConfig.from_dict({"prompt_version": "v1"})
@@ -185,3 +185,52 @@ def test_invalid_prompt_mode_rejected() -> None:
     service, _ = _service([answer_json()])
     with pytest.raises(ValueError, match="mode"):
         service.answer("hỏi", chunks=[make_chunk()], mode="khong_co")
+
+
+class FakeStreamingProvider(FakeProvider):
+    def __init__(self, pieces: list[str]) -> None:
+        super().__init__(["".join(pieces)])
+        self.pieces = list(pieces)
+
+    def complete_stream(self, messages, **kwargs):  # noqa: ANN001, ANN003
+        self.calls.append(list(messages))
+        for piece in self.pieces:
+            yield StreamDelta(text=piece)
+        yield StreamDelta(
+            response=LLMResponse(
+                text="".join(self.pieces),
+                model=self.model,
+                provider=self.name,
+            ),
+            done=True,
+        )
+
+
+def test_stream_yields_answer_when_provider_cannot_stream() -> None:
+    answer = "S3 là dịch vụ lưu trữ đối tượng."
+    service, _ = _service([answer_json(answer=answer)])
+    deltas = list(service.answer_stream("hỏi", chunks=[make_chunk()]))
+
+    assert [delta.text for delta in deltas if delta.text] == [answer]
+    result = deltas[-1].result
+    assert result is not None
+    assert result.streaming is True
+    assert result.ttft_ms is not None
+
+
+def test_stream_extracts_answer_from_provider_deltas() -> None:
+    answer = "S3 Standard dùng cho dữ liệu truy cập thường xuyên."
+    text = answer_json(answer=answer)
+    pieces = [text[index : index + 7] for index in range(0, len(text), 7)]
+    provider = FakeStreamingProvider(pieces)
+    config = GenerationConfig.from_dict({"prompt_version": "v1"})
+    service = GenerationService(config, FallbackChain([provider]))
+
+    deltas = list(service.answer_stream("hỏi", chunks=[make_chunk()]))
+
+    streamed = [delta.text for delta in deltas if delta.text]
+    assert "".join(streamed) == answer
+    assert len(streamed) > 1
+    result = deltas[-1].result
+    assert result is not None
+    assert result.payload.answer == answer

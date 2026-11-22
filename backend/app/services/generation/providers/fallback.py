@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
 
-from .base import LLMError, LLMMessage, LLMProvider, LLMResponse
+from .base import LLMError, LLMMessage, LLMProvider, LLMResponse, StreamDelta
 
 
 class FallbackExhausted(LLMError):
@@ -72,6 +72,103 @@ class FallbackChain:
         raise FallbackExhausted(
             "Toàn bộ provider đều thất bại — " + " | ".join(errors),
             attempts=tuple(provider.name for provider in self._providers),
+        )
+
+    def complete_stream(
+        self,
+        messages: Sequence[LLMMessage],
+        *,
+        thinking_level: str | None = None,
+        max_output_tokens: int | None = None,
+        json_mode: bool = True,
+        timeout_ms: int | None = None,
+    ) -> Iterator[StreamDelta]:
+        """Stream qua từng provider; chỉ chuyển dự phòng khi chưa phát token nào."""
+        errors: list[str] = []
+        for index, provider in enumerate(self._providers):
+            emitted = False
+            final: StreamDelta | None = None
+            try:
+                iterator = self._stream_provider(
+                    provider,
+                    messages,
+                    thinking_level=thinking_level,
+                    max_output_tokens=max_output_tokens,
+                    json_mode=json_mode,
+                    timeout_ms=timeout_ms,
+                )
+                try:
+                    for delta in iterator:
+                        if delta.done:
+                            final = delta
+                            continue
+                        if delta.text:
+                            emitted = True
+                            yield delta
+                finally:
+                    close = getattr(iterator, "close", None)
+                    if close is not None:
+                        close()
+                if final is None or final.response is None:
+                    raise LLMError(
+                        "Provider streaming không trả kết quả cuối",
+                        provider=provider.name,
+                    )
+                response = final.response
+                if index > 0:
+                    response = LLMResponse(
+                        text=response.text,
+                        model=response.model,
+                        provider=response.provider,
+                        usage=response.usage,
+                        latency_ms=response.latency_ms,
+                        cost_usd=response.cost_usd,
+                        finish_reason=response.finish_reason,
+                        fallback_used=provider.name,
+                        attempts=tuple(item.name for item in self._providers[: index + 1]),
+                        raw=response.raw,
+                    )
+                yield StreamDelta(response=response, done=True)
+                return
+            except LLMError as exc:
+                errors.append(f"{provider.name}: {exc}")
+                if emitted:
+                    raise
+                continue
+        raise FallbackExhausted(
+            "Toàn bộ provider streaming đều thất bại — " + " | ".join(errors),
+            attempts=tuple(provider.name for provider in self._providers),
+        )
+
+    def _stream_provider(
+        self,
+        provider: LLMProvider,
+        messages: Sequence[LLMMessage],
+        *,
+        thinking_level: str | None,
+        max_output_tokens: int | None,
+        json_mode: bool,
+        timeout_ms: int | None,
+    ) -> Iterator[StreamDelta]:
+        method = getattr(provider, "complete_stream", None)
+        if method is None:
+            yield StreamDelta(
+                response=provider.complete(
+                    messages,
+                    thinking_level=thinking_level,
+                    max_output_tokens=max_output_tokens,
+                    json_mode=json_mode,
+                    timeout_ms=timeout_ms,
+                ),
+                done=True,
+            )
+            return
+        yield from method(
+            messages,
+            thinking_level=thinking_level,
+            max_output_tokens=max_output_tokens,
+            json_mode=json_mode,
+            timeout_ms=timeout_ms,
         )
 
     def close(self) -> None:

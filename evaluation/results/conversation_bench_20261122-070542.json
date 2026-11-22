@@ -1,0 +1,2932 @@
+{
+  "timestamp": "20261122-070542",
+  "provider_chain": [
+    "deepseek_fallback"
+  ],
+  "judge": "auto",
+  "judge_tokens": 213750,
+  "judge_cost_usd": 0.0,
+  "elapsed_seconds": 261.2,
+  "passed": 2,
+  "total": 10,
+  "results": [
+    {
+      "code": "KB-01",
+      "title": "Tra cứu nối tiếp: từ S3 sang so sánh với EBS",
+      "kind": "Tra cứu nối tiếp",
+      "session_id": "c10c73c8-d172-4513-820a-84727fa7b8a0",
+      "turns": 4,
+      "passed_turns": 2,
+      "passed": false,
+      "notes": "lượt 1: Câu viết lại giữ nguyên và trích dẫn đúng S3 Storage Classes – Mục 1.1/1.2; trả lời đúng S3 là lưu trữ đối tượng, nhiều lớp trên cùng không gian tên, gán lớp kh; lượt 3: Câu trả lời có bảng so sánh rõ, giữ đúng câu viết lại, nêu S3 là lưu trữ đối tượng, EBS là ổ đĩa khối gắn EC2 cùng AZ, có nhắc snapshot EBS lưu trong S3 và tríc",
+      "records": [
+        {
+          "number": 1,
+          "question": "Amazon S3 là gì?",
+          "rewritten_query": "Amazon S3 là gì?",
+          "rewrite_source": "none",
+          "depends_on_context": false,
+          "conversation_tokens": 0,
+          "answer": "Dựa trên ngữ cảnh tài liệu, Amazon S3 là dịch vụ lưu trữ đối tượng cung cấp **nhiều lớp lưu trữ (storage class) trên cùng một không gian tên đối tượng**; mỗi lớp được thiết kế cho một mẫu truy cập và một mức chi phí khác nhau, và lớp được gán khi tải đối tượng lên hoặc khi chuyển lớp bằng quy tắc vòng đời [S3 Storage Classes – Mục 1.1]. Nếu không chỉ định, S3 dùng lớp Standard [S3 Storage Classes – Mục 1.1].\n\nCác đặc điểm chính:\n- **Truy cập qua API:** mọi lớp đều truy cập qua API S3; có thể chuyển lớp mà không đổi khóa đối tượng và không cần thay đổi ứng dụng đọc dữ liệu [S3 Storage Classes – Mục 1.1].\n- **Độ bền và dư thừa:** các lớp đa Availability Zone được thiết kế cho độ bền 99,999999999% (11 số 9) và lưu dữ liệu trên tối thiểu ba Availability Zone, trong khi các lớp một Availability Zone chỉ lưu dữ liệu trong một AZ và dữ liệu mất nếu AZ đó bị phá hủy [S3 Storage Classes – Mục 1.1].\n- **Tính năng:** S3 hỗ trợ đầy đủ các tính năng như phiên bản đối tượng, nhân bản, vòng đời, Object Lock và sao chép nhiều vùng [S3 Storage Classes – Mục 1.2].\n- **Mô hình chi phí:** ngoài giá lưu trữ mỗi GB còn có phí truy xuất, phí request, phí xóa sớm và phí chuyển lớp; chọn lớp rẻ nhất theo giá lưu trữ mỗi GB có thể làm tăng tổng chi phí nếu dữ liệu được truy xuất thường xuyên hoặc bị xóa trước thời gian lưu tối thiểu [S3 Storage Classes – Mục 1.1].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.7,
+          "citations": [
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Amazon S3 cung cấp nhiều lớp lưu trữ (storage class) trên cùng một không gian tên đối tượng."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Nếu không chỉ định, S3 dùng lớp Standard."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Mọi lớp đều truy cập qua API S3; có thể chuyển lớp mà không đổi khóa đối tượng và không cần thay đổi ứng dụng đọc dữ liệu."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.2",
+              "quote": "Hỗ trợ đầy đủ tính năng S3: phiên bản đối tượng, nhân bản, vòng đời, Object Lock, sao chép nhiều vùng."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Chọn lớp rẻ nhất theo giá lưu trữ mỗi GB có thể làm tăng tổng chi phí nếu dữ liệu được truy xuất thường xuyên hoặc bị xóa trước thời gian lưu tối thiểu."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 12292,
+          "output_tokens": 1463,
+          "latency_ms": 8547.0,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "8389dfd3-7e7d-56f5-86a7-3b7e2f9696b0",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.9137
+            },
+            {
+              "rank": 2,
+              "child_id": "987623b1-c64b-58b0-926f-550b8b8146f0",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.2",
+              "page": 2,
+              "score": 0.9053
+            },
+            {
+              "rank": 3,
+              "child_id": "20c9bb5e-684a-5b23-b107-38d1bce34f7b",
+              "document": "IAM",
+              "section": "Mục 1.8",
+              "page": 7,
+              "score": 0.7628
+            },
+            {
+              "rank": 4,
+              "child_id": "1883efa8-1770-5fb2-b9f8-db4036f41750",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.7",
+              "page": 5,
+              "score": 0.7547
+            },
+            {
+              "rank": 5,
+              "child_id": "27558084-6ef7-5ebb-bd1e-2465f43d06ba",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.5",
+              "page": 4,
+              "score": 0.7044
+            }
+          ],
+          "judge_score": 0.5,
+          "judge_reason": "Câu viết lại giữ nguyên và trích dẫn đúng S3 Storage Classes – Mục 1.1/1.2; trả lời đúng S3 là lưu trữ đối tượng, nhiều lớp trên cùng không gian tên, gán lớp khi tải lên hoặc lifecycle, mặc định Standard, có lớp đa AZ và một AZ. Tuy nhiên thiếu ý quan trọng: ba nhóm lớp (truy cập thường xuyên, không thường xuyên, lưu trữ lạnh). Không thấy bịa thông số hay mâu thuẫn.",
+          "auto_checks": [
+            {
+              "label": "câu viết lại giữ nguyên",
+              "passed": true,
+              "detail": "viết lại=Amazon S3 là gì?"
+            },
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['S3 Storage Classes – Mục 1.1', 'S3 Storage Classes – Mục 1.1', 'S3 Storage Classes – Mục 1.1', 'S3 Storage Classes – Mục 1.2']"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 2,
+          "question": "So với EBS thì khác ở đâu?",
+          "rewritten_query": "Amazon S3 khác Amazon EBS ở những điểm nào?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 473,
+          "answer": "**Tóm tắt:** S3 là dịch vụ lưu trữ đối tượng với nhiều lớp lưu trữ trên cùng không gian tên đối tượng [S3 Storage Classes – Mục 1.1], còn EBS là ổ đĩa khối gắn với instance trong cùng Availability Zone [EC2 Tinh toan – Mục 1.4].\n\n| Tiêu chí | Amazon S3 | Amazon EBS |\n| :--- | :--- | :--- |\n| Kiểu lưu trữ | Không gian tên đối tượng với nhiều lớp lưu trữ [S3 Storage Classes – Mục 1.1]; tài liệu exam guide liệt kê object/file/block là các kiểu lưu trữ cần phân biệt [aws-saa-exam-guide – Mục 3.1] | Ổ đĩa khối (block) gắn với instance [EC2 Tinh toan – Mục 1.4] |\n| Ràng buộc Availability Zone | Các lớp đa AZ lưu dữ liệu trên tối thiểu ba AZ; các lớp một AZ (One Zone-IA) chỉ lưu trong một AZ và mất dữ liệu nếu AZ đó bị phá hủy [S3 Storage Classes – Mục 1.1] | Gắn với một AZ; volume chỉ gắn được cho instance trong cùng AZ [EC2 Tinh toan – Mục 1.4] |\n| Cách truy cập | Truy cập qua API S3; chuyển lớp không đổi khóa đối tượng và không cần thay đổi ứng dụng đọc dữ liệu [S3 Storage Classes – Mục 1.1] | Gắn với instance như ổ đĩa khối; có thể thay đổi loại và kích thước khi đang chạy (elastic volumes) mà không cần dừng instance [EC2 Tinh toan – Mục 1.4] |\n| Vòng đời dữ liệu | Lớp được gán khi tải lên hoặc chuyển lớp bằng quy tắc vòng đời [S3 Storage Classes – Mục 1.1] | Dữ liệu tồn tại độc lập với vòng đời instance [EC2 Tinh toan – Mục 1.4] |\n| Độ bền | Lớp đa AZ thiết kế cho độ bền 99,999999999% (11 số 9) [S3 Storage Classes – Mục 1.1]; S3 Standard có độ bền 99,999999999% và khả năng sẵn sàng 99,99% [S3 Storage Classes – Mục 1.2] | Được mô tả là \"bền vững\" nhưng tài liệu không nêu con số độ bền [EC2 Tinh toan – Mục 1.5] |\n| Sao lưu | Không có trong tài liệu | Snapshot là bản sao lưu tăng dần, lưu trong S3 do AWS quản lý; lần đầu đầy đủ, các lần sau chỉ lưu phần thay đổi [EC2 Tinh toan – Mục 1.4] |\n| Phân loại | Các storage class: Standard, Express One Zone, Intelligent-Tiering, Standard-IA, One Zone-IA, Glacier Instant Retrieval, Glacier Flexible Retrieval, Glacier Deep Archive [S3 Storage Classes – Mục 1.1] | Các loại volume: gp3, gp2, io2 (và io2 Block Express), st1, sc1 [EC2 Tinh toan – Mục 1.4] |\n| Thời gian lưu tối thiểu / phí truy xuất | Một số lớp có thời gian lưu tối thiểu và phí truy xuất (ví dụ Standard-IA tối thiểu 30 ngày, có phí truy xuất) [S3 Storage Classes – Mục 1.4]; S3 Standard không có thời gian lưu tối thiểu và không có phí truy xuất dữ liệu [S3 Storage Classes – Mục 1.2] | Không có trong tài liệu |\n| Mã hóa | Không có trong tài liệu | Mã hóa EBS bằng KMS, có thể bật mặc định ở cấp tài khoản/Region; snapshot của volume đã mã hóa cũng được mã hóa [EC2 Tinh toan – Mục 1.4] |\n| Độ trễ | Độ trễ mili giây cho mọi yêu cầu đọc [S3 Storage Classes – Mục 1.2] | Độ trễ thấp vừa phải [EC2 Tinh toan – Mục 1.5] |\n| Chia sẻ đồng thời | Không có trong tài liệu | Multi-Attach cho phép gắn một volume io1/io2 cho tối đa 16 instance trong cùng AZ, dùng cho ứng dụng cluster cần truy cập khối chia sẻ [EC2 Tinh toan – Mục 1.4] |\n\n**Khi nào chọn S3:** Khi cần lưu trữ đối tượng với nhiều lớp theo mẫu truy cập và chi phí khác nhau, gán lớp khi tải lên hoặc chuyển lớp bằng quy tắc vòng đời, và có thể chuyển lớp mà không đổi khóa đối tượng hay thay đổi ứng dụng đọc dữ liệu [S3 Storage Classes – Mục 1.1].\n\n**Khi nào chọn EBS:** Khi cần ổ đĩa khối gắn với instance trong cùng AZ, dữ liệu tồn tại độc lập với vòng đời instance, có thể sao lưu bằng snapshot lên S3, thay đổi loại/kích thước volume khi đang chạy, hoặc cần Multi-Attach cho ứng dụng cluster truy cập khối chia sẻ [EC2 Tinh toan – Mục 1.4].\n\n*Lưu ý:* Một số ô ghi \"không có trong tài liệu\" (sao lưu của S3, thời gian lưu tối thiểu/phí truy xuất của EBS, mã hóa của S3, chia sẻ đồng thời của S3); các kết luận chỉ dựa trên phần dữ kiện đã có.",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.85,
+          "citations": [
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Amazon S3 cung cấp nhiều lớp lưu trữ (storage class) trên cùng một không gian tên đối tượng."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Các lớp đa Availability Zone (Standard, Intelligent-Tiering, Standard-IA, Glacier Instant Retrieval, Glacier Flexible Retrieval, Glacier Deep Archive) được thiết kế cho độ bền 99,999999999% (11 số 9) và lưu dữ liệu trên tối thiểu ba Availability Zone."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Mọi lớp đều truy cập qua API S3; có thể chuyển lớp mà không đổi khóa đối tượng và không cần thay đổi ứng dụng đọc dữ liệu."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.2",
+              "quote": "Lớp này không có phí truy xuất, không có thời gian lưu tối thiểu và hỗ trợ đầy đủ các tính năng của S3."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.4",
+              "quote": "Thời gian lưu tối thiểu 30 ngày; xóa hoặc ghi đè trước hạn vẫn bị tính đủ 30 ngày."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Amazon Elastic Block Store (EBS) cung cấp ổ đĩa khối gắn với instance trong cùng Availability Zone."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "EBS gắn với một AZ; volume chỉ gắn được cho instance trong cùng AZ."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Snapshot là bản sao lưu tăng dần, lưu trong S3 do AWS quản lý; lần đầu đầy đủ, các lần sau chỉ lưu phần thay đổi."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Multi-Attach cho phép gắn một volume io1/io2 cho tối đa 16 instance trong cùng AZ, dùng cho ứng dụng cluster cần truy cập khối chia sẻ."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Có thể thay đổi loại và kích thước volume khi đang chạy (elastic volumes) mà không cần dừng instance."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.5",
+              "quote": "EBS: bền vững, snapshot được, gắn lại được, độ trễ thấp vừa phải."
+            },
+            {
+              "source": "aws-saa-exam-guide – Mục 3.1",
+              "quote": "Các kiểu lưu trữ kèm đặc điểm, ví dụ object, file, block."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 15088,
+          "output_tokens": 4570,
+          "latency_ms": 20889.3,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "704e40e1-02eb-5563-bc6a-1810d5eb5ccf",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.7851
+            },
+            {
+              "rank": 2,
+              "child_id": "27771026-1288-5f01-8746-cb1f4dea6ddd",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.3",
+              "page": 2,
+              "score": 0.6866
+            },
+            {
+              "rank": 3,
+              "child_id": "27558084-6ef7-5ebb-bd1e-2465f43d06ba",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.5",
+              "page": 4,
+              "score": 0.3613
+            },
+            {
+              "rank": 4,
+              "child_id": "99887e3c-b847-5e1f-bc04-6a85073804f8",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.3395
+            },
+            {
+              "rank": 5,
+              "child_id": "8389dfd3-7e7d-56f5-86a7-3b7e2f9696b0",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.3319
+            },
+            {
+              "rank": 6,
+              "child_id": "e22211fe-a39a-5a1b-969e-9b51026736e5",
+              "document": "aws-saa-exam-guide",
+              "section": "Mục 3.1",
+              "page": 6,
+              "score": 0.3076
+            },
+            {
+              "rank": 7,
+              "child_id": "0411696d-5eeb-504a-9f0a-18d7d0242cc2",
+              "document": "IAM",
+              "section": "Mục 1.9",
+              "page": 7,
+              "score": 0.0938
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Đáp án đáp ứng đầy đủ: câu viết lại chứa cả \"S3\" và \"EBS\"; có bảng so sánh rõ S3 và EBS; phân biệt đúng S3 là lưu trữ đối tượng nhiều lớp/đa AZ và EBS là ổ đĩa khối gắn với EC2 trong cùng AZ, không gán sai đặc điểm; trích dẫn cả S3 Storage Classes và EC2 Tinh toan, gồm EC2 Mục 1.4; không thấy bịa thông số IOPS/dung lượng ngoài tài liệu. [điểm 3 lần: [0.5, 1.0, 1.0]]",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['S3 Storage Classes – Mục 1.1', 'S3 Storage Classes – Mục 1.1', 'S3 Storage Classes – Mục 1.1', 'S3 Storage Classes – Mục 1.2']"
+            },
+            {
+              "label": "viết lại chứa S3 và EBS",
+              "passed": true,
+              "detail": "Amazon S3 khác Amazon EBS ở những điểm nào?"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 3,
+          "question": "Vậy khi nào dùng cái nào?",
+          "rewritten_query": "Khi nào nên dùng Amazon S3 và khi nào nên dùng Amazon EBS?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 1270,
+          "answer": "**Tóm tắt:** S3 là lưu trữ đối tượng, phù hợp khi cần chọn lớp lưu trữ và quy tắc vòng đời theo tần suất truy cập, độ trễ, thời gian lưu và khả năng tái tạo dữ liệu [S3 Storage Classes – Mục 1.13]; EBS là ổ đĩa khối gắn với instance trong cùng Availability Zone, dữ liệu tồn tại độc lập với vòng đời instance và sao lưu được bằng snapshot [EC2 Tinh toan – Mục 1.4].\n\n| Tiêu chí | Amazon S3 | Amazon EBS |\n| :--- | :--- | :--- |\n| Kiểu lưu trữ | Lưu trữ đối tượng; tài liệu exam guide nêu S3 trong nhóm dịch vụ lưu trữ cần chọn theo trường hợp sử dụng, đồng thời yêu cầu phân biệt kiểu object, file, block [aws-saa-exam-guide – Mục 3.1] | Ổ đĩa khối gắn với instance trong cùng Availability Zone [EC2 Tinh toan – Mục 1.4] |\n| Ràng buộc Availability Zone | Tài liệu lưu ý dữ liệu một Availability Zone cần có bản sao ở nơi khác nếu không thể tái tạo [S3 Storage Classes – Mục 1.12] | Gắn với một AZ; volume chỉ gắn được cho instance trong cùng AZ [EC2 Tinh toan – Mục 1.4] |\n| Sao lưu | Không có trong tài liệu | Snapshot là bản sao lưu tăng dần, lưu trong S3 do AWS quản lý; lần đầu đầy đủ, các lần sau chỉ lưu phần thay đổi [EC2 Tinh toan – Mục 1.4] |\n| Độ bền | Không có trong tài liệu | Được mô tả là bền vững, snapshot được, gắn lại được [EC2 Tinh toan – Mục 1.5] |\n| Độ trễ truy xuất | S3 Standard cho dữ liệu đọc hằng ngày cần độ trễ mili giây; S3 Glacier Instant Retrieval cho dữ liệu lạnh cần truy xuất mili giây; các lớp Glacier không cho đọc trực tiếp, phải khôi phục tạm thời và chờ theo mức đã chọn [S3 Storage Classes – Mục 1.13] [S3 Storage Classes – Mục 1.12] | Độ trễ thấp vừa phải [EC2 Tinh toan – Mục 1.5] |\n| Thay đổi cấu hình khi đang chạy | Không có trong tài liệu | Có thể thay đổi loại và kích thước volume khi đang chạy (elastic volumes) mà không cần dừng instance [EC2 Tinh toan – Mục 1.4] |\n| Chia sẻ cho nhiều instance | Không có trong tài liệu | Multi-Attach cho phép gắn một volume io1/io2 cho tối đa 16 instance trong cùng AZ, dùng cho ứng dụng cluster cần truy cập khối chia sẻ [EC2 Tinh toan – Mục 1.4] |\n| Mã hóa | Không có trong tài liệu | Mã hóa EBS bằng KMS, có thể bật mặc định ở cấp tài khoản/Region; snapshot của volume đã mã hóa cũng được mã hóa [EC2 Tinh toan – Mục 1.4] |\n| Tối ưu chi phí | Chọn lớp theo tần suất truy cập, độ trễ, thời gian lưu và khả năng tái tạo dữ liệu, sau đó so sánh chi phí [S3 Storage Classes – Mục 1.13]; mục tiêu là chọn tầng lưu trữ, vòng đời dữ liệu và phương án sao lưu/lưu trữ dài hạn với chi phí thấp nhất nhưng vẫn đáp ứng yêu cầu về hiệu năng và độ bền [aws-saa-exam-guide – Mục 4.1] | st1 là HDD thông lượng cao cho dữ liệu lớn, tuần tự; sc1 là HDD lạnh cho dữ liệu ít truy cập, chi phí thấp [EC2 Tinh toan – Mục 1.4]; bảng giá chi tiết: không có trong tài liệu |\n\n**Khi nào chọn S3:** Khi cần lưu trữ đối tượng và tối ưu theo mẫu truy cập — dữ liệu đọc hằng ngày, cần độ trễ mili giây dùng S3 Standard; chưa biết mẫu truy cập, muốn tự động tối ưu mà không quản lý quy tắc dùng S3 IntelligentTiering; dữ liệu gần như không đọc, phải giữ nhiều năm với chi phí thấp nhất dùng S3 Glacier Deep Archive; dữ liệu mới cần truy cập nhanh rồi ít dần thì đặt quy tắc vòng đời Standard → StandardIA → Glacier → Deep Archive theo mốc thời gian [S3 Storage Classes – Mục 1.13]. Khi chọn lớp cần tính tổng chi phí gồm lưu trữ, truy xuất, request, chuyển lớp và xóa sớm [S3 Storage Classes – Mục 1.13].\n\n**Khi nào chọn EBS:** Khi cần ổ đĩa khối gắn với instance trong cùng AZ, dữ liệu tồn tại độc lập với vòng đời instance và có thể sao lưu bằng snapshot [EC2 Tinh toan – Mục 1.4]; cần thay đổi loại và kích thước volume khi đang chạy mà không dừng instance, hoặc cần Multi-Attach cho ứng dụng cluster truy cập khối chia sẻ [EC2 Tinh toan – Mục 1.4]. Nếu cần dữ liệu bền vững, snapshot được, gắn lại được với độ trễ thấp vừa phải thì EBS phù hợp hơn instance store [EC2 Tinh toan – Mục 1.5].\n\n*Lưu ý:* Một số ô ghi “không có trong tài liệu” (sao lưu, độ bền và mã hóa của S3; thay đổi cấu hình, chia sẻ đồng thời của S3; bảng giá chi tiết của EBS); kết luận chỉ dựa trên các dữ kiện đã có trong ngữ cảnh.",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.9,
+          "citations": [
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Amazon Elastic Block Store (EBS) cung cấp ổ đĩa khối gắn với instance trong cùng Availability Zone."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Dữ liệu EBS tồn tại độc lập với vòng đời instance và có thể sao lưu bằng snapshot lên S3."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Snapshot là bản sao lưu tăng dần, lưu trong S3 do AWS quản lý; lần đầu đầy đủ, các lần sau chỉ lưu phần thay đổi."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Có thể thay đổi loại và kích thước volume khi đang chạy (elastic volumes) mà không cần dừng instance."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Multi-Attach cho phép gắn một volume io1/io2 cho tối đa 16 instance trong cùng AZ, dùng cho ứng dụng cluster cần truy cập khối chia sẻ."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.5",
+              "quote": "EBS: bền vững, snapshot được, gắn lại được, độ trễ thấp vừa phải."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.13",
+              "quote": "Nguyên tắc chung là bắt đầu từ tần suất truy cập, yêu cầu độ trễ, thời gian lưu và khả năng tái tạo dữ liệu, sau đó mới so sánh chi phí."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.13",
+              "quote": "Dữ liệu được đọc hằng ngày, cần độ trễ mili giây và không có ràng buộc đặc biệt: S3 Standard."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.13",
+              "quote": "Chưa biết mẫu truy cập, muốn tự động tối ưu mà không quản lý quy tắc: S3 IntelligentTiering."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.13",
+              "quote": "Dữ liệu gần như không đọc, phải giữ nhiều năm với chi phí thấp nhất: S3 Glacier Deep Archive."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.13",
+              "quote": "Dữ liệu mới cần truy cập nhanh, sau đó ít dần: đặt quy tắc vòng đời Standard → StandardIA → Glacier → Deep Archive theo mốc thời gian."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.13",
+              "quote": "Tổng chi phí gồm lưu trữ, truy xuất, request, chuyển lớp và xóa sớm là bao nhiêu?"
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.12",
+              "quote": "Các lớp Glacier không cho đọc trực tiếp; phải khôi phục tạm thời và chờ theo mức đã chọn."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.12",
+              "quote": "Dữ liệu một Availability Zone cần có bản sao ở nơi khác nếu không thể tái tạo."
+            },
+            {
+              "source": "aws-saa-exam-guide – Mục 3.1",
+              "quote": "Dịch vụ lưu trữ với trường hợp sử dụng phù hợp, ví dụ Amazon S3, Amazon Elastic File System (Amazon EFS), Amazon Elastic Block Store (Amazon EBS)."
+            },
+            {
+              "source": "aws-saa-exam-guide – Mục 4.1",
+              "quote": "Task statement 4.1 yêu cầu chọn dịch vụ lưu trữ, tầng lưu trữ, vòng đời dữ liệu và phương án sao lưu/lưu trữ dài hạn với chi phí thấp nhất nhưng vẫn đáp ứng yêu cầu về hiệu năng và độ bền."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 31275,
+          "output_tokens": 12692,
+          "latency_ms": 51949.3,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "27771026-1288-5f01-8746-cb1f4dea6ddd",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.3",
+              "page": 2,
+              "score": 0.237
+            },
+            {
+              "rank": 2,
+              "child_id": "f3c91557-53d6-59a3-ac7e-6281e7c13a55",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.5",
+              "page": 4,
+              "score": 0.2232
+            },
+            {
+              "rank": 3,
+              "child_id": "e22211fe-a39a-5a1b-969e-9b51026736e5",
+              "document": "aws-saa-exam-guide",
+              "section": "Mục 3.1",
+              "page": 6,
+              "score": 0.2217
+            },
+            {
+              "rank": 4,
+              "child_id": "ae4f016d-85dd-502a-a4f9-3f2237c25ee3",
+              "document": "aws-saa-exam-guide",
+              "section": "Mục 4.1",
+              "page": 9,
+              "score": 0.1992
+            },
+            {
+              "rank": 5,
+              "child_id": "3a3c5198-6aa2-54b3-ac59-271a76c71ddc",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.12",
+              "page": 9,
+              "score": 0.1227
+            },
+            {
+              "rank": 6,
+              "child_id": "6e9b7c4a-2c95-54df-b307-1c6734b48d68",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.12",
+              "page": 9,
+              "score": 0.0463
+            }
+          ],
+          "judge_score": 0.5,
+          "judge_reason": "Câu trả lời có bảng so sánh rõ, giữ đúng câu viết lại, nêu S3 là lưu trữ đối tượng, EBS là ổ đĩa khối gắn EC2 cùng AZ, có nhắc snapshot EBS lưu trong S3 và trích EC2 Mục 1.4. Tuy nhiên thiếu các ý quan trọng trong hành vi mong đợi: S3 cho nội dung tĩnh, phân tích dữ liệu lớn, sao lưu; EBS cho workload cần IOPS/độ trễ thấp. Phần trích dẫn S3 dùng Mục 1.13/1.12 thay vì căn cứ nêu Mục 1.2/1.4, nên ch",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['EC2 Tinh toan – Mục 1.4', 'EC2 Tinh toan – Mục 1.4', 'EC2 Tinh toan – Mục 1.4', 'EC2 Tinh toan – Mục 1.4']"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 4,
+          "question": "EBS có tự nhân bản qua nhiều AZ không?",
+          "rewritten_query": "EBS có tự nhân bản qua nhiều AZ không?",
+          "rewrite_source": "llm",
+          "depends_on_context": false,
+          "conversation_tokens": 1356,
+          "answer": "Không — EBS không tự nhân bản qua nhiều AZ. EBS gắn với một AZ và volume chỉ gắn được cho instance trong cùng AZ [EC2 Tinh toan – Mục 1.4]. Muốn có dữ liệu ở AZ khác (hoặc Region khác) phải chủ động tạo volume mới từ snapshot, và với Region khác thì phải copy snapshot trước [EC2 Tinh toan – Mục 1.4]. Cơ chế sao lưu dựa trên snapshot: đây là bản sao lưu tăng dần, lưu trong S3 do AWS quản lý; lần đầu đầy đủ, các lần sau chỉ lưu phần thay đổi [EC2 Tinh toan – Mục 1.4].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.92,
+          "citations": [
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "EBS gắn với một AZ; volume chỉ gắn được cho instance trong cùng AZ."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Có thể tạo volume mới từ snapshot ở AZ khác hoặc Region khác (sau khi copy snapshot)."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Snapshot là bản sao lưu tăng dần, lưu trong S3 do AWS quản lý; lần đầu đầy đủ, các lần sau chỉ lưu phần thay đổi."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 10239,
+          "output_tokens": 1093,
+          "latency_ms": 7993.4,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "704e40e1-02eb-5563-bc6a-1810d5eb5ccf",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.3903
+            },
+            {
+              "rank": 2,
+              "child_id": "27771026-1288-5f01-8746-cb1f4dea6ddd",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.3",
+              "page": 2,
+              "score": 0.2746
+            },
+            {
+              "rank": 3,
+              "child_id": "3a3c5198-6aa2-54b3-ac59-271a76c71ddc",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.12",
+              "page": 9,
+              "score": 0.2026
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Câu trả lời trả lời đúng 'Không', nêu EBS gắn với một AZ và chỉ gắn cho instance cùng AZ; snapshot là bản sao tăng dần lưu trong S3 do AWS quản lý; có thể tạo volume ở AZ/Region khác sau khi copy snapshot. Trích dẫn đúng EC2 Tinh toan – Mục 1.4, không mâu thuẫn các lượt trước và không bịa thông số.",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['EC2 Tinh toan – Mục 1.4', 'EC2 Tinh toan – Mục 1.4', 'EC2 Tinh toan – Mục 1.4']"
+            },
+            {
+              "label": "khẳng định EBS không tự nhân bản nhiều AZ",
+              "passed": true,
+              "detail": "Không — EBS không tự nhân bản qua nhiều AZ. EBS gắn với một AZ và volume chỉ gắn được cho instance trong cùng AZ [EC2 Tinh toan – Mục 1.4]. Muốn có dữ liệu ở AZ"
+            }
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "code": "KB-02",
+      "title": "Tra cứu nối tiếp: sao lưu và phục hồi RDS",
+      "kind": "Tra cứu nối tiếp",
+      "session_id": "9fef1e39-c1ca-4f0f-82e4-d8aa2a888d5e",
+      "turns": 4,
+      "passed_turns": 3,
+      "passed": false,
+      "notes": "lượt 1: Trả lời đúng thời gian lưu giữ 0–35 ngày, đặt 0 là tắt và trích dẫn đúng Mục 1.3; tuy nhiên thiếu ý backup chạy trong backup window nên đặt giờ thấp điểm và xóa",
+      "records": [
+        {
+          "number": 1,
+          "question": "RDS sao lưu tự động giữ bao lâu?",
+          "rewritten_query": "RDS sao lưu tự động giữ bao lâu?",
+          "rewrite_source": "none",
+          "depends_on_context": false,
+          "conversation_tokens": 0,
+          "answer": "Sao lưu tự động (automated backup) của RDS có thời gian lưu giữ **0–35 ngày**; nếu đặt giá trị 0 thì sao lưu tự động sẽ bị tắt [RDS Aurora – Mục 1.3]. Trong khoảng lưu giữ đó, bạn có thể phục hồi theo thời điểm (point-in-time recovery) tới bất kỳ giây nào, thường trong vòng 5 phút kể từ thời điểm gần nhất [RDS Aurora – Mục 1.3].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.95,
+          "citations": [
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Thời gian lưu giữ 0-35 ngày; đặt 0 sẽ tắt sao lưu tự động."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Phục hồi theo thời điểm (point-in-time recovery) tới bất kỳ giây nào trong khoảng lưu giữ, thường trong vòng 5 phút kể từ thời điểm gần nhất."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 8018,
+          "output_tokens": 675,
+          "latency_ms": 6414.4,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "e11bb14b-7e8c-50b9-8cab-31e02153e8ed",
+              "document": "RDS Aurora",
+              "section": "Mục 1.2",
+              "page": 2,
+              "score": 0.9865
+            },
+            {
+              "rank": 2,
+              "child_id": "d631010d-7072-5dca-bd9c-098184d3cb2e",
+              "document": "RDS Aurora",
+              "section": "Mục 1.3",
+              "page": 3,
+              "score": 0.5251
+            },
+            {
+              "rank": 3,
+              "child_id": "85231d00-acda-5657-8d04-24c173379143",
+              "document": "RDS Aurora",
+              "section": "Mục 1.9",
+              "page": 7,
+              "score": 0.2454
+            }
+          ],
+          "judge_score": 0.5,
+          "judge_reason": "Trả lời đúng thời gian lưu giữ 0–35 ngày, đặt 0 là tắt và trích dẫn đúng Mục 1.3; tuy nhiên thiếu ý backup chạy trong backup window nên đặt giờ thấp điểm và xóa instance vẫn giữ snapshot cuối nếu tùy chọn bật. Việc nêu thêm PITR không sai nhưng chưa đủ hành vi mong đợi của lượt 1.",
+          "auto_checks": [
+            {
+              "label": "câu viết lại giữ nguyên",
+              "passed": true,
+              "detail": "viết lại=RDS sao lưu tự động giữ bao lâu?"
+            },
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['RDS Aurora – Mục 1.3', 'RDS Aurora – Mục 1.3']"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 2,
+          "question": "Có khôi phục được về một giờ trước không?",
+          "rewritten_query": "Với sao lưu tự động của RDS, có thể phục hồi theo thời điểm (point-in-time recovery) về một giờ trước không?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 135,
+          "answer": "Có — miễn là sao lưu tự động đang được bật và thời gian lưu giữ bao phủ mốc đó. RDS hỗ trợ phục hồi theo thời điểm (point-in-time recovery) tới **bất kỳ giây nào trong khoảng lưu giữ**, thường hoàn tất trong vòng 5 phút kể từ thời điểm gần nhất [RDS Aurora – Mục 1.3]. Vì thời gian lưu giữ của sao lưu tự động là **0–35 ngày** và đặt 0 sẽ tắt sao lưu tự động [RDS Aurora – Mục 1.3], mốc \"một giờ trước\" nằm trong khoảng lưu giữ hợp lệ khi giá trị lưu giữ lớn hơn 0.\n\nLưu ý: mọi bản khôi phục đều tạo ra một DB instance mới [RDS Aurora – Mục 1.3], và khôi phục luôn tạo tài nguyên mới, không ghi đè instance hiện có; cần thay đổi DNS hoặc endpoint để chuyển hướng ứng dụng [RDS Aurora – Mục 1.3].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.93,
+          "citations": [
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Phục hồi theo thời điểm (point-in-time recovery) tới bất kỳ giây nào trong khoảng lưu giữ, thường trong vòng 5 phút kể từ thời điểm gần nhất."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Thời gian lưu giữ 0-35 ngày; đặt 0 sẽ tắt sao lưu tự động."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Mọi bản khôi phục đều tạo ra một DB instance mới."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Khôi phục luôn tạo tài nguyên mới, không ghi đè instance hiện có; cần thay đổi DNS hoặc endpoint để chuyển hướng ứng dụng."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 9317,
+          "output_tokens": 1187,
+          "latency_ms": 6691.0,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "e11bb14b-7e8c-50b9-8cab-31e02153e8ed",
+              "document": "RDS Aurora",
+              "section": "Mục 1.2",
+              "page": 2,
+              "score": 0.9854
+            },
+            {
+              "rank": 2,
+              "child_id": "58652aa2-1f9f-5895-8c0b-2c1908a45481",
+              "document": "RDS Aurora",
+              "section": "Mục 1.3",
+              "page": 3,
+              "score": 0.8953
+            },
+            {
+              "rank": 3,
+              "child_id": "54c1c505-b983-5f3e-ada9-7be8c00a37c9",
+              "document": "RDS Aurora",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.2535
+            },
+            {
+              "rank": 4,
+              "child_id": "91debae6-a406-588d-8cd3-47f95b61c4cf",
+              "document": "RDS Aurora",
+              "section": "Mục 1.12",
+              "page": 10,
+              "score": 0.0962
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Câu trả lời đáp ứng đúng hành vi mong đợi: khẳng định có thể PITR về một giờ trước nếu sao lưu tự động bật và thời gian lưu giữ bao phủ; nêu PITR tới bất kỳ giây nào trong khoảng lưu giữ, thường trong vòng 5 phút; nêu đúng giới hạn 0–35 ngày và 0 là tắt sao lưu; không hứa khôi phục ngoài khoảng. Cũng nêu đúng khôi phục tạo DB instance mới, không ghi đè instance hiện có, cần đổi endpoint/DNS. Trích",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['RDS Aurora – Mục 1.3', 'RDS Aurora – Mục 1.3', 'RDS Aurora – Mục 1.3', 'RDS Aurora – Mục 1.3']"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 3,
+          "question": "Khôi phục xong nó ghi đè DB cũ hay tạo cái mới?",
+          "rewritten_query": "Khi khôi phục RDS về thời điểm trước đó, bản khôi phục sẽ ghi đè lên DB instance cũ hay tạo ra một DB instance mới?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 388,
+          "answer": "Khi khôi phục RDS về một thời điểm trước đó, bản khôi phục **không ghi đè lên DB instance cũ** mà **tạo ra một DB instance mới**: mọi bản khôi phục đều tạo ra một DB instance mới [RDS Aurora – Mục 1.3], và khôi phục luôn tạo tài nguyên mới, không ghi đè instance hiện có [RDS Aurora – Mục 1.3]. Vì vậy bạn cần thay đổi DNS hoặc endpoint để chuyển hướng ứng dụng sang instance vừa khôi phục [RDS Aurora – Mục 1.3]. Tương tự, khôi phục từ snapshot cũng tạo instance mới với endpoint mới, nên cần cập nhật cấu hình ứng dụng [RDS Aurora – Mục 1.3].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.97,
+          "citations": [
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Mọi bản khôi phục đều tạo ra một DB instance mới."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Khôi phục luôn tạo tài nguyên mới, không ghi đè instance hiện có; cần thay đổi DNS hoặc endpoint để chuyển hướng ứng dụng."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Khôi phục snapshot tạo instance mới với endpoint mới; cần cập nhật cấu hình ứng dụng."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 10094,
+          "output_tokens": 856,
+          "latency_ms": 8874.1,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "58652aa2-1f9f-5895-8c0b-2c1908a45481",
+              "document": "RDS Aurora",
+              "section": "Mục 1.3",
+              "page": 3,
+              "score": 0.9839
+            },
+            {
+              "rank": 2,
+              "child_id": "e11bb14b-7e8c-50b9-8cab-31e02153e8ed",
+              "document": "RDS Aurora",
+              "section": "Mục 1.2",
+              "page": 2,
+              "score": 0.9597
+            },
+            {
+              "rank": 3,
+              "child_id": "aea3838c-ffa6-5b53-a6f5-226c323e7fc5",
+              "document": "RDS Aurora",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.1599
+            },
+            {
+              "rank": 4,
+              "child_id": "4fb10777-34f6-5711-a47a-a26922d1cca8",
+              "document": "RDS Aurora",
+              "section": "Mục 1.6",
+              "page": 5,
+              "score": 0.1073
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Câu trả lời đúng: khôi phục RDS không ghi đè instance cũ mà tạo DB instance mới với endpoint mới, cần cập nhật DNS/endpoint ứng dụng; trích dẫn đúng Mục 1.3 và không mâu thuẫn các lượt trước. Câu viết lại giữ đúng ý và đủ thực thể.",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['RDS Aurora – Mục 1.3', 'RDS Aurora – Mục 1.3', 'RDS Aurora – Mục 1.3']"
+            },
+            {
+              "label": "nêu instance/endpoint mới",
+              "passed": true,
+              "detail": "Khi khôi phục RDS về một thời điểm trước đó, bản khôi phục **không ghi đè lên DB instance cũ** mà **tạo ra một DB instance mới**: mọi bản khôi phục đều tạo ra m"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 4,
+          "question": "Vậy snapshot thủ công khác gì?",
+          "rewritten_query": "Snapshot thủ công của RDS khác gì so với sao lưu tự động (automated backup)?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 593,
+          "answer": "**Tóm tắt:** Sao lưu tự động là cơ chế sao lưu có vòng đời do RDS quản lý và gắn với cửa sổ lưu giữ để phục hồi theo thời điểm; snapshot thủ công là bản chụp do người dùng tạo, tồn tại cho đến khi bị xóa và có thể sao chép/xuất dữ liệu.\n\n| Tiêu chí | Sao lưu tự động (automated backup) | Snapshot thủ công (manual snapshot) |\n| :--- | :--- | :--- |\n| Thời gian lưu giữ | 0–35 ngày; đặt 0 sẽ tắt sao lưu tự động [RDS Aurora – Mục 1.3] | Tồn tại đến khi bị xóa [RDS Aurora – Mục 1.3] |\n| Phục hồi theo thời điểm | Có — phục hồi tới bất kỳ giây nào trong khoảng lưu giữ, thường trong vòng 5 phút kể từ thời điểm gần nhất [RDS Aurora – Mục 1.3] | Không có trong tài liệu |\n| Thời điểm tạo | Diễn ra trong backup window; nên đặt vào giờ thấp điểm [RDS Aurora – Mục 1.3] | Do người dùng chủ động tạo (bản chụp thủ công) [RDS Aurora – Mục 1.3] |\n| Khi xóa DB instance | Giữ snapshot cuối cùng một thời gian nếu tùy chọn này được bật khi xóa [RDS Aurora – Mục 1.3] | Vẫn tồn tại kể cả sau khi xóa DB instance [RDS Aurora – Mục 1.3] |\n| Sao chép sang Region khác | Không có trong tài liệu | Có thể sao chép sang Region khác [RDS Aurora – Mục 1.3] |\n| Chia sẻ snapshot | Không có trong tài liệu | Snapshot của DB đã mã hóa chỉ có thể chia sẻ nếu nguồn cho phép; snapshot mã hóa không chia sẻ công khai [RDS Aurora – Mục 1.3] |\n| Xuất dữ liệu để phân tích | Không có trong tài liệu | Có thể xuất snapshot sang S3 dưới định dạng Parquet để phân tích bằng Athena [RDS Aurora – Mục 1.3] |\n| Hành vi khi khôi phục | Mọi bản khôi phục đều tạo ra một DB instance mới [RDS Aurora – Mục 1.3] | Khôi phục snapshot tạo instance mới với endpoint mới; cần cập nhật cấu hình ứng dụng [RDS Aurora – Mục 1.3] |\n\n**Khi nào dùng sao lưu tự động:** khi cần phục hồi theo thời điểm (point-in-time recovery) trong một khoảng lưu giữ xác định — thời gian lưu giữ 0–35 ngày, đặt 0 là tắt — và chấp nhận việc sao lưu chạy trong backup window nên đặt vào giờ thấp điểm [RDS Aurora – Mục 1.3].\n\n**Khi nào dùng snapshot thủ công:** khi cần một bản sao giữ lâu cho đến khi tự xóa, giữ được kể cả sau khi xóa DB instance, có thể sao chép sang Region khác, hoặc xuất sang S3 dạng Parquet để phân tích bằng Athena [RDS Aurora – Mục 1.3]. Lưu ý snapshot của DB đã mã hóa chỉ chia sẻ được nếu nguồn cho phép và không chia sẻ công khai [RDS Aurora – Mục 1.3].\n\nVới cả hai cơ chế, khôi phục luôn tạo tài nguyên mới, không ghi đè instance hiện có; cần thay đổi DNS hoặc endpoint để chuyển hướng ứng dụng, và nên thường xuyên kiểm tra khôi phục thực tế thay vì chỉ dựa vào việc backup thành công [RDS Aurora – Mục 1.3].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.9,
+          "citations": [
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Thời gian lưu giữ 0-35 ngày; đặt 0 sẽ tắt sao lưu tự động."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Phục hồi theo thời điểm (point-in-time recovery) tới bất kỳ giây nào trong khoảng lưu giữ, thường trong vòng 5 phút kể từ thời điểm gần nhất."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Sao lưu diễn ra trong backup window; nên đặt vào giờ thấp điểm."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Xóa DB instance sẽ giữ snapshot cuối cùng một thời gian nếu tùy chọn này được bật khi xóa."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Tồn tại đến khi bị xóa, kể cả sau khi xóa DB instance; có thể sao chép sang Region khác."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Snapshot của DB đã mã hóa chỉ có thể chia sẻ nếu nguồn cho phép; snapshot mã hóa không chia sẻ công khai."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Có thể xuất snapshot sang S3 dưới định dạng Parquet để phân tích bằng Athena."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Khôi phục snapshot tạo instance mới với endpoint mới; cần cập nhật cấu hình ứng dụng."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Mọi bản khôi phục đều tạo ra một DB instance mới."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.3",
+              "quote": "Thường xuyên kiểm tra khôi phục thực tế, không chỉ dựa vào việc backup thành công."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 10787,
+          "output_tokens": 2836,
+          "latency_ms": 14635.5,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "e11bb14b-7e8c-50b9-8cab-31e02153e8ed",
+              "document": "RDS Aurora",
+              "section": "Mục 1.2",
+              "page": 2,
+              "score": 0.9961
+            },
+            {
+              "rank": 2,
+              "child_id": "58652aa2-1f9f-5895-8c0b-2c1908a45481",
+              "document": "RDS Aurora",
+              "section": "Mục 1.3",
+              "page": 3,
+              "score": 0.9112
+            },
+            {
+              "rank": 3,
+              "child_id": "4fb10777-34f6-5711-a47a-a26922d1cca8",
+              "document": "RDS Aurora",
+              "section": "Mục 1.6",
+              "page": 5,
+              "score": 0.119
+            },
+            {
+              "rank": 4,
+              "child_id": "54c1c505-b983-5f3e-ada9-7be8c00a37c9",
+              "document": "RDS Aurora",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.0927
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Đáp ứng đầy đủ: phân biệt rõ sao lưu tự động và snapshot thủ công; nêu snapshot thủ công tồn tại đến khi bị xóa, giữ được sau khi xóa DB instance, có thể sao chép sang Region khác, snapshot mã hóa chỉ chia sẻ khi nguồn cho phép, và khôi phục tạo instance mới. Trích dẫn đúng Mục 1.3; câu viết lại đúng ý và độc lập; không mâu thuẫn các lượt trước.",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['RDS Aurora – Mục 1.3', 'RDS Aurora – Mục 1.3', 'RDS Aurora – Mục 1.3', 'RDS Aurora – Mục 1.3']"
+            }
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "code": "KB-03",
+      "title": "Tra cứu nối tiếp: IAM role và thông tin xác thực tạm thời",
+      "kind": "Tra cứu nối tiếp",
+      "session_id": "3b258097-76e6-44fa-85ef-52f9cbca1be0",
+      "turns": 4,
+      "passed_turns": 3,
+      "passed": false,
+      "notes": "lượt 4: Trả lời đúng trọng tâm: không thể thu hồi ngay thông tin xác thực tạm thời; muốn thu hồi hiệu quả phải thu hồi quyền của role hoặc dùng policy điều kiện; trích ",
+      "records": [
+        {
+          "number": 1,
+          "question": "IAM role là gì?",
+          "rewritten_query": "IAM role là gì?",
+          "rewrite_source": "none",
+          "depends_on_context": false,
+          "conversation_tokens": 0,
+          "answer": "**IAM role** là một danh tính tạm thời được giả định bởi người dùng, ứng dụng hoặc dịch vụ; role không có mật khẩu hay access key cố định [IAM – Mục 1.1]. Về bản chất, IAM role là cách chuẩn để cấp quyền tạm thời cho ứng dụng, dịch vụ AWS và người dùng từ tài khoản khác mà không cần lưu thông tin xác thực dài hạn [IAM – Mục 1.3].\n\n**Cấu trúc của một role** gồm hai phần [IAM – Mục 1.3]:\n- **Trust policy**: xác định ai được giả định role. Lưu ý trust policy không cấp quyền truy cập tài nguyên, nó chỉ xác định ai có thể assume role [IAM – Mục 1.3].\n- **Permission policy**: xác định role được làm gì [IAM – Mục 1.3].\n\n**Các mẫu sử dụng phổ biến** [IAM – Mục 1.3]:\n- **EC2 instance profile**: gắn role vào instance, ứng dụng lấy thông tin xác thực tạm thời qua metadata service (IMDS) thay vì lưu access key trong mã nguồn.\n- **Lambda execution role**: mỗi hàm có role riêng với quyền tối thiểu cần thiết.\n- **ECS task role**: cấp quyền cho container theo từng task definition.\n- **Cross-account role**: tài khoản khác assume role để truy cập tài nguyên được ủy quyền.\n- **Service role**: cho phép dịch vụ AWS thay mặt người dùng thực hiện hành động, ví dụ CloudWatch Logs, EventBridge, Auto Scaling.\n\n**Đặc điểm của thông tin xác thực tạm thời** [IAM – Mục 1.3]:\n- Thời hạn phiên từ 15 phút đến 12 giờ tùy cấu hình max session duration của role; mặc định 1 giờ.\n- Được tự động xoay vòng trước khi hết hạn nếu ứng dụng dùng SDK/instance profile.\n- Không thể thu hồi ngay lập tức trước hạn; muốn thu hồi hiệu quả phải thu hồi quyền của role hoặc dùng policy điều kiện.\n- Không nên tạo access key cho người dùng nếu có thể dùng role; hạn chế tối đa thông tin xác thực dài hạn.\n\nRole có thể bị giới hạn thêm bằng permission boundary và SCP; với vai trò chuỗi (role chaining), thời hạn phiên tối đa thường bị giới hạn ở 1 giờ [IAM – Mục 1.3].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.95,
+          "citations": [
+            {
+              "source": "IAM – Mục 1.1",
+              "quote": "Vai trò (role): danh tính tạm thời được giả định bởi người dùng, ứng dụng hoặc dịch vụ; không có mật khẩu hay access key cố định."
+            },
+            {
+              "source": "IAM – Mục 1.3",
+              "quote": "IAM role là cách chuẩn để cấp quyền tạm thời cho ứng dụng, dịch vụ AWS và người dùng từ tài khoản khác mà không cần lưu thông tin xác thực dài hạn."
+            },
+            {
+              "source": "IAM – Mục 1.3",
+              "quote": "Mỗi role có hai phần: trust policy (ai được giả định role) và permission policy (role được làm gì)."
+            },
+            {
+              "source": "IAM – Mục 1.3",
+              "quote": "Thời hạn phiên từ 15 phút đến 12 giờ tùy cấu hình max session duration của role; mặc định 1 giờ."
+            },
+            {
+              "source": "IAM – Mục 1.3",
+              "quote": "Trust policy không cấp quyền truy cập tài nguyên; nó chỉ xác định ai có thể assume role."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 9111,
+          "output_tokens": 1455,
+          "latency_ms": 7204.1,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "d1df3e37-7f96-5433-88d9-b61f2c7378b9",
+              "document": "IAM",
+              "section": "Mục 1.2",
+              "page": 1,
+              "score": 0.998
+            },
+            {
+              "rank": 2,
+              "child_id": "d822adec-c228-53a7-8bed-95a151550fda",
+              "document": "IAM",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.9848
+            },
+            {
+              "rank": 3,
+              "child_id": "b3ec9bd4-655a-5535-937c-1eab3136596a",
+              "document": "IAM",
+              "section": "Mục 1.3",
+              "page": 2,
+              "score": 0.8482
+            },
+            {
+              "rank": 4,
+              "child_id": "b7187e8b-0baa-5f12-af47-190a869f0764",
+              "document": "IAM",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.8371
+            },
+            {
+              "rank": 5,
+              "child_id": "6c851f0c-3172-5689-8dc1-31de8082fd12",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.10",
+              "page": 8,
+              "score": 0.7929
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Đáp án nêu đúng IAM role là cách cấp quyền tạm thời, không lưu credential dài hạn; trình bày đủ trust policy và permission policy, nêu rõ trust policy không cấp quyền tài nguyên; có ví dụ EC2 instance profile, Lambda execution role, cross-account role; nêu đúng thời hạn 15 phút–12 giờ, mặc định 1 giờ; nói không thể thu hồi tức thời; trích dẫn chính Mục 1.3 phù hợp căn cứ.",
+          "auto_checks": [
+            {
+              "label": "câu viết lại giữ nguyên",
+              "passed": true,
+              "detail": "viết lại=IAM role là gì?"
+            },
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['IAM – Mục 1.1', 'IAM – Mục 1.3', 'IAM – Mục 1.3', 'IAM – Mục 1.3']"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 2,
+          "question": "Trust policy của nó dùng để làm gì?",
+          "rewritten_query": "Trust policy của IAM role dùng để làm gì?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 633,
+          "answer": "**Trust policy** của IAM role là phần xác định **ai được giả định (assume) role** — tức là kiểm soát danh tính nào được phép assume role đó [IAM – Mục 1.3]. Mỗi role có hai phần: trust policy (ai được giả định role) và permission policy (role được làm gì) [IAM – Mục 1.3].\n\nCần lưu ý: trust policy **không cấp quyền truy cập tài nguyên**; nó chỉ xác định ai có thể assume role [IAM – Mục 1.3]. Nói cách khác, trust policy chỉ kiểm soát ai được assume role, **không** kiểm soát role được làm gì [IAM – Mục 1.12].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.97,
+          "citations": [
+            {
+              "source": "IAM – Mục 1.3",
+              "quote": "Mỗi role có hai phần: trust policy (ai được giả định role) và permission policy (role được làm gì)."
+            },
+            {
+              "source": "IAM – Mục 1.3",
+              "quote": "Trust policy không cấp quyền truy cập tài nguyên; nó chỉ xác định ai có thể assume role."
+            },
+            {
+              "source": "IAM – Mục 1.12",
+              "quote": "Trust policy chỉ kiểm soát ai được assume role, không kiểm soát role được làm gì."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 10171,
+          "output_tokens": 756,
+          "latency_ms": 5308.2,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "d1df3e37-7f96-5433-88d9-b61f2c7378b9",
+              "document": "IAM",
+              "section": "Mục 1.2",
+              "page": 1,
+              "score": 0.9907
+            },
+            {
+              "rank": 2,
+              "child_id": "382b52c4-2f7e-55a8-a92a-3a0d6457d14a",
+              "document": "IAM",
+              "section": "Mục 1.12",
+              "page": 10,
+              "score": 0.9552
+            },
+            {
+              "rank": 3,
+              "child_id": "5ecd1103-27b1-54ed-af71-56b14a3b35b3",
+              "document": "IAM",
+              "section": "Mục 1.8",
+              "page": 7,
+              "score": 0.9484
+            },
+            {
+              "rank": 4,
+              "child_id": "b7187e8b-0baa-5f12-af47-190a869f0764",
+              "document": "IAM",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.8818
+            },
+            {
+              "rank": 5,
+              "child_id": "b3ec9bd4-655a-5535-937c-1eab3136596a",
+              "document": "IAM",
+              "section": "Mục 1.3",
+              "page": 2,
+              "score": 0.7866
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Trả lời đúng: trust policy xác định ai được assume role, không cấp quyền truy cập tài nguyên; permission policy mới quy định role được làm gì. Trích dẫn Mục 1.3 và 1.12 phù hợp căn cứ, không mâu thuẫn lượt trước.",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['IAM – Mục 1.3', 'IAM – Mục 1.3', 'IAM – Mục 1.12']"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 3,
+          "question": "Thông tin xác thực tạm thời sống được bao lâu?",
+          "rewritten_query": "Thông tin xác thực tạm thời do IAM role cung cấp (ví dụ qua EC2 instance profile) sống được bao lâu trước khi hết hạn?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 822,
+          "answer": "**Thời hạn của thông tin xác thực tạm thời do IAM role cấp** (bao gồm trường hợp lấy qua EC2 instance profile) như sau [IAM – Mục 1.3]:\n\n- **Thời hạn phiên: từ 15 phút đến 12 giờ**, tùy cấu hình `max session duration` của role; **mặc định là 1 giờ** [IAM – Mục 1.3].\n- **Được tự động xoay vòng trước khi hết hạn** nếu ứng dụng dùng SDK/instance profile — nên ứng dụng trên EC2 không cần tự quản lý việc gia hạn [IAM – Mục 1.3].\n- **Không thể thu hồi ngay lập tức trước hạn**; muốn thu hồi hiệu quả phải thu hồi quyền của role hoặc dùng policy điều kiện [IAM – Mục 1.3].\n- **Ngoại lệ với role chaining**: với vai trò chuỗi, thời hạn phiên tối đa thường bị giới hạn ở 1 giờ [IAM – Mục 1.3].\n\nĐây cũng là lý do tài liệu khuyến nghị không nên tạo access key cho người dùng nếu có thể dùng role, nhằm hạn chế tối đa thông tin xác thực dài hạn [IAM – Mục 1.3].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.95,
+          "citations": [
+            {
+              "source": "IAM – Mục 1.3",
+              "quote": "Thời hạn phiên từ 15 phút đến 12 giờ tùy cấu hình max session duration của role; mặc định 1 giờ."
+            },
+            {
+              "source": "IAM – Mục 1.3",
+              "quote": "Được tự động xoay vòng trước khi hết hạn nếu ứng dụng dùng SDK/instance profile."
+            },
+            {
+              "source": "IAM – Mục 1.3",
+              "quote": "Không thể thu hồi ngay lập tức trước hạn; muốn thu hồi hiệu quả phải thu hồi quyền của role hoặc dùng policy điều kiện."
+            },
+            {
+              "source": "IAM – Mục 1.3",
+              "quote": "Với vai trò chuỗi (role chaining), thời hạn phiên tối đa thường bị giới hạn ở 1 giờ."
+            },
+            {
+              "source": "IAM – Mục 1.3",
+              "quote": "Không nên tạo access key cho người dùng nếu có thể dùng role; hạn chế tối đa thông tin xác thực dài hạn."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 10632,
+          "output_tokens": 1314,
+          "latency_ms": 11207.5,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "b3ec9bd4-655a-5535-937c-1eab3136596a",
+              "document": "IAM",
+              "section": "Mục 1.3",
+              "page": 2,
+              "score": 0.9822
+            },
+            {
+              "rank": 2,
+              "child_id": "d1df3e37-7f96-5433-88d9-b61f2c7378b9",
+              "document": "IAM",
+              "section": "Mục 1.2",
+              "page": 1,
+              "score": 0.9607
+            },
+            {
+              "rank": 3,
+              "child_id": "901643da-4c57-5f79-8e08-5e8a5bcbfe67",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.11",
+              "page": 8,
+              "score": 0.4863
+            },
+            {
+              "rank": 4,
+              "child_id": "0411696d-5eeb-504a-9f0a-18d7d0242cc2",
+              "document": "IAM",
+              "section": "Mục 1.9",
+              "page": 7,
+              "score": 0.3882
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Câu trả lời nêu đúng thời hạn 15 phút–12 giờ tùy max session duration, mặc định 1 giờ, role chaining thường giới hạn 1 giờ; không nói có thể thu hồi tức thời; trích đúng IAM – Mục 1.3. Câu viết lại giữ đúng ý và đủ thực thể chính (IAM role, thông tin xác thực tạm thời, EC2 instance profile), không mâu thuẫn các lượt trước.",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['IAM – Mục 1.3', 'IAM – Mục 1.3', 'IAM – Mục 1.3', 'IAM – Mục 1.3']"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 4,
+          "question": "Có thu hồi ngay được không?",
+          "rewritten_query": "Thông tin xác thực tạm thời do IAM role cấp có thể thu hồi ngay lập tức trước khi hết hạn không?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 1130,
+          "answer": "**Không.** Thông tin xác thực tạm thời do IAM role cấp **không thể thu hồi ngay lập tức trước khi hết hạn** [IAM – Mục 1.3]. Muốn thu hồi hiệu quả, phải **thu hồi quyền của role** hoặc **dùng policy điều kiện** [IAM – Mục 1.3].\n\nTài liệu nhắc lại cùng điểm này trong phần bẫy thường gặp: thông tin xác thực tạm thời không thể thu hồi ngay; phải thu hồi quyền của role hoặc dùng điều kiện [IAM – Mục 1.12].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.95,
+          "citations": [
+            {
+              "source": "IAM – Mục 1.3",
+              "quote": "Không thể thu hồi ngay lập tức trước hạn; muốn thu hồi hiệu quả phải thu hồi quyền của role hoặc dùng policy điều kiện."
+            },
+            {
+              "source": "IAM – Mục 1.12",
+              "quote": "Thông tin xác thực tạm thời không thể thu hồi ngay; phải thu hồi quyền của role hoặc dùng điều kiện."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 9553,
+          "output_tokens": 878,
+          "latency_ms": 6227.2,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "b3ec9bd4-655a-5535-937c-1eab3136596a",
+              "document": "IAM",
+              "section": "Mục 1.3",
+              "page": 2,
+              "score": 0.9992
+            },
+            {
+              "rank": 2,
+              "child_id": "382b52c4-2f7e-55a8-a92a-3a0d6457d14a",
+              "document": "IAM",
+              "section": "Mục 1.12",
+              "page": 10,
+              "score": 0.9938
+            },
+            {
+              "rank": 3,
+              "child_id": "d1df3e37-7f96-5433-88d9-b61f2c7378b9",
+              "document": "IAM",
+              "section": "Mục 1.2",
+              "page": 1,
+              "score": 0.8314
+            },
+            {
+              "rank": 4,
+              "child_id": "b7187e8b-0baa-5f12-af47-190a869f0764",
+              "document": "IAM",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.5765
+            }
+          ],
+          "judge_score": 0.5,
+          "judge_reason": "Trả lời đúng trọng tâm: không thể thu hồi ngay thông tin xác thực tạm thời; muốn thu hồi hiệu quả phải thu hồi quyền của role hoặc dùng policy điều kiện; trích đúng Mục 1.3 và 1.12, không mâu thuẫn lượt trước. Tuy nhiên thiếu ý mong đợi: nêu khuyến nghị dùng IAM role thay cho access key dài hạn.",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['IAM – Mục 1.3', 'IAM – Mục 1.12']"
+            },
+            {
+              "label": "nói không thu hồi ngay",
+              "passed": true,
+              "detail": "**Không.** Thông tin xác thực tạm thời do IAM role cấp **không thể thu hồi ngay lập tức trước khi hết hạn** [IAM – Mục 1.3]. Muốn thu hồi hiệu quả, phải **thu h"
+            }
+          ],
+          "passed": false
+        }
+      ]
+    },
+    {
+      "code": "KB-04",
+      "title": "So sánh: Multi-AZ và Read Replica",
+      "kind": "So sánh",
+      "session_id": "523dbad4-00a5-4b58-bfac-d5d4de048118",
+      "turns": 4,
+      "passed_turns": 4,
+      "passed": true,
+      "notes": "",
+      "records": [
+        {
+          "number": 1,
+          "question": "Multi-AZ và Read Replica khác nhau thế nào?",
+          "rewritten_query": "Multi-AZ và Read Replica khác nhau thế nào?",
+          "rewrite_source": "none",
+          "depends_on_context": false,
+          "conversation_tokens": 0,
+          "answer": "**Tóm tắt:** Multi-AZ là cơ chế **sẵn sàng cao** với bản sao **đồng bộ** ở Availability Zone khác và failover tự động; Read Replica là cơ chế **mở rộng khả năng đọc** với bản sao **bất đồng bộ**, không tự động failover [RDS Aurora – Mục 1.2].\n\n| Tiêu chí | Multi-AZ | Read Replica |\n| :--- | :--- | :--- |\n| Mục tiêu | Sẵn sàng cao, tự động chuyển đổi khi instance chính gặp sự cố [RDS Aurora – Mục 1.2] | Mở rộng khả năng đọc [RDS Aurora – Mục 1.2] |\n| Cơ chế sao chép | Bản sao standby được cập nhật đồng bộ [RDS Aurora – Mục 1.2] | Sao chép bất đồng bộ, có độ trễ nhất định [RDS Aurora – Mục 1.2] |\n| Phục vụ truy vấn đọc | Standby không phục vụ truy vấn đọc trong mô hình Multi-AZ cổ điển [RDS Aurora – Mục 1.2] | Có thể phục vụ truy vấn đọc, phù hợp cho báo cáo, tìm kiếm, đọc phân tán [RDS Aurora – Mục 1.2] |\n| Failover | Tự động, thường mất khoảng 60-120 giây, phụ thuộc thời gian phát hiện sự cố [RDS Aurora – Mục 1.2] | Không tự động failover; khi instance chính lỗi, ứng dụng phải chuyển endpoint thủ công [RDS Aurora – Mục 1.2] |\n| Endpoint khi sự cố | Endpoint DNS giữ nguyên khi failover nên ứng dụng không cần đổi cấu hình [RDS Aurora – Mục 1.2] | Phải chuyển endpoint thủ công khi instance chính lỗi [RDS Aurora – Mục 1.2] |\n| Phạm vi Region | Không có trong tài liệu (tài liệu chỉ nêu bản sao ở Availability Zone khác) [RDS Aurora – Mục 1.2] | Hỗ trợ cùng Region hoặc khác Region (cross-region read replica) tùy engine [RDS Aurora – Mục 1.2] |\n| Khả năng tách thành instance độc lập | Không có trong tài liệu | Có thể nâng cấp replica thành instance độc lập (promote) để phục vụ kịch bản phục hồi hoặc tách môi trường [RDS Aurora – Mục 1.2] |\n| Chi phí | Không có trong tài liệu | Tăng chi phí do thêm instance và lưu trữ; cần cân nhắc số lượng replica theo tải đọc thực tế [RDS Aurora – Mục 1.2] |\n| Trường hợp sử dụng | Nên bật cho môi trường production của mọi ứng dụng quan trọng, kể cả khi chưa cần đọc mở rộng [RDS Aurora – Mục 1.2] | Phù hợp cho báo cáo, tìm kiếm, đọc phân tán; báo cáo đọc nhiều không được ảnh hưởng giao dịch thì trỏ báo cáo vào reader endpoint [RDS Aurora – Mục 1.2; RDS Aurora – Mục 1.13] |\n\n**Lưu ý về ngoại lệ:** Với RDS MySQL, PostgreSQL, MariaDB có thêm mô hình Multi-AZ DB cluster: một writer và hai instance đọc được, trải trên ba AZ — tức mô hình này có phục vụ đọc, khác với Multi-AZ cổ điển [RDS Aurora – Mục 1.2].\n\n**Khi nào chọn Multi-AZ:** khi cần chịu lỗi AZ và failover tự động mà không phải đổi cấu hình ứng dụng — ứng dụng production cần chịu lỗi AZ thì bật Multi-AZ, giữ nguyên endpoint DNS khi failover [RDS Aurora – Mục 1.13], và nên bật cho môi trường production của mọi ứng dụng quan trọng kể cả khi chưa cần đọc mở rộng [RDS Aurora – Mục 1.2].\n\n**Khi nào chọn Read Replica:** khi cần mở rộng tải đọc — thêm read replica hoặc Aurora Replica và trỏ báo cáo vào reader endpoint khi báo cáo đọc nhiều mà không được ảnh hưởng giao dịch [RDS Aurora – Mục 1.13]; hoặc khi cần promote replica thành instance độc lập cho kịch bản phục hồi/tách môi trường [RDS Aurora – Mục 1.2].\n\n**Cách phối hợp:** Production cần chịu lỗi và tải đọc cao thì bật Multi-AZ cho instance chính và thêm read replica [RDS Aurora – Mục 1.2].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.9,
+          "citations": [
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Multi-AZ nhằm mục tiêu sẵn sàng cao: RDS duy trì một bản sao đồng bộ ở Availability Zone khác, tự động chuyển đổi khi instance chính gặp sự cố."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Read replica nhằm mục tiêu mở rộng khả năng đọc: bản sao bất đồng bộ có thể phục vụ truy vấn đọc và có thể nâng cấp thành instance độc lập."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Bản sao standby được cập nhật đồng bộ; endpoint DNS giữ nguyên khi failover nên ứng dụng không cần đổi cấu hình."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Standby không phục vụ truy vấn đọc trong mô hình Multi-AZ cổ điển."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Failover tự động thường mất khoảng 60-120 giây, phụ thuộc thời gian phát hiện sự cố."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Nên bật cho môi trường production của mọi ứng dụng quan trọng, kể cả khi chưa cần đọc mở rộng."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Với RDS MySQL, PostgreSQL, MariaDB có thêm mô hình Multi-AZ DB cluster: một writer và hai instance đọc được, trải trên ba AZ."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Sao chép bất đồng bộ, có độ trễ nhất định; phù hợp cho báo cáo, tìm kiếm, đọc phân tán."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Hỗ trợ cùng Region hoặc khác Region (cross-region read replica) tùy engine."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Có thể nâng cấp replica thành instance độc lập (promote) để phục vụ kịch bản phục hồi hoặc tách môi trường."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Không tự động failover; khi instance chính lỗi, replica vẫn chạy nhưng ứng dụng phải chuyển endpoint thủ công."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Tăng chi phí do thêm instance và lưu trữ; cần cân nhắc số lượng replica theo tải đọc thực tế."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "bật Multi-AZ cho instance chính và thêm read replica"
+            },
+            {
+              "source": "RDS Aurora – Mục 1.13",
+              "quote": "Ứng dụng production cần chịu lỗi AZ: bật Multi-AZ, giữ nguyên endpoint DNS khi failover."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.13",
+              "quote": "Báo cáo đọc nhiều, không được ảnh hưởng giao dịch: thêm read replica hoặc Aurora Replica, trỏ báo cáo vào reader endpoint."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 10790,
+          "output_tokens": 3595,
+          "latency_ms": 14839.9,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "17500cb6-43b2-5990-b557-db0aaa37d41a",
+              "document": "RDS Aurora",
+              "section": "Mục 1.2",
+              "page": 2,
+              "score": 0.9996
+            },
+            {
+              "rank": 2,
+              "child_id": "aea3838c-ffa6-5b53-a6f5-226c323e7fc5",
+              "document": "RDS Aurora",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.9954
+            },
+            {
+              "rank": 3,
+              "child_id": "59792a25-1a2a-54e9-bf1e-ec0a357ad14b",
+              "document": "RDS Aurora",
+              "section": "Mục 1.12",
+              "page": 10,
+              "score": 0.4977
+            },
+            {
+              "rank": 4,
+              "child_id": "d35d6492-ca64-503b-a43d-6d964576df86",
+              "document": "RDS Aurora",
+              "section": "Mục 1.5",
+              "page": 4,
+              "score": 0.4058
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Câu trả lời có bảng so sánh nhiều tiêu chí (mục tiêu, cơ chế đồng bộ/bất đồng bộ, khả năng đọc, failover, chi phí...), nêu đúng Read Replica không tự động failover và standby Multi-AZ không phục vụ đọc (trừ ngoại lệ Multi-AZ DB cluster), trích Mục 1.2 và thể hiện hai cơ chế bổ trợ chứ không thay thế; câu viết lại giữ nguyên đúng.",
+          "auto_checks": [
+            {
+              "label": "câu viết lại giữ nguyên",
+              "passed": true,
+              "detail": "viết lại=Multi-AZ và Read Replica khác nhau thế nào?"
+            },
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['RDS Aurora – Mục 1.2', 'RDS Aurora – Mục 1.2', 'RDS Aurora – Mục 1.2', 'RDS Aurora – Mục 1.2']"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 2,
+          "question": "Cái nào giúp tăng khả năng đọc?",
+          "rewritten_query": "Giữa Multi-AZ và Read Replica trong RDS, cơ chế nào giúp tăng khả năng đọc?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 1087,
+          "answer": "**Read Replica** là cơ chế giúp tăng khả năng đọc [RDS Aurora – Mục 1.2].\n\n- **Read Replica:** được thiết kế cho mục tiêu **mở rộng khả năng đọc** — bản sao **bất đồng bộ** có thể phục vụ truy vấn đọc và có thể nâng cấp thành instance độc lập [RDS Aurora – Mục 1.2]. Sao chép bất đồng bộ nên có độ trễ nhất định; phù hợp cho báo cáo, tìm kiếm, đọc phân tán [RDS Aurora – Mục 1.2]. Read replica hỗ trợ cùng Region hoặc khác Region (cross-region read replica) tùy engine [RDS Aurora – Mục 1.2], nhưng **không tự động failover** — khi instance chính lỗi, ứng dụng phải chuyển endpoint thủ công [RDS Aurora – Mục 1.2].\n- **Multi-AZ:** được thiết kế cho mục tiêu **sẵn sàng cao**, với bản sao **đồng bộ** ở Availability Zone khác và tự động chuyển đổi khi instance chính gặp sự cố [RDS Aurora – Mục 1.2]. Trong mô hình Multi-AZ cổ điển, standby **không phục vụ truy vấn đọc** [RDS Aurora – Mục 1.2].\n\n**Ngoại lệ cần nhớ:** với RDS MySQL, PostgreSQL, MariaDB có thêm mô hình **Multi-AZ DB cluster**: một writer và hai instance đọc được, trải trên ba AZ — tức mô hình này có phục vụ đọc, khác với Multi-AZ cổ điển [RDS Aurora – Mục 1.2].\n\n**Ứng dụng thực hành:** khi báo cáo đọc nhiều mà không được ảnh hưởng giao dịch, thêm read replica hoặc Aurora Replica và trỏ báo cáo vào reader endpoint [RDS Aurora – Mục 1.13]. Nếu production cần cả chịu lỗi và tải đọc cao, bật Multi-AZ cho instance chính và thêm read replica [RDS Aurora – Mục 1.2].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.95,
+          "citations": [
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Read replica nhằm mục tiêu mở rộng khả năng đọc: bản sao bất đồng bộ có thể phục vụ truy vấn đọc và có thể nâng cấp thành instance độc lập."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Standby không phục vụ truy vấn đọc trong mô hình Multi-AZ cổ điển."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Sao chép bất đồng bộ, có độ trễ nhất định; phù hợp cho báo cáo, tìm kiếm, đọc phân tán."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Với RDS MySQL, PostgreSQL, MariaDB có thêm mô hình Multi-AZ DB cluster: một writer và hai instance đọc được, trải trên ba AZ."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.13",
+              "quote": "Báo cáo đọc nhiều, không được ảnh hưởng giao dịch: thêm read replica hoặc Aurora Replica, trỏ báo cáo vào reader endpoint."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 12888,
+          "output_tokens": 1782,
+          "latency_ms": 9071.6,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "17500cb6-43b2-5990-b557-db0aaa37d41a",
+              "document": "RDS Aurora",
+              "section": "Mục 1.2",
+              "page": 2,
+              "score": 0.998
+            },
+            {
+              "rank": 2,
+              "child_id": "aea3838c-ffa6-5b53-a6f5-226c323e7fc5",
+              "document": "RDS Aurora",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.9972
+            },
+            {
+              "rank": 3,
+              "child_id": "59792a25-1a2a-54e9-bf1e-ec0a357ad14b",
+              "document": "RDS Aurora",
+              "section": "Mục 1.12",
+              "page": 10,
+              "score": 0.626
+            },
+            {
+              "rank": 4,
+              "child_id": "85231d00-acda-5657-8d04-24c173379143",
+              "document": "RDS Aurora",
+              "section": "Mục 1.9",
+              "page": 7,
+              "score": 0.4226
+            },
+            {
+              "rank": 5,
+              "child_id": "25a4c35d-1d43-557a-aa87-c52109221f68",
+              "document": "RDS Aurora",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.4154
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Câu trả lời xác định đúng Read Replica giúp tăng khả năng đọc; nêu rõ standby của Multi-AZ cổ điển không phục vụ đọc; nêu đúng ngoại lệ Multi-AZ DB cluster cho MySQL/PostgreSQL/MariaDB với 1 writer và 2 instance đọc được; không nói Read Replica tự động failover; trích đúng Mục 1.2 và không mâu thuẫn với bảng so sánh ở lượt 1. Câu viết lại thực tế vẫn giữ cả Multi-AZ và Read Replica.",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['RDS Aurora – Mục 1.2', 'RDS Aurora – Mục 1.2', 'RDS Aurora – Mục 1.2', 'RDS Aurora – Mục 1.2']"
+            },
+            {
+              "label": "viết lại giữ cả Multi-AZ và Read Replica",
+              "passed": true,
+              "detail": "Giữa Multi-AZ và Read Replica trong RDS, cơ chế nào giúp tăng khả năng đọc?"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 3,
+          "question": "Khi instance chính lỗi thì cái nào tự chuyển?",
+          "rewritten_query": "Trong RDS, khi instance chính gặp sự cố thì Multi-AZ hay Read Replica tự động chuyển đổi?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 503,
+          "answer": "**Multi-AZ** là cơ chế **tự động chuyển đổi (failover)** khi instance chính gặp sự cố, còn **Read Replica thì không tự động failover** [RDS Aurora – Mục 1.2].\n\n- **Multi-AZ:** RDS duy trì một bản sao **đồng bộ** ở Availability Zone khác và **tự động chuyển đổi khi instance chính gặp sự cố** [RDS Aurora – Mục 1.2]. Endpoint DNS **giữ nguyên khi failover** nên ứng dụng không cần đổi cấu hình [RDS Aurora – Mục 1.2]. Failover tự động thường mất khoảng **60–120 giây**, phụ thuộc thời gian phát hiện sự cố [RDS Aurora – Mục 1.2].\n- **Read Replica:** sao chép **bất đồng bộ** và **không tự động failover**; khi instance chính lỗi, replica vẫn chạy nhưng **ứng dụng phải chuyển endpoint thủ công** [RDS Aurora – Mục 1.2]. Replica có thể được **nâng cấp thành instance độc lập (promote)** để phục vụ kịch bản phục hồi hoặc tách môi trường [RDS Aurora – Mục 1.2].\n\nLưu ý thêm: với RDS MySQL, PostgreSQL, MariaDB có thêm mô hình **Multi-AZ DB cluster**: một writer và hai instance đọc được, trải trên ba AZ [RDS Aurora – Mục 1.2].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.95,
+          "citations": [
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Multi-AZ nhằm mục tiêu sẵn sàng cao: RDS duy trì một bản sao đồng bộ ở Availability Zone khác, tự động chuyển đổi khi instance chính gặp sự cố."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Bản sao standby được cập nhật đồng bộ; endpoint DNS giữ nguyên khi failover nên ứng dụng không cần đổi cấu hình."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Failover tự động thường mất khoảng 60-120 giây, phụ thuộc thời gian phát hiện sự cố."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Không tự động failover; khi instance chính lỗi, replica vẫn chạy nhưng ứng dụng phải chuyển endpoint thủ công."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Có thể nâng cấp replica thành instance độc lập (promote) để phục vụ kịch bản phục hồi hoặc tách môi trường."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Với RDS MySQL, PostgreSQL, MariaDB có thêm mô hình Multi-AZ DB cluster: một writer và hai instance đọc được, trải trên ba AZ."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 12345,
+          "output_tokens": 1367,
+          "latency_ms": 7467.1,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "aea3838c-ffa6-5b53-a6f5-226c323e7fc5",
+              "document": "RDS Aurora",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.9994
+            },
+            {
+              "rank": 2,
+              "child_id": "17500cb6-43b2-5990-b557-db0aaa37d41a",
+              "document": "RDS Aurora",
+              "section": "Mục 1.2",
+              "page": 2,
+              "score": 0.9982
+            },
+            {
+              "rank": 3,
+              "child_id": "59792a25-1a2a-54e9-bf1e-ec0a357ad14b",
+              "document": "RDS Aurora",
+              "section": "Mục 1.12",
+              "page": 10,
+              "score": 0.8703
+            },
+            {
+              "rank": 4,
+              "child_id": "d35d6492-ca64-503b-a43d-6d964576df86",
+              "document": "RDS Aurora",
+              "section": "Mục 1.5",
+              "page": 4,
+              "score": 0.5594
+            },
+            {
+              "rank": 5,
+              "child_id": "06ef3278-110c-5aa4-9667-4b656ab0fa47",
+              "document": "RDS Aurora",
+              "section": "Mục 1.9",
+              "page": 7,
+              "score": 0.5119
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Trả lời đúng trọng tâm: Multi-AZ tự động failover khoảng 60–120 giây và DNS giữ nguyên; Read Replica không tự động failover, phải chuyển endpoint thủ công. Giữ đúng cả hai đối tượng so sánh, không mâu thuẫn với các lượt trước, không nói Read Replica tự failover, và nêu ngoại lệ Multi-AZ DB cluster đúng phạm vi cho phép. Trích dẫn Mục 1.2 phù hợp.",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['RDS Aurora – Mục 1.2', 'RDS Aurora – Mục 1.2', 'RDS Aurora – Mục 1.2', 'RDS Aurora – Mục 1.2']"
+            },
+            {
+              "label": "viết lại giữ cả Multi-AZ và Read Replica",
+              "passed": true,
+              "detail": "Trong RDS, khi instance chính gặp sự cố thì Multi-AZ hay Read Replica tự động chuyển đổi?"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 4,
+          "question": "Nếu cần cả hai thì sao?",
+          "rewritten_query": "Nếu cần cả hai trên RDS — vừa sẵn sàng cao với Multi-AZ vừa mở rộng khả năng đọc bằng Read Replica — thì nên kết hợp như thế nào?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 867,
+          "answer": "Cách kết hợp đúng là **bật Multi-AZ cho instance chính và thêm read replica cho tải đọc** — đây chính là khuyến nghị phối hợp khi production cần cả chịu lỗi lẫn tải đọc cao [RDS Aurora – Mục 1.2].\n\n| Ràng buộc | Yêu cầu | Phương án đáp ứng | Căn cứ |\n| :--- | :--- | :--- | :--- |\n| 1 | Sẵn sàng cao, tự động chuyển khi instance chính lỗi | Multi-AZ cho instance chính: bản sao standby đồng bộ ở AZ khác, failover tự động, endpoint DNS giữ nguyên nên ứng dụng không cần đổi cấu hình | [RDS Aurora – Mục 1.2] |\n| 2 | Mở rộng khả năng đọc | Thêm read replica: bản sao bất đồng bộ phục vụ truy vấn đọc, phù hợp báo cáo, tìm kiếm, đọc phân tán; trỏ báo cáo vào reader endpoint | [RDS Aurora – Mục 1.2], [RDS Aurora – Mục 1.13] |\n\n**Chi tiết cách phối hợp:**\n\n- **Instance chính bật Multi-AZ** để đạt mục tiêu sẵn sàng cao; standby được cập nhật đồng bộ và không phục vụ truy vấn đọc trong mô hình Multi-AZ cổ điển, nên bản thân Multi-AZ không giúp mở rộng đọc [RDS Aurora – Mục 1.2]. Multi-AZ nên bật cho môi trường production của mọi ứng dụng quan trọng, kể cả khi chưa cần đọc mở rộng [RDS Aurora – Mục 1.2].\n- **Thêm read replica** cho phần đọc: sao chép bất đồng bộ nên có độ trễ nhất định, phù hợp báo cáo/tìm kiếm/đọc phân tán, và có thể ở cùng Region hoặc khác Region tùy engine [RDS Aurora – Mục 1.2]. Với báo cáo đọc nhiều mà không được ảnh hưởng giao dịch, thêm read replica (hoặc Aurora Replica) và trỏ báo cáo vào reader endpoint [RDS Aurora – Mục 1.13].\n- **Lưu ý vận hành:** read replica không tự động failover — khi instance chính lỗi, ứng dụng phải chuyển endpoint thủ công; replica có thể được promote thành instance độc lập cho kịch bản phục hồi [RDS Aurora – Mục 1.2]. Replica cũng làm tăng chi phí do thêm instance và lưu trữ, nên cân nhắc số lượng replica theo tải đọc thực tế [RDS Aurora – Mục 1.2].\n- **Ngoại lệ đáng nhớ:** với RDS MySQL, PostgreSQL, MariaDB có thêm mô hình Multi-AZ DB cluster gồm một writer và hai instance đọc được, trải trên ba AZ [RDS Aurora – Mục 1.2].\n- **Khi có sự cố failover Multi-AZ:** theo dõi RDS event để biết thời điểm và kiểm tra ứng dụng kết nối lại qua DNS; không cần đổi endpoint [RDS Aurora – Mục 1.12].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.93,
+          "citations": [
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Production cần chịu lỗi và tải đọc cao: bật Multi-AZ cho instance chính và thêm read replica"
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Multi-AZ nhằm mục tiêu sẵn sàng cao: RDS duy trì một bản sao đồng bộ ở Availability Zone khác, tự động chuyển đổi khi instance chính gặp sự cố."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Standby không phục vụ truy vấn đọc trong mô hình Multi-AZ cổ điển."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Sao chép bất đồng bộ, có độ trễ nhất định; phù hợp cho báo cáo, tìm kiếm, đọc phân tán."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Không tự động failover; khi instance chính lỗi, replica vẫn chạy nhưng ứng dụng phải chuyển endpoint thủ công."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.2",
+              "quote": "Với RDS MySQL, PostgreSQL, MariaDB có thêm mô hình Multi-AZ DB cluster: một writer và hai instance đọc được, trải trên ba AZ."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.13",
+              "quote": "Báo cáo đọc nhiều, không được ảnh hưởng giao dịch: thêm read replica hoặc Aurora Replica, trỏ báo cáo vào reader endpoint."
+            },
+            {
+              "source": "RDS Aurora – Mục 1.12",
+              "quote": "Failover Multi-AZ: theo dõi RDS event để biết thời điểm, kiểm tra ứng dụng kết nối lại qua DNS; không cần đổi endpoint."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 10619,
+          "output_tokens": 2148,
+          "latency_ms": 10490.9,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "17500cb6-43b2-5990-b557-db0aaa37d41a",
+              "document": "RDS Aurora",
+              "section": "Mục 1.2",
+              "page": 2,
+              "score": 0.9899
+            },
+            {
+              "rank": 2,
+              "child_id": "aea3838c-ffa6-5b53-a6f5-226c323e7fc5",
+              "document": "RDS Aurora",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.9645
+            },
+            {
+              "rank": 3,
+              "child_id": "59792a25-1a2a-54e9-bf1e-ec0a357ad14b",
+              "document": "RDS Aurora",
+              "section": "Mục 1.12",
+              "page": 10,
+              "score": 0.5378
+            },
+            {
+              "rank": 4,
+              "child_id": "25a4c35d-1d43-557a-aa87-c52109221f68",
+              "document": "RDS Aurora",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.4954
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Câu trả lời đáp ứng đúng hành vi mong đợi: kết hợp Multi-AZ cho instance chính để đạt sẵn sàng cao và thêm read replica cho tải đọc; có nêu cross-region read replica khi cần đọc khác Region. Không mâu thuẫn với bảng so sánh ở lượt trước: nói rõ Read Replica không tự động failover, standby Multi-AZ cổ điển không phục vụ đọc và có nêu ngoại lệ Multi-AZ DB cluster. Trích dẫn Mục 1.2 phù hợp với căn c",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['RDS Aurora – Mục 1.2', 'RDS Aurora – Mục 1.2', 'RDS Aurora – Mục 1.2', 'RDS Aurora – Mục 1.2']"
+            }
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "code": "KB-05",
+      "title": "So sánh: security group và network ACL",
+      "kind": "So sánh",
+      "session_id": "d0dec2d2-5ce6-48a6-9f45-e57e1718656d",
+      "turns": 4,
+      "passed_turns": 4,
+      "passed": true,
+      "notes": "",
+      "records": [
+        {
+          "number": 1,
+          "question": "Security group và network ACL khác nhau ở điểm nào?",
+          "rewritten_query": "Security group và network ACL khác nhau ở điểm nào?",
+          "rewrite_source": "none",
+          "depends_on_context": false,
+          "conversation_tokens": 0,
+          "answer": "**Tóm tắt:** Security group là lớp tường lửa **có trạng thái (stateful)** ở cấp ENI/instance với chỉ rule allow, còn Network ACL là lớp tường lửa **không có trạng thái (stateless)** ở cấp subnet với cả rule allow và deny được đánh giá theo thứ tự số [VPC Networking – Mục 1.4].\n\n| Tiêu chí | Security Group | Network ACL |\n| :--- | :--- | :--- |\n| Cấp hoạt động | Cấp ENI/instance [VPC Networking – Mục 1.4] | Cấp subnet [VPC Networking – Mục 1.4] |\n| Trạng thái | Có trạng thái (stateful): lưu lượng phản hồi của một kết nối được phép tự động, không cần mở chiều ngược lại [VPC Networking – Mục 1.4] | Không có trạng thái (stateless): phải mở cả chiều vào và chiều ra, kể cả cổng tạm thời [VPC Networking – Mục 1.4] |\n| Loại rule | Chỉ có rule cho phép (allow); mọi lưu lượng không khớp bị từ chối ngầm định [VPC Networking – Mục 1.4] | Có cả rule allow và deny [VPC Networking – Mục 1.4] |\n| Cách đánh giá | Mọi rule được đánh giá trước khi quyết định, không theo thứ tự [VPC Networking – Mục 1.4] | Đánh giá theo số thứ tự từ thấp đến cao, dừng ở rule khớp đầu tiên [VPC Networking – Mục 1.4] |\n| Tham chiếu nguồn | Có thể tham chiếu security group khác làm nguồn thay vì dải CIDR, ví dụ chỉ cho phép security group của ALB truy cập EC2 [VPC Networking – Mục 1.4] | Không có trong tài liệu |\n| Mặc định của VPC | Security group mặc định từ chối toàn bộ inbound và cho phép toàn bộ outbound; có thể xóa rule outbound mặc định để siết chặt [VPC Networking – Mục 1.4] | NACL mặc định của VPC cho phép toàn bộ vào và ra; NACL tự tạo từ chối toàn bộ cho đến khi thêm rule [VPC Networking – Mục 1.4] |\n| Số lượng gắn kết | Một ENI có thể gắn nhiều security group (tối đa 5 theo hạn mức mặc định); quyền hạn là hợp của các rule [VPC Networking – Mục 1.4] | Một subnet gắn với đúng một NACL; một NACL có thể gắn với nhiều subnet [VPC Networking – Mục 1.4] |\n| Yêu cầu mở cổng tạm thời khi mở 443 | Không cần mở chiều ngược lại do stateful [VPC Networking – Mục 1.4] | Khi mở inbound cổng 443 phải mở outbound dải cổng tạm thời 1024-65535 (và ngược lại) [VPC Networking – Mục 1.4] |\n| Vai trò trong phối hợp | Làm lớp kiểm soát chính ở cấp tài nguyên [VPC Networking – Mục 1.4] | Làm lớp phòng thủ bổ sung ở cấp subnet khi cần chặn theo dải IP cụ thể [VPC Networking – Mục 1.4] |\n\n**Khi nào dùng Security Group:** dùng làm lớp kiểm soát chính ở cấp tài nguyên, và có thể tham chiếu security group khác làm nguồn để chỉ cho phép đúng luồng thiết kế (ví dụ chỉ cho phép security group của ALB truy cập EC2) [VPC Networking – Mục 1.4].\n\n**Khi nào dùng Network ACL:** dùng làm lớp phòng thủ bổ sung ở cấp subnet khi cần chặn theo dải IP cụ thể [VPC Networking – Mục 1.4]. Vì stateless, khi mở một chiều phải nhớ mở dải cổng tạm thời ở chiều còn lại [VPC Networking – Mục 1.4].\n\nKhi gỡ lỗi kết nối, cần kiểm tra lần lượt security group của nguồn và đích, NACL hai chiều, route table, rồi DNS [VPC Networking – Mục 1.4].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.95,
+          "citations": [
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Security group hoạt động ở cấp ENI/instance và có trạng thái (stateful): lưu lượng phản hồi của một kết nối được phép tự động, không cần mở chiều ngược lại."
+            },
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Network ACL hoạt động ở cấp subnet và không có trạng thái (stateless): phải mở cả chiều vào và chiều ra, kể cả cổng tạm thời."
+            },
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Chỉ có rule cho phép (allow); mọi lưu lượng không khớp bị từ chối ngầm định."
+            },
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Mọi rule được đánh giá trước khi quyết định, không theo thứ tự."
+            },
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Có thể tham chiếu security group khác làm nguồn thay vì dải CIDR, ví dụ chỉ cho phép security group của ALB truy cập EC2."
+            },
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Security group mặc định của VPC từ chối toàn bộ inbound và cho phép toàn bộ outbound; có thể xóa rule outbound mặc định để siết chặt."
+            },
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Một ENI có thể gắn nhiều security group (tối đa 5 theo hạn mức mặc định); quyền hạn là hợp của các rule."
+            },
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Có cả rule allow và deny; đánh giá theo số thứ tự từ thấp đến cao, dừng ở rule khớp đầu tiên."
+            },
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "NACL mặc định của VPC cho phép toàn bộ vào và ra; NACL tự tạo từ chối toàn bộ cho đến khi thêm rule."
+            },
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Vì stateless, khi mở inbound cổng 443 phải mở outbound dải cổng tạm thời 1024-65535 (và ngược lại)."
+            },
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Một subnet gắn với đúng một NACL; một NACL có thể gắn với nhiều subnet."
+            },
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Dùng security group làm lớp kiểm soát chính ở cấp tài nguyên; NACL làm lớp phòng thủ bổ sung ở cấp subnet khi cần chặn theo dải IP cụ thể."
+            },
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Khi gỡ lỗi kết nối, kiểm tra lần lượt: security group của nguồn và đích, NACL hai chiều, route table, rồi DNS."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 9798,
+          "output_tokens": 2621,
+          "latency_ms": 10685.9,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "6c616c07-ead1-5763-aa8b-902c7befc386",
+              "document": "VPC Networking",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.9953
+            },
+            {
+              "rank": 2,
+              "child_id": "fb2ec5c0-9be8-58f1-956a-cf0789623ccb",
+              "document": "VPC Networking",
+              "section": "Mục 1.3",
+              "page": 2,
+              "score": 0.9874
+            },
+            {
+              "rank": 3,
+              "child_id": "9e8ca00b-b1a2-5e91-a3e0-79997d718b9e",
+              "document": "VPC Networking",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.8909
+            },
+            {
+              "rank": 4,
+              "child_id": "319a1753-2221-515a-adf6-b1a17d01962f",
+              "document": "aws-saa-exam-guide",
+              "section": "Mục 1.2",
+              "page": 3,
+              "score": 0.3651
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Câu trả lời giữ đúng câu hỏi, cung cấp bảng so sánh đúng 5 tiêu chí cốt lõi: cấp áp dụng, stateful/stateless, loại rule, cách đánh giá, mặc định. Không nói NACL stateful hay security group có rule deny. Trích dẫn đúng VPC Networking – Mục 1.4. Đáp ứng đầy đủ hành vi mong đợi.",
+          "auto_checks": [
+            {
+              "label": "câu viết lại giữ nguyên",
+              "passed": true,
+              "detail": "viết lại=Security group và network ACL khác nhau ở điểm nào?"
+            },
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['VPC Networking – Mục 1.4', 'VPC Networking – Mục 1.4', 'VPC Networking – Mục 1.4', 'VPC Networking – Mục 1.4']"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 2,
+          "question": "Cái nào có trạng thái?",
+          "rewritten_query": "Trong hai dịch vụ Security group và Network ACL, cái nào có trạng thái (stateful) và cái nào không có trạng thái (stateless)?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 1001,
+          "answer": "**Security group** là lớp tường lửa **có trạng thái (stateful)**: lưu lượng phản hồi của một kết nối được phép tự động, không cần mở chiều ngược lại [VPC Networking – Mục 1.4].\n\n**Network ACL** là lớp tường lửa **không có trạng thái (stateless)**: phải mở cả chiều vào và chiều ra, kể cả cổng tạm thời [VPC Networking – Mục 1.4]. Cụ thể, vì stateless, khi mở inbound cổng 443 phải mở outbound dải cổng tạm thời 1024-65535 (và ngược lại) [VPC Networking – Mục 1.4].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.95,
+          "citations": [
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Security group hoạt động ở cấp ENI/instance và có trạng thái (stateful): lưu lượng phản hồi của một kết nối được phép tự động, không cần mở chiều ngược lại."
+            },
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Network ACL hoạt động ở cấp subnet và không có trạng thái (stateless): phải mở cả chiều vào và chiều ra, kể cả cổng tạm thời."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 11299,
+          "output_tokens": 605,
+          "latency_ms": 5178.8,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "fb2ec5c0-9be8-58f1-956a-cf0789623ccb",
+              "document": "VPC Networking",
+              "section": "Mục 1.3",
+              "page": 2,
+              "score": 0.9968
+            },
+            {
+              "rank": 2,
+              "child_id": "6c616c07-ead1-5763-aa8b-902c7befc386",
+              "document": "VPC Networking",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.9967
+            },
+            {
+              "rank": 3,
+              "child_id": "9e8ca00b-b1a2-5e91-a3e0-79997d718b9e",
+              "document": "VPC Networking",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.1987
+            },
+            {
+              "rank": 4,
+              "child_id": "63747a21-308c-5ebb-a46f-c6cf6f2e298f",
+              "document": "VPC Networking",
+              "section": "Mục 1.13",
+              "page": 11,
+              "score": 0.1611
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Trả lời đúng: Security group stateful, phản hồi tự động được phép; Network ACL stateless, phải mở cả hai chiều kể cả cổng tạm thời; nêu đúng dải cổng tạm thời 1024–65535 và trích đúng Mục 1.4. Không mâu thuẫn lượt trước.",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['VPC Networking – Mục 1.4', 'VPC Networking – Mục 1.4']"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 3,
+          "question": "Vì sao mở inbound 443 trên NACL vẫn không kết nối được?",
+          "rewritten_query": "Vì sao mở inbound cổng 443 trên Network ACL (không có trạng thái) vẫn không kết nối được?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 1170,
+          "answer": "**Nguyên nhân:** Network ACL là lớp tường lửa **không có trạng thái (stateless)**, nên lưu lượng phản hồi của một kết nối **không** được tự động cho phép — bạn phải mở cả chiều vào và chiều ra, kể cả cổng tạm thời [VPC Networking – Mục 1.4]. Vì vậy, khi mở inbound cổng 443, bạn còn phải mở **outbound dải cổng tạm thời 1024-65535** (và ngược lại) thì kết nối mới hoạt động [VPC Networking – Mục 1.4].\n\nĐây cũng là một lỗi cấu hình phổ biến: NACL stateless thiếu rule cho cổng tạm thời sẽ khiến kết nối đã thiết lập bị treo [VPC Networking – Mục 1.13].\n\n**Cách khắc phục:** thêm rule cho dải cổng tạm thời ở chiều còn lại, rồi khi gỡ lỗi kiểm tra lần lượt security group của nguồn và đích, NACL hai chiều, route table, rồi DNS [VPC Networking – Mục 1.4].\n\nLưu ý: Security group thì không gặp vấn đề này vì là stateful — lưu lượng phản hồi của một kết nối được phép tự động, không cần mở chiều ngược lại [VPC Networking – Mục 1.4].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.92,
+          "citations": [
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Network ACL hoạt động ở cấp subnet và không có trạng thái (stateless): phải mở cả chiều vào và chiều ra, kể cả cổng tạm thời."
+            },
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Vì stateless, khi mở inbound cổng 443 phải mở outbound dải cổng tạm thời 1024-65535 (và ngược lại)."
+            },
+            {
+              "source": "VPC Networking – Mục 1.13",
+              "quote": "NACL stateless thiếu rule cho cổng tạm thời, khiến kết nối đã thiết lập bị treo."
+            },
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Security group hoạt động ở cấp ENI/instance và có trạng thái (stateful): lưu lượng phản hồi của một kết nối được phép tự động, không cần mở chiều ngược lại."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 10990,
+          "output_tokens": 1358,
+          "latency_ms": 8674.5,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "6c616c07-ead1-5763-aa8b-902c7befc386",
+              "document": "VPC Networking",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.9513
+            },
+            {
+              "rank": 2,
+              "child_id": "fb2ec5c0-9be8-58f1-956a-cf0789623ccb",
+              "document": "VPC Networking",
+              "section": "Mục 1.3",
+              "page": 2,
+              "score": 0.5637
+            },
+            {
+              "rank": 3,
+              "child_id": "9e8ca00b-b1a2-5e91-a3e0-79997d718b9e",
+              "document": "VPC Networking",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.0348
+            },
+            {
+              "rank": 4,
+              "child_id": "05500160-7f48-5a28-848e-b075d671091d",
+              "document": "VPC Networking",
+              "section": "Mục 1.13",
+              "page": 11,
+              "score": 0.0301
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Đáp án nêu đúng nguyên nhân NACL stateless, chỉ rõ cần mở outbound dải cổng tạm thời 1024–65535 và chiều ngược lại, nhắc kiểm tra security group, trích đúng Mục 1.4; không mâu thuẫn các lượt trước và không mắc lỗi stateful/rule deny.",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['VPC Networking – Mục 1.4', 'VPC Networking – Mục 1.4', 'VPC Networking – Mục 1.13', 'VPC Networking – Mục 1.4']"
+            },
+            {
+              "label": "nêu dải cổng tạm thời 1024-65535",
+              "passed": true,
+              "detail": "**Nguyên nhân:** Network ACL là lớp tường lửa **không có trạng thái (stateless)**, nên lưu lượng phản hồi của một kết nối **không** được tự động cho phép — bạn phải mở cả chiều vào và chiều ra, kể cả "
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 4,
+          "question": "Vậy khi debug nên kiểm tra theo thứ tự nào?",
+          "rewritten_query": "Khi debug lỗi kết nối trong VPC, nên kiểm tra security group của nguồn và đích, Network ACL hai chiều, route table rồi DNS theo thứ tự nào?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 1485,
+          "answer": "Thứ tự kiểm tra khi gỡ lỗi kết nối trong VPC là **lần lượt**: (1) security group của nguồn và đích → (2) Network ACL hai chiều → (3) route table → (4) DNS [VPC Networking – Mục 1.4].\n\nCụ thể từng bước:\n\n| Bước | Nội dung kiểm tra | Căn cứ |\n| :--- | :--- | :--- |\n| 1 | Security group của nguồn và đích | [VPC Networking – Mục 1.4] |\n| 2 | Network ACL hai chiều | [VPC Networking – Mục 1.4] |\n| 3 | Route table | [VPC Networking – Mục 1.4] |\n| 4 | DNS | [VPC Networking – Mục 1.4] |\n\nLý do cần kiểm tra NACL **hai chiều**: Network ACL là stateless, phải mở cả chiều vào và chiều ra, kể cả cổng tạm thời — ví dụ khi mở inbound cổng 443 phải mở outbound dải cổng tạm thời 1024-65535 (và ngược lại) [VPC Networking – Mục 1.4]. Thiếu rule cho cổng tạm thời là lỗi cấu hình phổ biến khiến kết nối đã thiết lập bị treo [VPC Networking – Mục 1.13].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.95,
+          "citations": [
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Khi gỡ lỗi kết nối, kiểm tra lần lượt: security group của nguồn và đích, NACL hai chiều, route table, rồi DNS."
+            },
+            {
+              "source": "VPC Networking – Mục 1.4",
+              "quote": "Vì stateless, khi mở inbound cổng 443 phải mở outbound dải cổng tạm thời 1024-65535 (và ngược lại)."
+            },
+            {
+              "source": "VPC Networking – Mục 1.13",
+              "quote": "NACL stateless thiếu rule cho cổng tạm thời, khiến kết nối đã thiết lập bị treo."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 12106,
+          "output_tokens": 1066,
+          "latency_ms": 7116.4,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "6c616c07-ead1-5763-aa8b-902c7befc386",
+              "document": "VPC Networking",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.9976
+            },
+            {
+              "rank": 2,
+              "child_id": "f02a0169-1007-5395-a6e5-ddd15ed79cd2",
+              "document": "VPC Networking",
+              "section": "Mục 1.2",
+              "page": 1,
+              "score": 0.8848
+            },
+            {
+              "rank": 3,
+              "child_id": "de848d17-5e45-567e-9da8-a97376d0ac23",
+              "document": "VPC Networking",
+              "section": "Mục 1.12",
+              "page": 10,
+              "score": 0.6728
+            },
+            {
+              "rank": 4,
+              "child_id": "63747a21-308c-5ebb-a46f-c6cf6f2e298f",
+              "document": "VPC Networking",
+              "section": "Mục 1.13",
+              "page": 11,
+              "score": 0.6218
+            },
+            {
+              "rank": 5,
+              "child_id": "9e8ca00b-b1a2-5e91-a3e0-79997d718b9e",
+              "document": "VPC Networking",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.5078
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Câu trả lời nêu đúng thứ tự gỡ lỗi: security group của nguồn và đích → Network ACL hai chiều → route table → DNS; giải thích NACL stateless và dải cổng tạm thời 1024-65535 chính xác; trích đúng VPC Networking – Mục 1.4, không mâu thuẫn các lượt trước.",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['VPC Networking – Mục 1.4', 'VPC Networking – Mục 1.4', 'VPC Networking – Mục 1.13']"
+            }
+          ],
+          "passed": true
+        }
+      ]
+    },
+    {
+      "code": "KB-06",
+      "title": "Nhiều ràng buộc: chọn lớp lưu trữ S3",
+      "kind": "Nhiều ràng buộc",
+      "session_id": "dd81079b-5828-442e-b494-f3cc7d23897d",
+      "turns": 4,
+      "passed_turns": 0,
+      "passed": false,
+      "notes": "lượt 1: Chọn đúng S3 One Zone-IA, có bảng đủ 5 ràng buộc và không bỏ ràng buộc 'có thể tái tạo'; tuy nhiên chưa nêu rõ One Zone-IA truy xuất mili giây và mốc lưu tối th; lượt 2: judge lỗi: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: bf1; lượt 3: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 0c4cd6d6-9cb1-; lượt 4: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 2174234c-398d-",
+      "records": [
+        {
+          "number": 1,
+          "question": "Tôi có 80 TB ảnh thumbnail có thể tạo lại từ nguồn gốc, chỉ đọc vài lần mỗi tháng nhưng cần truy xuất trong mili giây, lưu 6 tháng, chi phí thấp nhất. Chọn lớp S3 nào?",
+          "rewritten_query": "Tôi có 80 TB ảnh thumbnail có thể tạo lại từ nguồn gốc, chỉ đọc vài lần mỗi tháng nhưng cần truy xuất trong mili giây, lưu 6 tháng, chi phí thấp nhất. Chọn lớp S3 nào?",
+          "rewrite_source": "none",
+          "depends_on_context": false,
+          "conversation_tokens": 0,
+          "answer": "**Tóm tắt:** Chọn **S3 One Zone-IA** — lớp chi phí thấp dành cho dữ liệu ít truy cập có thể tái tạo.\n\n**Bảng kiểm ràng buộc**\n\n| # | Ràng buộc | Phương án đáp ứng | Căn cứ |\n| :--- | :--- | :--- | :--- |\n| 1 | Dữ liệu có thể tạo lại từ nguồn gốc | S3 One Zone-IA (lớp một AZ, chỉ dùng cho dữ liệu có thể tái tạo) | [S3 Storage Classes – Mục 1.1], [S3 Storage Classes – Mục 1.13] |\n| 2 | Chỉ đọc vài lần mỗi tháng (ít truy cập) | Nhóm không thường xuyên gồm S3 Intelligent-Tiering, S3 Standard-IA, S3 One Zone-IA | [S3 Storage Classes – Mục 1.1] |\n| 3 | Cần truy xuất trong mili giây | Nhóm không thường xuyên không phải lớp lưu trữ lạnh; S3 Standard-IA trong nhóm này truy xuất mili giây, không cần chờ khôi phục. Ngữ cảnh không nêu riêng con số độ trễ của One Zone-IA | [S3 Storage Classes – Mục 1.4], [S3 Storage Classes – Mục 1.1] |\n| 4 | Lưu 6 tháng | 6 tháng dài hơn mốc thời gian lưu tối thiểu 30 ngày của Standard-IA trong cùng nhóm; ngữ cảnh không nêu mốc riêng của One Zone-IA | [S3 Storage Classes – Mục 1.4] |\n| 5 | Chi phí thấp nhất | One Zone-IA là lựa chọn chi phí thấp cho bản sao thứ cấp của dữ liệu có thể tái tạo | [S3 Storage Classes – Mục 1.13], [S3 Storage Classes – Mục 1.1] |\n\n**Lưu ý về lớp được chọn:** nhóm không thường xuyên có chi phí lưu trữ thấp hơn nhưng kèm **phí truy xuất hoặc thời gian lưu tối thiểu**, nên khi tính tổng chi phí phải gồm cả phí truy xuất, phí request và phí xóa sớm [S3 Storage Classes – Mục 1.1]. Với 6 tháng lưu giữ, bạn nên đối chiếu mốc thời gian lưu tối thiểu của lớp trước khi chốt [S3 Storage Classes – Mục 1.13].\n\n**Vì sao không chọn phương án khác**\n- **S3 Standard**: truy xuất mili giây nhưng giá lưu trữ mỗi GB cao nhất trong nhóm lớp phổ thông, và dữ liệu ít truy cập nên chuyển sang lớp thấp hơn → vi phạm ràng buộc chi phí thấp nhất [S3 Storage Classes – Mục 1.2].\n- **S3 Standard-IA**: đúng mẫu ít truy cập và truy xuất mili giây, nhưng là lớp đa Availability Zone (lưu trên tối thiểu ba AZ) nên không phải lựa chọn rẻ nhất cho dữ liệu có thể tái tạo [S3 Storage Classes – Mục 1.4], [S3 Storage Classes – Mục 1.1].\n- **S3 One Zone-IA**: nếu Availability Zone chứa dữ liệu bị mất thì dữ liệu mất theo — chỉ chấp nhận được vì ảnh thumbnail của bạn tạo lại được từ nguồn gốc [S3 Storage Classes – Mục 1.1].\n\n**Kết luận:** Dùng **S3 One Zone-IA** cho 80 TB thumbnail, với điều kiện chấp nhận rủi ro mất dữ liệu khi AZ bị phá hủy (bù lại bằng khả năng tái tạo từ nguồn gốc) và tính đủ phí truy xuất khi ước tính tổng chi phí [S3 Storage Classes – Mục 1.1].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.68,
+          "citations": [
+            {
+              "source": "S3 Storage Classes – Mục 1.13",
+              "quote": "Bản sao thứ cấp của dữ liệu có thể tái tạo, cần chi phí thấp: S3 One Zone-IA."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Các lớp một Availability Zone (One Zone-IA, Express One Zone) chỉ lưu dữ liệu trong một AZ; dữ liệu mất nếu AZ đó bị phá hủy, nên chỉ dùng cho dữ liệu có thể tái tạo."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Nhóm không thường xuyên: S3 Intelligent-Tiering, S3 Standard-IA và S3 One Zone-IA, chi phí lưu trữ thấp hơn nhưng có phí truy xuất hoặc thời gian lưu tối thiểu."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.4",
+              "quote": "Truy xuất trong mili giây, không cần chờ khôi phục."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.4",
+              "quote": "Lớp này có giá lưu trữ thấp hơn S3 Standard, bù lại là phí truy xuất theo GB và thời gian lưu tối thiểu 30 ngày."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.2",
+              "quote": "Giá lưu trữ mỗi GB cao nhất trong nhóm các lớp phổ thông; dữ liệu ít truy cập nên được chuyển sang lớp thấp hơn bằng quy tắc vòng đời."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 25454,
+          "output_tokens": 10931,
+          "latency_ms": 51053.3,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "6416b374-06c9-5981-a32c-fe1ed1d01288",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.13",
+              "page": 10,
+              "score": 0.9783
+            },
+            {
+              "rank": 2,
+              "child_id": "0142f137-ec89-5d7c-9c9f-e524ca116750",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.9747
+            },
+            {
+              "rank": 3,
+              "child_id": "aa4c2f5c-377d-54d3-8ac2-6e081f87bc3e",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.6",
+              "page": 5,
+              "score": 0.9647
+            },
+            {
+              "rank": 4,
+              "child_id": "1883efa8-1770-5fb2-b9f8-db4036f41750",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.7",
+              "page": 5,
+              "score": 0.9562
+            },
+            {
+              "rank": 5,
+              "child_id": "a2929ce7-87cd-5e3e-a512-0ba4dd80cb36",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.3",
+              "page": 2,
+              "score": 0.9361
+            }
+          ],
+          "judge_score": 0.5,
+          "judge_reason": "Chọn đúng S3 One Zone-IA, có bảng đủ 5 ràng buộc và không bỏ ràng buộc 'có thể tái tạo'; tuy nhiên chưa nêu rõ One Zone-IA truy xuất mili giây và mốc lưu tối thiểu 30 ngày, đồng thời trích Mục 1.4/1.2 thay vì Mục 1.5/1.13 theo căn cứ, nên chỉ đạt một phần. [điểm 3 lần: [0.5, 0.5, 1.0]]",
+          "auto_checks": [
+            {
+              "label": "câu viết lại giữ nguyên",
+              "passed": true,
+              "detail": "viết lại=Tôi có 80 TB ảnh thumbnail có thể tạo lại từ nguồn gốc, chỉ đọc vài lần mỗi tháng nhưng cần truy xuất trong mili giây, l"
+            },
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['S3 Storage Classes – Mục 1.13', 'S3 Storage Classes – Mục 1.1', 'S3 Storage Classes – Mục 1.1', 'S3 Storage Classes – Mục 1.4']"
+            },
+            {
+              "label": "chọn One Zone-IA",
+              "passed": true,
+              "detail": "**Tóm tắt:** Chọn **S3 One Zone-IA** — lớp chi phí thấp dành cho dữ liệu ít truy cập có thể tái tạo.\n\n**Bảng kiểm ràng buộc**\n\n| # | Ràng buộc | Phương án đáp ứng | Căn cứ |\n| :--- | :--- | :--- | :--"
+            },
+            {
+              "label": "nêu truy xuất mili giây",
+              "passed": true,
+              "detail": "**Tóm tắt:** Chọn **S3 One Zone-IA** — lớp chi phí thấp dành cho dữ liệu ít truy cập có thể tái tạo.\n\n**Bảng kiểm ràng buộc**\n\n| # | Ràng buộc | Phương án đáp ứng | Căn cứ |\n| :--- | :--- | :--- | :--"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 2,
+          "question": "Nếu ảnh gốc không thể tạo lại thì sao?",
+          "rewritten_query": "Nếu 80 TB ảnh thumbnail không thể tạo lại từ nguồn gốc thì nên chọn lớp S3 nào thay vì S3 One Zone-IA?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 910,
+          "answer": "**Tóm tắt:** Nếu 80 TB ảnh thumbnail **không thể tạo lại từ nguồn gốc**, phải chuyển sang lớp **đa Availability Zone**; lựa chọn thay thế trực tiếp cho S3 One Zone-IA là **S3 Standard-IA** — lớp ít truy cập nhưng vẫn truy xuất tức thời.\n\n**Bảng kiểm ràng buộc**\n\n| # | Ràng buộc | Phương án đáp ứng | Căn cứ |\n| :--- | :--- | :--- | :--- |\n| 1 | Không thể tạo lại từ nguồn gốc → không được dùng lớp một AZ | S3 Standard-IA (và mọi lớp đa AZ khác); loại One Zone-IA và Express One Zone vì dữ liệu mất nếu AZ bị phá hủy | [S3 Storage Classes – Mục 1.1] |\n| 2 | Chỉ đọc vài lần mỗi tháng (ít truy cập) | Nhóm không thường xuyên: S3 Intelligent-Tiering, S3 Standard-IA, S3 One Zone-IA | [S3 Storage Classes – Mục 1.1] |\n| 3 | Cần truy xuất trong mili giây | S3 Standard-IA (truy xuất trong mili giây) và S3 Glacier Instant Retrieval (truy xuất trong mili giây, không cần tạo yêu cầu khôi phục) | [S3 Storage Classes – Mục 1.4], [S3 Storage Classes – Mục 1.6] |\n| 4 | Lưu 6 tháng | Standard-IA có thời gian lưu tối thiểu 30 ngày; Glacier Instant Retrieval tối thiểu 90 ngày — 6 tháng đều dài hơn cả hai mốc nên không phát sinh phí xóa sớm | [S3 Storage Classes – Mục 1.4], [S3 Storage Classes – Mục 1.6] |\n| 5 | Chi phí thấp nhất | Standard-IA: phí truy xuất thấp hơn Glacier Instant Retrieval; ngược lại Glacier Instant Retrieval có giá lưu trữ thấp hơn Standard-IA nhưng phí truy xuất cao hơn | [S3 Storage Classes – Mục 1.4], [S3 Storage Classes – Mục 1.6] |\n\n**Vì sao không chọn phương án khác**\n- **S3 One Zone-IA**: dữ liệu chỉ nằm trong một Availability Zone và mất nếu AZ đó bị phá hủy, nên chỉ dùng cho dữ liệu có thể tái tạo — không còn phù hợp khi dữ liệu không tạo lại được [S3 Storage Classes – Mục 1.1], [S3 Storage Classes – Mục 1.5].\n- **S3 Standard**: truy xuất mili giây và không có phí truy xuất, nhưng giá lưu trữ mỗi GB cao nhất trong các lớp phổ thông, trong khi dữ liệu chỉ được đọc vài lần mỗi tháng [S3 Storage Classes – Mục 1.2], [S3 Storage Classes – Mục 1.11].\n- **S3 Glacier Flexible Retrieval / S3 Glacier Deep Archive**: chi phí lưu trữ thấp nhất nhưng thời gian truy xuất từ vài phút đến vài giờ, hoặc 12–48 giờ — vi phạm ràng buộc truy xuất mili giây [S3 Storage Classes – Mục 1.1], [S3 Storage Classes – Mục 1.12].\n- **S3 Express One Zone**: cũng chỉ lưu trong một AZ nên không phù hợp với dữ liệu không thể tái tạo [S3 Storage Classes – Mục 1.1].\n- **S3 Intelligent-Tiering**: là lớp đa AZ nhưng chỉ được tài liệu khuyến nghị khi *chưa biết mẫu truy cập*, và có thêm phí giám sát/tự động hóa; trường hợp này mẫu truy cập đã rõ (vài lần mỗi tháng) [S3 Storage Classes – Mục 1.13], [S3 Storage Classes – Mục 1.11].\n\n**Kết luận:** Dùng **S3 Standard-IA** cho 80 TB thumbnail không thể tái tạo: đa Availability Zone, ít truy cập, truy xuất mili giây, thời gian lưu tối thiểu 30 ngày (6 tháng lưu giữ vượt mốc này) [S3 Storage Classes – Mục 1.4], [S3 Storage Classes – Mục 1.1]. Khi tính chi phí, phải gồm **phí truy xuất theo GB** (đối tượng nhỏ hơn 128 KB được tính như 128 KB) và phí request, không chỉ giá lưu trữ mỗi GB [S3 Storage Classes – Mục 1.4], [S3 Storage Classes – Mục 1.11]. Nếu tần suất đọc thực tế rất thấp, có thể cân nhắc thêm **S3 Glacier Instant Retrieval** — cũng đa AZ và truy xuất mili giây, giá lưu trữ thấp hơn Standard-IA nhưng phí truy xuất cao hơn và mốc lưu tối thiểu 90 ngày [S3 Storage Classes – Mục 1.6], [S3 Storage Classes – Mục 1.13].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.85,
+          "citations": [
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Khả năng tái tạo dữ liệu: dữ liệu không thể tạo lại phải dùng lớp đa AZ."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Các lớp một Availability Zone (One Zone-IA, Express One Zone) chỉ lưu dữ liệu trong một AZ; dữ liệu mất nếu AZ đó bị phá hủy, nên chỉ dùng cho dữ liệu có thể tái tạo."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.4",
+              "quote": "Thời gian lưu tối thiểu 30 ngày; xóa hoặc ghi đè trước hạn vẫn bị tính đủ 30 ngày."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.4",
+              "quote": "Có phí truy xuất theo GB; đối tượng nhỏ hơn 128 KB được tính như 128 KB."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.6",
+              "quote": "Lớp này có giá lưu trữ thấp hơn Standard-IA, đổi lại là phí truy xuất cao hơn và thời gian lưu tối thiểu 90 ngày."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.6",
+              "quote": "Truy xuất trong mili giây, không cần tạo yêu cầu khôi phục."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.13",
+              "quote": "Bản sao lưu ít truy cập nhưng phải truy xuất ngay khi có sự cố: S3 Standard-IA."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.12",
+              "quote": "S3 Glacier Deep Archive: khoảng 12 giờ (Standard) đến 48 giờ (Bulk)."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.11",
+              "quote": "Bật Intelligent-Tiering cho hàng triệu đối tượng nhỏ hơn 128 KB, phí giám sát vượt khoản tiết kiệm."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 13242,
+          "output_tokens": 4565,
+          "latency_ms": 20062.5,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "58108154-3308-5f9e-aed7-c3d4d4393911",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.8814
+            },
+            {
+              "rank": 2,
+              "child_id": "a62143c2-7c5d-5bd6-85de-fefebeec6350",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.13",
+              "page": 10,
+              "score": 0.8487
+            },
+            {
+              "rank": 3,
+              "child_id": "27558084-6ef7-5ebb-bd1e-2465f43d06ba",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.5",
+              "page": 4,
+              "score": 0.8368
+            },
+            {
+              "rank": 4,
+              "child_id": "99887e3c-b847-5e1f-bc04-6a85073804f8",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.7966
+            },
+            {
+              "rank": 5,
+              "child_id": "bb58d84a-40d1-50ad-ac47-6a6fca9406ee",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.11",
+              "page": 8,
+              "score": 0.6439
+            }
+          ],
+          "judge_score": 0.0,
+          "judge_reason": "judge lỗi: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: bf176ce0-cb73-4a0f-b42d-247bd68a3952) [điểm 3 lần: [0.0, 0.0, 1.0]]",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['S3 Storage Classes – Mục 1.1', 'S3 Storage Classes – Mục 1.1', 'S3 Storage Classes – Mục 1.4', 'S3 Storage Classes – Mục 1.4']"
+            },
+            {
+              "label": "chuyển sang lớp đa AZ",
+              "passed": true,
+              "detail": "**Tóm tắt:** Nếu 80 TB ảnh thumbnail **không thể tạo lại từ nguồn gốc**, phải chuyển sang lớp **đa Availability Zone**; lựa chọn thay thế trực tiếp cho S3 One Zone-IA là **S3 Standard-IA** — lớp ít tr"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 3,
+          "question": "Glacier Instant Retrieval có rẻ hơn Standard-IA không?",
+          "error": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 0c4cd6d6-9cb1-48d1-b58a-91c31a054798)",
+          "latency_ms": 2275.2,
+          "judge_score": 0.0,
+          "judge_reason": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 0c4cd6d6-9cb1-48d1-b58a-91c31a054798)",
+          "auto_checks": [
+            {
+              "label": "lượt chạy được",
+              "passed": false,
+              "detail": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 0c4cd6d6-9cb1-48d1-b58a-91c31a054798)"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 4,
+          "question": "Nếu chỉ lưu 20 ngày thì sao?",
+          "error": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 2174234c-398d-4990-a675-331e64ee7560)",
+          "latency_ms": 2322.9,
+          "judge_score": 0.0,
+          "judge_reason": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 2174234c-398d-4990-a675-331e64ee7560)",
+          "auto_checks": [
+            {
+              "label": "lượt chạy được",
+              "passed": false,
+              "detail": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 2174234c-398d-4990-a675-331e64ee7560)"
+            }
+          ],
+          "passed": false
+        }
+      ]
+    },
+    {
+      "code": "KB-07",
+      "title": "Nhiều ràng buộc: chọn hình thức mua EC2",
+      "kind": "Nhiều ràng buộc",
+      "session_id": "571db67a-800d-4f9c-b33f-f6d254b81681",
+      "turns": 4,
+      "passed_turns": 2,
+      "passed": false,
+      "notes": "lượt 3: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: eee46630-ad4a-; lượt 4: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: f57bcde8-ab51-",
+      "records": [
+        {
+          "number": 1,
+          "question": "Website chạy 24/7 ổn định 12 tháng, không thể gián đoạn, muốn giảm chi phí tối đa và có thể cam kết 1 năm. Nên mua instance thế nào?",
+          "rewritten_query": "Website chạy 24/7 ổn định 12 tháng, không thể gián đoạn, muốn giảm chi phí tối đa và có thể cam kết 1 năm. Nên mua instance thế nào?",
+          "rewrite_source": "none",
+          "depends_on_context": false,
+          "conversation_tokens": 0,
+          "answer": "**Tóm tắt:** Mua **Reserved Instance (tối thiểu Standard, cam kết 1 năm)** cho cấu hình chạy 24/7 ổn định; nếu muốn linh hoạt hơn thì chọn **Savings Plans cam kết 1 năm** [EC2 Tinh toan – Mục 1.3].\n\n**Bảng kiểm ràng buộc**\n\n| # | Ràng buộc | Phương án đáp ứng | Căn cứ |\n| :--- | :--- | :--- | :--- |\n| 1 | Website chạy 24/7, tải ổn định 12 tháng | Reserved Instance hoặc Savings Plans — nhóm phù hợp với \"tải ổn định 24/7 trong nhiều tháng\" | [EC2 Tinh toan – Mục 1.3] |\n| 2 | Không thể gián đoạn | Loại Spot (có thể bị thu hồi với thông báo 2 phút; không dùng cho ứng dụng không thể gián đoạn); RI/Savings Plans không có cơ chế thu hồi | [EC2 Tinh toan – Mục 1.3] |\n| 3 | Có thể cam kết 1 năm | Reserved Instance cam kết 1 hoặc 3 năm; Savings Plans cam kết mức chi tiêu theo giờ trong 1 hoặc 3 năm — chọn kỳ hạn 1 năm | [EC2 Tinh toan – Mục 1.3] |\n| 4 | Giảm chi phí tối đa | Standard Reserved Instance \"giảm giá sâu nhưng ít linh hoạt\"; Savings Plans cũng là lựa chọn giảm chi phí cho tải ổn định nhiều năm | [EC2 Tinh toan – Mục 1.3], [EC2 Tinh toan – Mục 1.13] |\n| 5 | Kiến trúc web chạy 24/7 | EC2 + Auto Scaling + ELB, mua Reserved Instance hoặc Savings Plans | [EC2 Tinh toan – Mục 1.13] |\n\n**Vì sao không chọn phương án khác**\n- **Spot Instance:** có thể bị thu hồi với thông báo trước 2 phút và không phù hợp cho ứng dụng không thể gián đoạn — vi phạm ràng buộc 2 [EC2 Tinh toan – Mục 1.3].\n- **On-Demand:** linh hoạt nhất nhưng chỉ phù hợp tải không dự đoán được hoặc thử nghiệm ngắn hạn, không phải phương án giảm chi phí cho tải ổn định dài hạn — không đạt ràng buộc 4 [EC2 Tinh toan – Mục 1.3].\n- **Capacity Reservation:** đặt trước năng lực cho một AZ cụ thể nhưng không bắt buộc cam kết dài hạn, nên không phải đòn bẩy giảm giá theo cam kết — không đạt ràng buộc 4 [EC2 Tinh toan – Mục 1.3].\n- **Dedicated Hosts:** dành cho yêu cầu license phần mềm theo máy chủ vật lý, không liên quan ràng buộc giảm chi phí ở đây [EC2 Tinh toan – Mục 1.3].\n\n**Kết luận:** Chọn **Standard Reserved Instance kỳ hạn 1 năm** cho cấu hình instance đã ổn định để được mức giảm giá sâu; nếu dự kiến cấu hình hoặc họ instance có thể thay đổi, dùng **Convertible Reserved Instance** (cho phép đổi họ instance) hoặc **Savings Plans** linh hoạt hơn [EC2 Tinh toan – Mục 1.3]. Kèm khuyến nghị: theo dõi mức sử dụng thực tế trước khi cam kết dài hạn để tránh trả tiền cho năng lực không dùng [EC2 Tinh toan – Mục 1.3]. Lưu ý: ngữ cảnh không nêu con số phần trăm giảm giá cụ thể của Reserved Instance hay Savings Plans, chỉ nêu Standard RI \"giảm giá sâu\".",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.88,
+          "citations": [
+            {
+              "source": "EC2 Tinh toan – Mục 1.3",
+              "quote": "Reserved Instance: cam kết 1 hoặc 3 năm cho một cấu hình; Standard giảm giá sâu nhưng ít linh hoạt, Convertible cho phép đổi họ instance."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.3",
+              "quote": "Savings Plans: cam kết mức chi tiêu theo giờ trong 1 hoặc 3 năm; Compute Savings Plans linh hoạt áp dụng cho EC2, Lambda, Fargate."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.3",
+              "quote": "Tải ổn định 24/7 trong nhiều tháng: Reserved Instance hoặc Savings Plans."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.3",
+              "quote": "Spot phù hợp cho khối lượng công việc chịu lỗi, stateless; không dùng cho cơ sở dữ liệu chính hoặc ứng dụng không thể gián đoạn."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.3",
+              "quote": "Spot Instance: tận dụng năng lực dư với giá giảm tới khoảng 90%; có thể bị thu hồi với thông báo 2 phút."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.3",
+              "quote": "On-Demand: trả theo giây/giờ, không cam kết; linh hoạt nhất, phù hợp tải không dự đoán được hoặc thử nghiệm ngắn hạn."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.3",
+              "quote": "Capacity Reservation: đặt trước năng lực cho một AZ cụ thể, đảm bảo có instance khi cần, không bắt buộc cam kết dài hạn."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.3",
+              "quote": "Yêu cầu license phần mềm theo máy chủ vật lý: Dedicated Hosts."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.3",
+              "quote": "Theo dõi mức sử dụng thực tế trước khi cam kết dài hạn để tránh trả tiền cho năng lực không dùng."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.13",
+              "quote": "Ứng dụng web truyền thống chạy 24/7: EC2 + Auto Scaling + ELB, mua Reserved Instance hoặc Savings Plans."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.13",
+              "quote": "Tải ổn định nhiều năm, cần giảm chi phí: Savings Plans hoặc Reserved Instance, cân nhắc Graviton."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 14282,
+          "output_tokens": 3187,
+          "latency_ms": 14847.3,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "0fe9716a-eb12-59d0-a888-8f8196d792c9",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.3",
+              "page": 2,
+              "score": 0.9715
+            },
+            {
+              "rank": 2,
+              "child_id": "0a7c5535-765b-5ddd-83a3-796d75c64a5d",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.13",
+              "page": 10,
+              "score": 0.9614
+            },
+            {
+              "rank": 3,
+              "child_id": "d35d6492-ca64-503b-a43d-6d964576df86",
+              "document": "RDS Aurora",
+              "section": "Mục 1.5",
+              "page": 4,
+              "score": 0.7542
+            },
+            {
+              "rank": 4,
+              "child_id": "c294af8d-22cf-5727-b206-d0867ca3ae9a",
+              "document": "RDS Aurora",
+              "section": "Mục 1.13",
+              "page": 11,
+              "score": 0.2744
+            },
+            {
+              "rank": 5,
+              "child_id": "cb5bcf7b-de96-59fb-b337-a84f1b6d4e67",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.1239
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Đáp ứng đúng lượt 1: có bảng ràng buộc, chọn Reserved Instance/Savings Plans cho tải 24/7 ổn định, loại Spot cho web không thể gián đoạn, nêu On-Demand cho tải không dự đoán/ngắn hạn, trích đúng Mục 1.3.",
+          "auto_checks": [
+            {
+              "label": "câu viết lại giữ nguyên",
+              "passed": true,
+              "detail": "viết lại=Website chạy 24/7 ổn định 12 tháng, không thể gián đoạn, muốn giảm chi phí tối đa và có thể cam kết 1 năm. Nên mua insta"
+            },
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['EC2 Tinh toan – Mục 1.3', 'EC2 Tinh toan – Mục 1.3', 'EC2 Tinh toan – Mục 1.3', 'EC2 Tinh toan – Mục 1.3']"
+            },
+            {
+              "label": "chọn Reserved/Savings Plans cho nền 24/7",
+              "passed": true,
+              "detail": "**Tóm tắt:** Mua **Reserved Instance (tối thiểu Standard, cam kết 1 năm)** cho cấu hình chạy 24/7 ổn định; nếu muốn linh hoạt hơn thì chọn **Savings Plans cam kết 1 năm** [EC2 Tinh toan – Mục 1.3].\n\n*"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 2,
+          "question": "Sao không dùng Spot cho web cho rẻ?",
+          "rewritten_query": "Vì sao không nên dùng Spot Instance cho website chạy 24/7 không thể gián đoạn dù chi phí rẻ hơn?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 906,
+          "answer": "**Vì sao Spot không phù hợp với website 24/7 không thể gián đoạn**\n\n- **Spot là năng lực dư và có thể bị thu hồi bất cứ lúc nào, chỉ báo trước 2 phút:** \"Spot Instance: tận dụng năng lực dư với giá giảm tới khoảng 90%; có thể bị thu hồi với thông báo 2 phút\" [EC2 Tinh toan – Mục 1.3]. Với website \"không thể gián đoạn\", việc instance bị lấy lại đúng là rủi ro không chấp nhận được.\n- **Tài liệu loại Spot một cách tường minh cho loại workload này:** \"Spot phù hợp cho khối lượng công việc chịu lỗi, stateless; không dùng cho cơ sở dữ liệu chính hoặc ứng dụng không thể gián đoạn\" [EC2 Tinh toan – Mục 1.3].\n- **Khi bị thu hồi, ứng dụng phải tự xử lý:** \"Spot có thể bị thu hồi với thông báo trước 2 phút; ứng dụng cần xử lý tín hiệu ngắt và thoát an toàn\" [EC2 Tinh toan – Mục 1.12]; ngoài ra \"Rebalance recommendation cảnh báo sớm hơn để chủ động chuyển sang instance mới\" [EC2 Tinh toan – Mục 1.12] — tức phải có cơ chế chủ động di chuyển, không phải mô hình \"chạy mãi không gián đoạn\".\n- **Không được coi instance store của Spot là nơi lưu dữ liệu bền vững:** \"Không lưu dữ liệu quan trọng trên instance store của Spot; dùng S3, EBS hoặc hàng đợi để bền vững hóa công việc\" [EC2 Tinh toan – Mục 1.12].\n\n**Về chi phí:** tài liệu chỉ nêu Spot \"giảm tới khoảng 90%\" [EC2 Tinh toan – Mục 1.3], nhưng mức rẻ đó đi kèm khả năng bị thu hồi — nên với tải ổn định 24/7 nhiều tháng, tài liệu khuyến nghị dùng Reserved Instance hoặc Savings Plans [EC2 Tinh toan – Mục 1.3]. Nếu vẫn muốn dùng Spot, tài liệu chỉ đặt nó ở vai trò phần mở rộng: \"Ứng dụng web có đỉnh tải ngắn: kết hợp On-Demand cho nền tảng và Spot cho phần mở rộng\" [EC2 Tinh toan – Mục 1.3].\n\n**Kết luận:** Spot không nên dùng cho website 24/7 không thể gián đoạn vì có thể bị thu hồi với thông báo chỉ 2 phút, chỉ phù hợp workload chịu lỗi/stateless, và đòi hỏi ứng dụng phải xử lý tín hiệu ngắt cũng như không lưu dữ liệu quan trọng trên instance store [EC2 Tinh toan – Mục 1.3], [EC2 Tinh toan – Mục 1.12].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.92,
+          "citations": [
+            {
+              "source": "EC2 Tinh toan – Mục 1.3",
+              "quote": "Spot Instance: tận dụng năng lực dư với giá giảm tới khoảng 90%; có thể bị thu hồi với thông báo 2 phút."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.3",
+              "quote": "Spot phù hợp cho khối lượng công việc chịu lỗi, stateless; không dùng cho cơ sở dữ liệu chính hoặc ứng dụng không thể gián đoạn."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.3",
+              "quote": "Ứng dụng web có đỉnh tải ngắn: kết hợp On-Demand cho nền tảng và Spot cho phần mở rộng."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.3",
+              "quote": "Tải ổn định 24/7 trong nhiều tháng: Reserved Instance hoặc Savings Plans."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.12",
+              "quote": "Spot có thể bị thu hồi với thông báo trước 2 phút; ứng dụng cần xử lý tín hiệu ngắt và thoát an toàn."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.12",
+              "quote": "Rebalance recommendation cảnh báo sớm hơn để chủ động chuyển sang instance mới."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.12",
+              "quote": "Không lưu dữ liệu quan trọng trên instance store của Spot; dùng S3, EBS hoặc hàng đợi để bền vững hóa công việc."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 13207,
+          "output_tokens": 1905,
+          "latency_ms": 10199.3,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "0fe9716a-eb12-59d0-a888-8f8196d792c9",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.3",
+              "page": 2,
+              "score": 0.8349
+            },
+            {
+              "rank": 2,
+              "child_id": "5bd72b4e-b079-5c89-ad29-0000f94fa1e7",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.13",
+              "page": 10,
+              "score": 0.5902
+            },
+            {
+              "rank": 3,
+              "child_id": "3a3c5198-6aa2-54b3-ac59-271a76c71ddc",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.12",
+              "page": 9,
+              "score": 0.0952
+            },
+            {
+              "rank": 4,
+              "child_id": "d35d6492-ca64-503b-a43d-6d964576df86",
+              "document": "RDS Aurora",
+              "section": "Mục 1.5",
+              "page": 4,
+              "score": 0.088
+            },
+            {
+              "rank": 5,
+              "child_id": "1eca549f-6099-5e6a-bdec-7c3591efc7a8",
+              "document": "aws-saa-exam-guide",
+              "section": "Mục 4.2",
+              "page": 10,
+              "score": 0.0854
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Trả lời đúng trọng tâm: Spot có thể bị thu hồi với thông báo 2 phút, chỉ phù hợp workload chịu lỗi/stateless, không dùng cho ứng dụng không thể gián đoạn; có trích Mục 1.3 và không mâu thuẫn lượt trước. [điểm 3 lần: [0.0, 1.0, 1.0]]",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['EC2 Tinh toan – Mục 1.3', 'EC2 Tinh toan – Mục 1.3', 'EC2 Tinh toan – Mục 1.3', 'EC2 Tinh toan – Mục 1.3']"
+            },
+            {
+              "label": "nêu thông báo 2 phút",
+              "passed": true,
+              "detail": "**Vì sao Spot không phù hợp với website 24/7 không thể gián đoạn**\n\n- **Spot là năng lực dư và có thể bị thu hồi bất cứ lúc nào, chỉ báo trước 2 phút:** \"Spot Instance: tận dụng năng lực dư với giá gi"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 3,
+          "question": "Savings Plans khác Reserved Instance thế nào?",
+          "error": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: eee46630-ad4a-4e21-9d47-f67cf6b7cd7d)",
+          "latency_ms": 2975.3,
+          "judge_score": 0.0,
+          "judge_reason": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: eee46630-ad4a-4e21-9d47-f67cf6b7cd7d)",
+          "auto_checks": [
+            {
+              "label": "lượt chạy được",
+              "passed": false,
+              "detail": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: eee46630-ad4a-4e21-9d47-f67cf6b7cd7d)"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 4,
+          "question": "Còn batch xử lý ảnh chạy 2 giờ mỗi đêm thì sao?",
+          "error": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: f57bcde8-ab51-4989-b38b-cb1e86c113f7)",
+          "latency_ms": 2573.7,
+          "judge_score": 0.0,
+          "judge_reason": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: f57bcde8-ab51-4989-b38b-cb1e86c113f7)",
+          "auto_checks": [
+            {
+              "label": "lượt chạy được",
+              "passed": false,
+              "detail": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: f57bcde8-ab51-4989-b38b-cb1e86c113f7)"
+            }
+          ],
+          "passed": false
+        }
+      ]
+    },
+    {
+      "code": "KB-08",
+      "title": "Đổi chủ đề giữa chừng: từ S3 sang IAM",
+      "kind": "Đổi chủ đề giữa chừng",
+      "session_id": "716927ee-c964-4a6f-973d-647e73b33ed9",
+      "turns": 4,
+      "passed_turns": 1,
+      "passed": false,
+      "notes": "lượt 2: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 794d7e79-66d2-; lượt 3: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 57ddd063-fe79-; lượt 4: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 6e287b3a-bff9-",
+      "records": [
+        {
+          "number": 1,
+          "question": "Làm sao giảm chi phí lưu log cũ trên S3?",
+          "rewritten_query": "Làm sao giảm chi phí lưu log cũ trên S3?",
+          "rewrite_source": "none",
+          "depends_on_context": false,
+          "conversation_tokens": 0,
+          "answer": "**Tóm tắt:** Cách chính để giảm chi phí lưu log cũ trên S3 là dùng **quy tắc vòng đời (lifecycle rule)** để tự động chuyển log sang các lớp lưu trữ rẻ hơn khi log già đi, kết hợp nhiều bước chuyển lớp [S3 Storage Classes – Mục 1.10].\n\n**Cơ chế:** Quy tắc vòng đời cho phép S3 tự động chuyển đối tượng sang lớp lưu trữ khác, xóa đối tượng hoặc xóa phiên bản cũ theo thời gian; quy tắc gồm bộ lọc (tiền tố, thẻ, kích thước) và danh sách hành động, nhờ đó có thể giữ dữ liệu mới ở lớp nhanh và đẩy dần dữ liệu cũ sang lớp rẻ hơn [S3 Storage Classes – Mục 1.10]. Có thể kết hợp nhiều bước, ví dụ Standard sau 30 ngày chuyển Standard-IA, sau 90 ngày chuyển Glacier Flexible Retrieval, sau 365 ngày chuyển Deep Archive [S3 Storage Classes – Mục 1.10].\n\n**Mốc thời gian tối thiểu khi chuyển lớp** [S3 Storage Classes – Mục 1.10]:\n- Sang S3 Standard-IA hoặc S3 One Zone-IA: tối thiểu 30 ngày kể từ khi tạo đối tượng.\n- Sang S3 Glacier Instant Retrieval hoặc S3 Glacier Flexible Retrieval: tối thiểu 90 ngày.\n- Sang S3 Glacier Deep Archive: tối thiểu 180 ngày.\n\n**Chọn lớp đích theo nhu cầu đọc log cũ**\n\n| Nhu cầu với log cũ | Lớp phù hợp | Căn cứ |\n| :--- | :--- | :--- |\n| Vẫn phải đọc ngay (độ trễ mili giây) | S3 Glacier Instant Retrieval – lưu trữ lạnh, truy xuất trong mili giây, không cần tạo yêu cầu khôi phục; giá lưu trữ thấp hơn Standard-IA, đổi lại phí truy xuất cao hơn và thời gian lưu tối thiểu 90 ngày | [S3 Storage Classes – Mục 1.6] |\n| Chấp nhận chờ vài giờ | S3 Glacier Flexible Retrieval – phù hợp dữ liệu lịch sử, nhật ký cũ, bản ghi phương tiện ít khi được đọc; dữ liệu có thể chờ vài giờ để khôi phục, đổi lấy chi phí lưu trữ thấp | [S3 Storage Classes – Mục 1.7] |\n| Gần như không bao giờ đọc, giữ nhiều năm | S3 Glacier Deep Archive – lớp lưu trữ có chi phí thấp nhất trong S3, dành cho dữ liệu gần như không bao giờ được đọc nhưng phải giữ trong nhiều năm | [S3 Storage Classes – Mục 1.8] |\n| Mẫu truy cập chưa biết trước | S3 Intelligent-Tiering – tự động theo dõi mẫu truy cập và di chuyển đối tượng giữa các tầng; không có phí truy xuất, không có thời gian lưu tối thiểu và không có phí xóa sớm, đổi lại là phí giám sát và tự động hóa | [S3 Storage Classes – Mục 1.3] |\n\n**Điều kiện đi kèm của từng lớp cần cân nhắc:**\n- S3 Glacier Instant Retrieval: thời gian lưu tối thiểu 90 ngày, xóa sớm vẫn bị tính đủ 90 ngày; có phí truy xuất theo GB cao hơn Standard-IA [S3 Storage Classes – Mục 1.6].\n- S3 Glacier Flexible Retrieval: thời gian lưu tối thiểu 90 ngày, xóa sớm vẫn bị tính đủ 90 ngày; có phí truy xuất theo GB khác nhau theo mức truy xuất; đối tượng nhỏ hơn 128 KB tính như 128 KB [S3 Storage Classes – Mục 1.7].\n- S3 Glacier Deep Archive: thời gian lưu tối thiểu 180 ngày, xóa sớm vẫn bị tính đủ 180 ngày; không có mức Expedited, truy xuất Standard khoảng 12 giờ, Bulk khoảng 48 giờ [S3 Storage Classes – Mục 1.8].\n- S3 Standard-IA: thời gian lưu tối thiểu 30 ngày; nếu dữ liệu thực tế được truy cập thường xuyên, phí truy xuất có thể làm tổng chi phí cao hơn S3 Standard [S3 Storage Classes – Mục 1.4].\n\n**Lưu ý để tránh \"rẻ mà không rẻ\":**\n- Mỗi lần chuyển lớp phát sinh phí request; với số lượng lớn đối tượng nhỏ, chi phí chuyển lớp có thể đáng kể [S3 Storage Classes – Mục 1.10].\n- Xóa đối tượng trước thời gian lưu tối thiểu của lớp đích vẫn bị tính đủ thời gian tối thiểu [S3 Storage Classes – Mục 1.10].\n- Quy tắc vòng đời chạy bất đồng bộ, có thể mất đến 48 giờ để áp dụng; không dùng để đáp ứng yêu cầu tức thời [S3 Storage Classes – Mục 1.10].\n- Chọn lớp rẻ nhất theo giá lưu trữ mỗi GB có thể làm tăng tổng chi phí nếu dữ liệu được truy xuất thường xuyên hoặc bị xóa trước thời gian lưu tối thiểu; ngược lại, giữ dữ liệu ít truy cập ở lớp Standard làm chi phí lưu trữ cao hơn cần thiết [S3 Storage Classes – Mục 1.1]. Cũng nên dùng S3 Storage Lens và báo cáo chi phí để kiểm tra hiệu quả của quy tắc sau khi triển khai [S3 Storage Classes – Mục 1.10].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.88,
+          "citations": [
+            {
+              "source": "S3 Storage Classes – Mục 1.10",
+              "quote": "Quy tắc vòng đời (lifecycle rule) cho phép S3 tự động chuyển đối tượng sang lớp lưu trữ khác, xóa đối tượng hoặc xóa phiên bản cũ theo thời gian."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.10",
+              "quote": "Sang S3 Standard-IA hoặc S3 One Zone-IA: tối thiểu 30 ngày kể từ khi tạo đối tượng."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.10",
+              "quote": "Sang S3 Glacier Instant Retrieval hoặc S3 Glacier Flexible Retrieval: tối thiểu 90 ngày."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.10",
+              "quote": "Sang S3 Glacier Deep Archive: tối thiểu 180 ngày."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.10",
+              "quote": "Mỗi lần chuyển lớp phát sinh phí request; với số lượng lớn đối tượng nhỏ, chi phí chuyển lớp có thể đáng kể."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.10",
+              "quote": "Nên dùng S3 Storage Lens và báo cáo chi phí để kiểm tra hiệu quả của quy tắc sau khi triển khai."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.7",
+              "quote": "Dữ liệu lịch sử, nhật ký cũ, bản ghi phương tiện ít khi được đọc."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.7",
+              "quote": "Thời gian lưu tối thiểu 90 ngày; xóa sớm vẫn bị tính đủ 90 ngày."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.8",
+              "quote": "S3 Glacier Deep Archive là lớp lưu trữ có chi phí thấp nhất trong S3, dành cho dữ liệu gần như không bao giờ được đọc nhưng phải giữ trong nhiều năm."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.8",
+              "quote": "Thời gian lưu tối thiểu 180 ngày; xóa sớm vẫn bị tính đủ 180 ngày."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.6",
+              "quote": "S3 Glacier Instant Retrieval dành cho dữ liệu lưu trữ lạnh nhưng vẫn cần truy xuất tức thời."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.6",
+              "quote": "Truy xuất trong mili giây, không cần tạo yêu cầu khôi phục."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.4",
+              "quote": "Thời gian lưu tối thiểu 30 ngày; xóa hoặc ghi đè trước hạn vẫn bị tính đủ 30 ngày."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.3",
+              "quote": "Lớp này không có phí truy xuất, không có thời gian lưu tối thiểu và không có phí xóa sớm; chi phí đổi lại là phí giám sát và tự động hóa tính theo số đối tượng."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Chọn lớp rẻ nhất theo giá lưu trữ mỗi GB có thể làm tăng tổng chi phí nếu dữ liệu được truy xuất thường xuyên hoặc bị xóa trước thời gian lưu tối thiểu."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 13829,
+          "output_tokens": 4125,
+          "latency_ms": 17200.7,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "1883efa8-1770-5fb2-b9f8-db4036f41750",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.7",
+              "page": 5,
+              "score": 0.6339
+            },
+            {
+              "rank": 2,
+              "child_id": "99887e3c-b847-5e1f-bc04-6a85073804f8",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.6302
+            },
+            {
+              "rank": 3,
+              "child_id": "1f837b94-0c5d-5392-8b8b-d2b490842b16",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.10",
+              "page": 7,
+              "score": 0.5896
+            },
+            {
+              "rank": 4,
+              "child_id": "a2929ce7-87cd-5e3e-a512-0ba4dd80cb36",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.3",
+              "page": 2,
+              "score": 0.5333
+            },
+            {
+              "rank": 5,
+              "child_id": "0142f137-ec89-5d7c-9c9f-e524ca116750",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.5101
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Đáp ứng đầy đủ hành vi mong đợi: dùng lifecycle để chuyển log cũ sang Standard-IA/Glacier/Deep Archive theo tần suất truy cập; nêu lifecycle chạy bất đồng bộ (có thể đến 48 giờ) và có phí chuyển lớp; khuyến nghị kiểm tra bằng Storage Lens. Câu viết lại giữ nguyên đúng kỳ vọng. Các tiêu chí về đổi chủ đề sang IAM không áp dụng vì chưa có lượt trước và câu hỏi hiện tại vẫn là S3.",
+          "auto_checks": [
+            {
+              "label": "câu viết lại giữ nguyên",
+              "passed": true,
+              "detail": "viết lại=Làm sao giảm chi phí lưu log cũ trên S3?"
+            },
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['S3 Storage Classes – Mục 1.10', 'S3 Storage Classes – Mục 1.10', 'S3 Storage Classes – Mục 1.10', 'S3 Storage Classes – Mục 1.10']"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 2,
+          "question": "Vậy log nên chuyển sang Deep Archive sau bao lâu?",
+          "error": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 794d7e79-66d2-4ee3-bb78-a85f2757cbbc)",
+          "latency_ms": 2285.3,
+          "judge_score": 0.0,
+          "judge_reason": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 794d7e79-66d2-4ee3-bb78-a85f2757cbbc)",
+          "auto_checks": [
+            {
+              "label": "lượt chạy được",
+              "passed": false,
+              "detail": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 794d7e79-66d2-4ee3-bb78-a85f2757cbbc)"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 3,
+          "question": "Đổi chủ đề: trong IAM, MFA nên bật cho những ai?",
+          "error": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 57ddd063-fe79-471b-ac7f-b5ec431a8d42)",
+          "latency_ms": 1810.1,
+          "judge_score": 0.0,
+          "judge_reason": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 57ddd063-fe79-471b-ac7f-b5ec431a8d42)",
+          "auto_checks": [
+            {
+              "label": "lượt chạy được",
+              "passed": false,
+              "detail": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 57ddd063-fe79-471b-ac7f-b5ec431a8d42)"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 4,
+          "question": "Có bắt buộc MFA cho mọi user không?",
+          "error": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 6e287b3a-bff9-4085-a75e-199b1c3b52ba)",
+          "latency_ms": 2221.9,
+          "judge_score": 0.0,
+          "judge_reason": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 6e287b3a-bff9-4085-a75e-199b1c3b52ba)",
+          "auto_checks": [
+            {
+              "label": "lượt chạy được",
+              "passed": false,
+              "detail": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 6e287b3a-bff9-4085-a75e-199b1c3b52ba)"
+            }
+          ],
+          "passed": false
+        }
+      ]
+    },
+    {
+      "code": "KB-09",
+      "title": "Người dùng hỏi lại làm rõ: NAT Gateway",
+      "kind": "Người dùng hỏi lại làm rõ",
+      "session_id": "e83c7e78-0cb8-4076-98fe-b368e0825bf7",
+      "turns": 4,
+      "passed_turns": 0,
+      "passed": false,
+      "notes": "lượt 1: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 71cb7a76-2e22-; lượt 2: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: f7dd3952-fc78-; lượt 3: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 4be6d61f-241d-; lượt 4: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: d01694d3-6992-",
+      "records": [
+        {
+          "number": 1,
+          "question": "NAT Gateway có cần gắn security group không?",
+          "error": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 71cb7a76-2e22-4c66-a019-5c3a77e5cbdb)",
+          "latency_ms": 1836.4,
+          "judge_score": 0.0,
+          "judge_reason": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 71cb7a76-2e22-4c66-a019-5c3a77e5cbdb)",
+          "auto_checks": [
+            {
+              "label": "lượt chạy được",
+              "passed": false,
+              "detail": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 71cb7a76-2e22-4c66-a019-5c3a77e5cbdb)"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 2,
+          "question": "Ý bạn là NAT Gateway không có security group, vậy tôi bảo vệ nó bằng cách nào?",
+          "error": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: f7dd3952-fc78-4733-8c44-2a785527e304)",
+          "latency_ms": 2156.7,
+          "judge_score": 0.0,
+          "judge_reason": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: f7dd3952-fc78-4733-8c44-2a785527e304)",
+          "auto_checks": [
+            {
+              "label": "lượt chạy được",
+              "passed": false,
+              "detail": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: f7dd3952-fc78-4733-8c44-2a785527e304)"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 3,
+          "question": "Còn NAT instance thì có security group không?",
+          "error": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 4be6d61f-241d-4945-869c-0c3b8d2ab9b0)",
+          "latency_ms": 2315.0,
+          "judge_score": 0.0,
+          "judge_reason": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 4be6d61f-241d-4945-869c-0c3b8d2ab9b0)",
+          "auto_checks": [
+            {
+              "label": "lượt chạy được",
+              "passed": false,
+              "detail": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 4be6d61f-241d-4945-869c-0c3b8d2ab9b0)"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 4,
+          "question": "Vậy khi nào nên chọn cái nào?",
+          "error": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: d01694d3-6992-4f6c-b156-f74a28a7b651)",
+          "latency_ms": 2124.4,
+          "judge_score": 0.0,
+          "judge_reason": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: d01694d3-6992-4f6c-b156-f74a28a7b651)",
+          "auto_checks": [
+            {
+              "label": "lượt chạy được",
+              "passed": false,
+              "detail": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: d01694d3-6992-4f6c-b156-f74a28a7b651)"
+            }
+          ],
+          "passed": false
+        }
+      ]
+    },
+    {
+      "code": "KB-10",
+      "title": "Hỏi ngoài phạm vi giữa hội thoại S3",
+      "kind": "Hỏi ngoài phạm vi",
+      "session_id": "e92f3692-ccb8-4412-a76a-5dca8171c8c3",
+      "turns": 4,
+      "passed_turns": 0,
+      "passed": false,
+      "notes": "lượt 1: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 7bba2538-edea-; lượt 2: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 5eabd448-0f79-; lượt 3: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: f5ef0d75-4dbf-; lượt 4: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: ff91263f-5d0c-",
+      "records": [
+        {
+          "number": 1,
+          "question": "S3 Standard-IA khác Standard ở điểm nào?",
+          "error": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 7bba2538-edea-420d-9d2f-38331655ba57)",
+          "latency_ms": 2161.4,
+          "judge_score": 0.0,
+          "judge_reason": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 7bba2538-edea-420d-9d2f-38331655ba57)",
+          "auto_checks": [
+            {
+              "label": "lượt chạy được",
+              "passed": false,
+              "detail": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 7bba2538-edea-420d-9d2f-38331655ba57)"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 2,
+          "question": "Viết cho tôi đoạn Python để upload file lên S3.",
+          "error": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 5eabd448-0f79-443e-ba91-a80305386add)",
+          "latency_ms": 2275.0,
+          "judge_score": 0.0,
+          "judge_reason": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 5eabd448-0f79-443e-ba91-a80305386add)",
+          "auto_checks": [
+            {
+              "label": "lượt chạy được",
+              "passed": false,
+              "detail": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: 5eabd448-0f79-443e-ba91-a80305386add)"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 3,
+          "question": "Vậy Amazon Bedrock là gì?",
+          "error": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: f5ef0d75-4dbf-4093-a592-c4377011c94d)",
+          "latency_ms": 2594.6,
+          "judge_score": 0.0,
+          "judge_reason": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: f5ef0d75-4dbf-4093-a592-c4377011c94d)",
+          "auto_checks": [
+            {
+              "label": "lượt chạy được",
+              "passed": false,
+              "detail": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: f5ef0d75-4dbf-4093-a592-c4377011c94d)"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 4,
+          "question": "Quay lại S3: Standard-IA có truy xuất mili giây không?",
+          "error": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: ff91263f-5d0c-4830-b395-24df902fa2d1)",
+          "latency_ms": 2582.4,
+          "judge_score": 0.0,
+          "judge_reason": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: ff91263f-5d0c-4830-b395-24df902fa2d1)",
+          "auto_checks": [
+            {
+              "label": "lượt chạy được",
+              "passed": false,
+              "detail": "FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: ff91263f-5d0c-4830-b395-24df902fa2d1)"
+            }
+          ],
+          "passed": false
+        }
+      ]
+    }
+  ]
+}

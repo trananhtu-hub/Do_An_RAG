@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import json
 import time
-from collections.abc import Callable, Sequence
+from collections.abc import Callable, Iterator, Sequence
 
 import httpx
 
@@ -11,11 +12,16 @@ from .base import (
     LLMError,
     LLMMessage,
     LLMResponse,
+    StreamDelta,
     Usage,
+    estimate_usage,
     retry_call,
 )
 
 GENERATE_URL = "https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent"
+STREAM_URL = (
+    "https://generativelanguage.googleapis.com/v1beta/models/{model}:streamGenerateContent?alt=sse"
+)
 RETRYABLE_STATUS = {408, 429, 500, 502, 503, 504}
 
 
@@ -128,6 +134,125 @@ class GeminiAdapter:
             backoff_base_s=self.backoff_base_s,
             backoff_max_s=self.backoff_max_s,
             sleep=self._sleep,
+        )
+
+    def complete_stream(
+        self,
+        messages: Sequence[LLMMessage],
+        *,
+        thinking_level: str | None = None,
+        max_output_tokens: int | None = None,
+        json_mode: bool = True,
+        timeout_ms: int | None = None,
+    ) -> Iterator[StreamDelta]:
+        level = thinking_level or self.thinking_level
+        if level not in ("low", "medium", "high"):
+            raise LLMError(f"thinking_level không hợp lệ: {level}", provider=self.name)
+        payload = self._build_payload(
+            messages,
+            thinking_level=level,
+            max_output_tokens=max_output_tokens or self.max_output_tokens,
+            json_mode=json_mode,
+        )
+        timeout = (timeout_ms or self.timeout_ms) / 1000.0
+        headers = {
+            "x-goog-api-key": self._keys[self._key_index % len(self._keys)],
+            "content-type": "application/json",
+        }
+        started = time.perf_counter()
+        collected: list[str] = []
+        usage = Usage()
+        finish_reason: str | None = None
+        model = self.model
+        response_id = None
+        try:
+            with self._client.stream(
+                "POST",
+                STREAM_URL.format(model=self.model),
+                headers=headers,
+                json=payload,
+                timeout=timeout,
+            ) as response:
+                if response.status_code != 200:
+                    response.read()
+                    if response.status_code in RETRYABLE_STATUS and len(self._keys) > 1:
+                        self._key_index += 1
+                    raise LLMError(
+                        _error_message(response),
+                        provider=self.name,
+                        retryable=response.status_code in RETRYABLE_STATUS,
+                        status_code=response.status_code,
+                    )
+                for line in response.iter_lines():
+                    if not line or not line.startswith("data:"):
+                        continue
+                    raw = line[5:].strip()
+                    if not raw:
+                        continue
+                    try:
+                        chunk = json.loads(raw)
+                    except json.JSONDecodeError:
+                        continue
+                    if not isinstance(chunk, dict):
+                        continue
+                    if chunk.get("usageMetadata"):
+                        usage = _usage(chunk["usageMetadata"])
+                    model = str(chunk.get("modelVersion") or model)
+                    response_id = chunk.get("responseId") or response_id
+                    candidates = chunk.get("candidates") or []
+                    if not candidates:
+                        continue
+                    candidate = candidates[0]
+                    finish_reason = candidate.get("finishReason") or finish_reason
+                    parts = (candidate.get("content") or {}).get("parts") or []
+                    for part in parts:
+                        if not isinstance(part, dict) or part.get("thought"):
+                            continue
+                        text = part.get("text") or ""
+                        if text:
+                            collected.append(text)
+                            yield StreamDelta(text=text)
+        except httpx.TimeoutException as exc:
+            raise LLMError(
+                f"Gemini streaming quá hạn sau {timeout:.0f}s",
+                provider=self.name,
+                retryable=True,
+            ) from exc
+        except httpx.TransportError as exc:
+            raise LLMError(
+                f"Lỗi kết nối Gemini streaming: {type(exc).__name__}",
+                provider=self.name,
+                retryable=True,
+            ) from exc
+
+        text = "".join(collected).strip()
+        if not text:
+            raise LLMError(
+                f"Gemini streaming trả về rỗng (finishReason={finish_reason})",
+                provider=self.name,
+                retryable=finish_reason in ("RECITATION", "OTHER"),
+            )
+        if finish_reason == "MAX_TOKENS":
+            raise LLMError(
+                "Gemini cắt đầu ra do MAX_TOKENS; cần tăng max_output_tokens",
+                provider=self.name,
+                retryable=False,
+            )
+        if usage.total_tokens == 0:
+            usage = estimate_usage(messages, text)
+        elapsed_ms = round((time.perf_counter() - started) * 1000, 2)
+        yield StreamDelta(
+            response=LLMResponse(
+                text=text,
+                model=model,
+                provider=self.name,
+                usage=usage,
+                latency_ms=elapsed_ms,
+                cost_usd=self.pricing.cost_usd(usage.input_tokens, usage.output_tokens),
+                finish_reason=finish_reason,
+                raw={"responseId": response_id, "streamed": True},
+            ),
+            done=True,
         )
 
     def _build_payload(

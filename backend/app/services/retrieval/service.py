@@ -31,13 +31,23 @@ from .types import ChunkRecord, RetrievalResult, RetrievedChunk
 
 class ChunkStore(Protocol):
     def vector_search(
-        self, vector: Sequence[float], limit: int, threshold: float
+        self,
+        vector: Sequence[float],
+        limit: int,
+        threshold: float,
+        exclude_kinds: Sequence[str] = (),
     ) -> list[ChunkRecord]: ...
 
-    def lexical_search(self, tsquery: str, limit: int) -> list[ChunkRecord]: ...
+    def lexical_search(
+        self, tsquery: str, limit: int, exclude_kinds: Sequence[str] = ()
+    ) -> list[ChunkRecord]: ...
 
     def trigram_search(
-        self, terms: Sequence[str], limit: int, min_matched_terms: int
+        self,
+        terms: Sequence[str],
+        limit: int,
+        min_matched_terms: int,
+        exclude_kinds: Sequence[str] = (),
     ) -> list[ChunkRecord]: ...
 
     def fetch_parents(self, parent_ids: Sequence[str]) -> dict[str, str]: ...
@@ -166,7 +176,10 @@ class RetrievalService:
         vectors, embed_ms = self._timed(self._embedder.embed_queries, subqueries)
 
         search_started = time.perf_counter()
-        branch_records, branch_timings = self._search_branches(subqueries, vectors)
+        exclude_kinds = (
+            tuple(self._excluded_kinds) if self._source_filter_applies(normalized) else ()
+        )
+        branch_records, branch_timings = self._search_branches(subqueries, vectors, exclude_kinds)
         search_ms = (time.perf_counter() - search_started) * 1000
 
         fusion_started = time.perf_counter()
@@ -182,15 +195,22 @@ class RetrievalService:
             }[label]
             ranked_lists.append(RankedList(label, records, weight))
         fused = rrf_fuse(ranked_lists, self.config.fusion.k, self.config.fusion.candidates)
-        # Một mục cha chỉ trả về một lần; gộp trước khi xếp hạng để top-k không bị tiêu hao
-        # vào các chunk con trùng mục.
-        fused = _dedupe_results(fused)
+        # Loại chunk ngân hàng câu hỏi trước khi hợp nhất để chúng không chiếm chỗ của
+        # chunk lý thuyết trong top-k; chỉ giữ câu hỏi khi không còn chunk lý thuyết nào.
+        if self._source_filter_applies(normalized):
+            theory = [
+                record
+                for record in fused
+                if str(record.metadata.get("kind") or "") not in self._excluded_kinds
+            ]
+            if theory:
+                fused = theory
         fusion_ms = (time.perf_counter() - fusion_started) * 1000
 
         rerank_ms = 0.0
         parent_ms = 0.0
         fallback: str | None = None
-        if self.config.rerank.enabled and self._reranker is not None and len(fused) > 1:
+        if self.config.rerank.enabled and self._reranker is not None and fused:
             pool = fused[: min(self.config.rerank.candidates, len(fused))]
             if self._source_filter_applies(normalized):
                 filtered = [
@@ -217,13 +237,18 @@ class RetrievalService:
                 fallback = attempt.error
                 for record in pool:
                     record.final_score = record.rrf_score
-            fused = pool
+            # Các chunk con của cùng một mục là những phần khác nhau của mục; giữ lại
+            # tất cả cho tới khi rerank chọn ra phần khớp câu hỏi nhất, rồi mới gộp mục.
+            fused = _dedupe_results(pool)
         else:
+            fused = _dedupe_results(fused)
             for record in fused:
                 record.final_score = record.rrf_score
 
         select_started = time.perf_counter()
         selected = select_top_k(fused, classification, self.config.top_k, override=top_k)
+        if top_k is None and classification.query_type == "so_sanh" and selected:
+            selected = self._ensure_compare_coverage(selected, fused, classification.k_max)
         if self.config.parent_child.expand_parent and selected:
             selected = _dedupe_results(selected)
             for rank, record in enumerate(selected, start=1):
@@ -267,7 +292,10 @@ class RetrievalService:
         return result
 
     def _search_branches(
-        self, subqueries: list[str], vectors: list[list[float]]
+        self,
+        subqueries: list[str],
+        vectors: list[list[float]],
+        exclude_kinds: tuple[str, ...] = (),
     ) -> tuple[dict[str, list[ChunkRecord]], dict[str, float]]:
         tasks: list[tuple[str, int, Future[tuple[list[ChunkRecord], float]]]] = []
         lexical_cfg = self.config.lexical
@@ -284,6 +312,7 @@ class RetrievalService:
                             vector,
                             self.config.vector.candidates,
                             self.config.vector.similarity_threshold,
+                            exclude_kinds,
                         ),
                     )
                 )
@@ -302,6 +331,7 @@ class RetrievalService:
                                 self._store.lexical_search,
                                 tsquery,
                                 lexical_cfg.candidates,
+                                exclude_kinds,
                             ),
                         )
                     )
@@ -320,6 +350,7 @@ class RetrievalService:
                                     english,
                                     trigram_cfg.candidates,
                                     trigram_cfg.min_matched_terms,
+                                    exclude_kinds,
                                 ),
                             )
                         )
@@ -335,6 +366,37 @@ class RetrievalService:
         started = time.perf_counter()
         value = function(*args)
         return value, (time.perf_counter() - started) * 1000
+
+    def _ensure_compare_coverage(
+        self,
+        selected: list[ChunkRecord],
+        pool: Sequence[ChunkRecord],
+        k_max: int,
+    ) -> list[ChunkRecord]:
+        """Câu so sánh cần mỗi tài liệu liên quan có mặt; bù tài liệu chưa được đại diện."""
+        scores = [record.final_score for record in selected if record.final_score is not None]
+        if not scores or max(scores) <= 0:
+            return selected
+        # Chỉ bù tài liệu có điểm không thấp hơn hẳn mức thấp nhất đã chọn, tránh kéo
+        # tài liệu không liên quan (điểm sát 0) vào ngữ cảnh.
+        gate = min(scores) * 0.25
+        covered = {record.document for record in selected}
+        extra: list[ChunkRecord] = []
+        for record in pool:
+            if len(selected) + len(extra) >= k_max:
+                break
+            if record.document in covered:
+                continue
+            if float(record.final_score or 0.0) < gate:
+                continue
+            covered.add(record.document)
+            extra.append(record)
+        if not extra:
+            return selected
+        merged = _dedupe_results([*selected, *extra])
+        for rank, record in enumerate(merged, start=1):
+            record.rank = rank
+        return merged
 
     def _source_filter_applies(self, query: str) -> bool:
         config = self.config.rerank.source_filter

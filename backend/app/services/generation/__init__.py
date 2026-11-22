@@ -24,12 +24,14 @@ from .providers import (
 )
 from .schema import SchemaError, parse_answer
 from .service import (
+    AnswerDelta,
     GenerationService,
     build_default_service,
     generate,
     get_service,
     reset_service,
 )
+from .streaming import AnswerStreamExtractor
 from .types import (
     AnswerPayload,
     Citation,
@@ -40,7 +42,9 @@ from .types import (
 )
 
 __all__ = [
+    "AnswerDelta",
     "AnswerPayload",
+    "AnswerStreamExtractor",
     "BuiltContext",
     "Citation",
     "CitationIssue",

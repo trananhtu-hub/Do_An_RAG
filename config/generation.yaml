@@ -53,10 +53,12 @@ providers:
     base_url: https://api.deepseek.com/v1
     model: deepseek-chat
     timeout_ms: 180000
-    max_retries: 1
+    max_retries: 2
     backoff_base_s: 2.0
     backoff_max_s: 20.0
-    max_output_tokens: 8192
+    # Model suy luận có thể tiêu hết hạn mức vào token lý luận; 16k tránh đầu ra rỗng.
+    max_output_tokens: 16384
+    temperature: 0.2
     # Không ước tính chi phí dự phòng; báo cáo chỉ tính giá Gemini đã niêm yết.
     pricing:
       input_per_million: 0.0

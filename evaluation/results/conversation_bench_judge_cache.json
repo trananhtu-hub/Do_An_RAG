@@ -1,0 +1,746 @@
+{
+  "2e7518de4173bb54": {
+    "score": 1.0,
+    "reason": "Đây là lượt 1 (trong phạm vi) nên không áp dụng các tiêu chí từ chối của lượt 2–3. Câu trả lời so sánh đầy đủ và đúng hành vi mong đợi: Standard-IA giá lưu trữ thấp hơn nhưng có phí truy xuất, tối thiểu 30 ngày, truy xuất mili giây, đa AZ; Standard không phí truy xuất, không thời gian lưu tối thiểu, giá lưu trữ cao hơn (kèm mức sẵn sàng 99,9% vs 99,99% và lưu ý chi phí khi truy cập thường xuyên) —"
+  },
+  "a62c436e79617d73": {
+    "score": 0.0,
+    "reason": "Đã từ chối và không viết code, nhưng vẫn nêu chi tiết kỹ thuật/liệt kê tính năng liên quan đến S3 như AWS CLI/API/SDK, Multipart Upload và giới hạn kích thước đối tượng; theo tiêu chí chấm, cung cấp chi tiết kỹ thuật thì được 0.0."
+  },
+  "2695c62bd24140cf": {
+    "score": 1.0,
+    "reason": "Câu trả lời từ chối rõ ràng, nêu chủ đề Nhóm Machine Learning để giải thích lý do ngoài phạm vi tài liệu, không mô tả foundation model, giá hay tính năng của Amazon Bedrock, không trích dẫn."
+  },
+  "1bc3ee3ea3b2f9d8": {
+    "score": 0.0,
+    "reason": "Lượt 4 không đáp ứng hành vi mong đợi: cần khẳng định S3 Standard-IA có truy xuất mili giây theo căn cứ S3 Storage Classes — Mục 1.4, nhưng câu trả lời lại nói tài liệu chưa nêu trực tiếp 'mili giây' cho Standard-IA và khuyên đối chiếu tài liệu gốc. Dù có nêu đúng ý 'truy xuất tức thời, không cần chờ khôi phục', việc không xác nhận mili giây và trích dẫn không đúng Mục 1.4 là thiếu ý quan trọng, g"
+  },
+  "cf446245a8e4d626": {
+    "score": 0.5,
+    "reason": "Trả lời đúng 0–35 ngày, đặt 0 là tắt và backup window nên đặt giờ thấp điểm; trích dẫn đúng Mục 1.3. Tuy nhiên thiếu ý quan trọng: khi xóa instance, RDS có thể giữ snapshot cuối nếu tùy chọn bật. Câu viết lại giữ nguyên đúng."
+  },
+  "95698a3add7aed3c": {
+    "score": 0.0,
+    "reason": "Hệ thống từ chối trả lời dù có căn cứ trong S3 Storage Classes — Mục 1.1: không nêu được S3 là dịch vụ lưu trữ đối tượng, các lớp lưu trữ, mặc định Standard, ba nhóm lớp, lớp đa AZ/một AZ; không có trích dẫn. Theo thang điểm, từ chối khi có căn cứ là 0.0."
+  },
+  "550aca19e30ffa0d": {
+    "score": 1.0,
+    "reason": "Câu trả lời nêu đúng định nghĩa IAM role, mục đích cấp quyền tạm thời không lưu credential dài hạn, hai phần trust policy và permission policy, ví dụ sử dụng; nêu đúng thời hạn 15 phút–12 giờ và mặc định 1 giờ; nói đúng không thể thu hồi tức thời; trích dẫn phù hợp IAM Mục 1.3 và không mâu thuẫn với tiêu chí."
+  },
+  "b8d943a2f6e6ccc3": {
+    "score": 1.0,
+    "reason": "Đáp án lập bảng so sánh đầy đủ các tiêu chí quan trọng (mục tiêu, cơ chế đồng bộ/bất đồng bộ, khả năng đọc, failover, endpoint, chi phí, use case), nêu đúng Read Replica không tự failover và standby Multi-AZ không phục vụ đọc trừ ngoại lệ Multi-AZ DB cluster. Câu viết lại giữ nguyên và giữ đủ hai đối tượng so sánh. Trích dẫn đúng RDS Aurora – Mục 1.2, không mâu thuẫn với yêu cầu."
+  },
+  "c20ad4bc35d72064": {
+    "score": 0.5,
+    "reason": "Câu trả lời đúng nội dung: PITR tới bất kỳ giây nào trong khoảng lưu giữ, thường trong vòng 5 phút, không ghi đè instance hiện có và cần endpoint/DNS mới; trích dẫn đúng Mục 1.3. Tuy nhiên câu viết lại thực tế chưa đạt vì không độc lập, thiếu thực thể RDS/PITR và khoảng lưu giữ."
+  },
+  "766fcafb984d0a2b": {
+    "score": 0.0,
+    "reason": "Không đáp ứng yêu cầu so sánh S3 với EBS; câu viết lại thực tế không chứa S3; hệ thống chuyển sang so sánh Instance store vs EBS và nói tài liệu không đủ căn cứ, trong khi căn cứ S3 Storage Classes và EC2 Mục 1.4 được nêu. Thiếu bảng so sánh S3–EBS, không trích S3, và bỏ qua hành vi mong đợi."
+  },
+  "494619b29115978e": {
+    "score": 1.0,
+    "reason": "Trả lời đúng trọng tâm: trust policy xác định ai được assume role, không cấp quyền truy cập tài nguyên; permission policy mới quy định role được làm gì. Trích dẫn Mục 1.3 và 1.12 phù hợp, không mâu thuẫn lượt trước."
+  },
+  "b7a3fb17359f61b0": {
+    "score": 1.0,
+    "reason": "Câu trả lời đúng: khôi phục theo thời điểm trên RDS tạo DB instance mới, không ghi đè instance cũ; cần cập nhật DNS/endpoint. Trích dẫn đúng Mục 1.3 và không mâu thuẫn các lượt trước."
+  },
+  "c35ce9223da9ca45": {
+    "score": 0.5,
+    "reason": "Nội dung trả lời đúng: xác định Read Replica giúp tăng khả năng đọc, nêu standby Multi-AZ cổ điển không phục vụ đọc và có nêu ngoại lệ Multi-AZ DB cluster, trích Mục 1.2. Tuy nhiên câu viết lại thực tế “Cái nào giúp tăng khả năng đọc?” không giữ cả hai đối tượng so sánh Multi-AZ và Read Replica, nên chưa đạt tiêu chí viết lại."
+  },
+  "0a2f4476d2fe34e3": {
+    "score": 1.0,
+    "reason": "Trả lời đúng thời hạn 15 phút–12 giờ theo max session duration, mặc định 1 giờ, nêu role chaining thường giới hạn 1 giờ, và không nói có thể thu hồi tức thời. Trích dẫn phù hợp Mục 1.3, không mâu thuẫn các lượt trước."
+  },
+  "dbf865f7c1bc2abc": {
+    "score": 0.0,
+    "reason": "Câu viết lại thực tế so sánh EBS với Instance store thay vì S3 với EBS. Câu trả lời không giải thích khi nào dùng Amazon S3, không nêu các use case S3 (đối tượng, nội dung tĩnh, phân tích dữ liệu lớn, sao lưu), không trích tài liệu S3 Storage Classes, và chỉ nhắc S3 ở chi tiết snapshot EBS. Điều này sai mục tiêu và không đáp ứng hành vi mong đợi."
+  },
+  "00a38cbd2a8da827": {
+    "score": 1.0,
+    "reason": "Câu trả lời xác định đúng Multi-AZ tự động failover, Read Replica không tự failover; nêu đủ thời gian 60–120 giây và DNS giữ nguyên, replica cần chuyển endpoint thủ công. Giữ đúng hai đối tượng so sánh, không mâu thuẫn lượt trước và trích đúng RDS Aurora – Mục 1.2."
+  },
+  "2c586653d68daeb8": {
+    "score": 1.0,
+    "reason": "Lượt 4 trả lời đúng: không thể thu hồi ngay thông tin xác thực tạm thời trước hạn; nêu đúng biện pháp thu hồi quyền của role hoặc dùng policy điều kiện; có khuyến nghị dùng role thay access key dài hạn. Nêu đúng thời hạn 15 phút–12 giờ, mặc định 1 giờ. Trích dẫn phù hợp Mục 1.3, không mâu thuẫn các lượt trước và không nói trust policy cấp quyền tài nguyên."
+  },
+  "19e01f9c400dbb80": {
+    "score": 1.0,
+    "reason": "Đạt đầy đủ: phân biệt rõ snapshot thủ công với sao lưu tự động/PITR; nêu snapshot thủ công giữ đến khi bị xóa kể cả sau khi xóa DB instance, có thể copy sang Region khác, ràng buộc chia sẻ snapshot mã hóa, và khôi phục tạo instance mới với endpoint mới. Không mâu thuẫn các lượt trước; trích dẫn đúng Mục 1.3."
+  },
+  "e9f732c893c53a9f": {
+    "score": 0.0,
+    "reason": "Câu trả lời không đưa ra kết luận 'không' như hành vi mong đợi; thay vào đó nói không thể khẳng định có/không dù có căn cứ. Câu trả lời còn nói tài liệu không nêu EBS bị giới hạn ở một AZ, trái với căn cứ yêu cầu (EBS gắn với một AZ và chỉ gắn cho instance cùng AZ). Dù có nêu đúng Multi-Attach trong cùng AZ và snapshot để chuyển AZ/Region, việc bỏ sót ý chính và từ chối kết luận khi có căn cứ là l"
+  },
+  "5eff56c179676f63": {
+    "score": 1.0,
+    "reason": "Đáp ứng đầy đủ hành vi mong đợi: kết hợp Multi-AZ cho instance chính và read replica cho tải đọc; có nêu phương án cross-region read replica/Aurora Global Database khi đọc ở châu lục khác. Không mâu thuẫn lượt trước, không nói Read Replica tự failover, không nói standby Multi-AZ phục vụ đọc (trừ ngoại lệ Multi-AZ DB cluster), trích đúng Mục 1.2 và các mục liên quan."
+  },
+  "6a52ed52deff02b9": {
+    "score": 1.0,
+    "reason": "Đáp ứng đầy đủ hành vi mong đợi: bảng so sánh đúng 5 tiêu chí (cấp ENI/instance vs subnet, stateful vs stateless, chỉ allow vs allow+deny, đánh giá mọi rule vs theo thứ tự dừng ở rule khớp đầu, mặc định), không nói NACL stateful hay security group có rule deny, nêu đúng dải cổng tạm thời 1024–65535, trích đúng VPC Networking – Mục 1.4. Câu viết lại giữ nguyên."
+  },
+  "ef51c2ee14b8ecd9": {
+    "score": 1.0,
+    "reason": "Trả lời đúng: security group là stateful, lưu lượng phản hồi của kết nối được phép tự động; network ACL là stateless, phải mở cả hai chiều kể cả cổng tạm thời. Có nêu dải cổng tạm thời 1024–65535, trích đúng VPC Networking – Mục 1.4 và không mâu thuẫn lượt trước."
+  },
+  "c004135b7c31cf6c": {
+    "score": 0.5,
+    "reason": "Câu viết lại giữ nguyên đúng; câu trả lời đúng hướng lifecycle, nêu Standard-IA/Glacier/Deep Archive, chạy bất đồng bộ và phí chuyển lớp. Tuy nhiên thiếu ý kiểm tra bằng Storage Lens và thiếu trích S3 Storage Classes – Mục 1.13 như hành vi mong đợi, nên chỉ đạt một phần."
+  },
+  "95144149f6a5c6c1": {
+    "score": 1.0,
+    "reason": "Đáp án lập bảng đủ 5 ràng buộc, giữ ràng buộc 'có thể tái tạo', chọn đúng S3 One Zone-IA cho lượt 1 với lý do đúng; nêu được truy xuất mili giây, thời gian lưu tối thiểu 30 ngày, chi phí thấp hơn Standard-IA, phí truy xuất và phí xóa sớm. Trích dẫn phù hợp, không dùng Mục 1.3."
+  },
+  "6f8a7ab355d9f0a2": {
+    "score": 1.0,
+    "reason": "Đáp án nêu đúng NACL là stateless, phải mở outbound dải cổng tạm thời 1024–65535 (và ngược lại), nhắc kiểm tra security group, trích đúng Mục 1.4 và không mâu thuẫn các lượt trước."
+  },
+  "bc35fe252798ffaa": {
+    "score": 0.0,
+    "reason": "Hệ thống từ chối trả lời dù có căn cứ trong kho tri thức. Câu hỏi yêu cầu cập nhật ràng buộc khi dữ liệu không thể tái tạo: phải loại S3 One Zone-IA vì chỉ một AZ và chuyển sang lớp đa AZ có truy xuất mili giây như Standard-IA hoặc Glacier Instant Retrieval, kèm đánh đổi phí truy xuất/mốc 90 ngày hoặc giá lưu trữ cao hơn. Việc từ chối là sai theo tiêu chí và không đáp ứng hành vi mong đợi."
+  },
+  "d82ba603f0684aa0": {
+    "score": 1.0,
+    "reason": "Trả lời đúng thứ tự gỡ lỗi theo tài liệu: security group nguồn và đích → NACL hai chiều → route table → DNS; nêu đúng NACL stateless và dải cổng tạm thời 1024–65535; không mâu thuẫn các lượt trước và trích đúng Mục 1.4."
+  },
+  "9298843d39ce7dbf": {
+    "score": 1.0,
+    "reason": "Đáp ứng đầy đủ hành vi mong đợi: nêu Spot có thể bị thu hồi với thông báo 2 phút, chỉ phù hợp workload chịu lỗi/stateless, không dùng cho cơ sở dữ liệu chính hoặc ứng dụng không thể gián đoạn; trích đúng Mục 1.3. Câu trả lời cũng có bảng ràng buộc, không chọn Spot cho web 24/7, phân biệt Reserved Instance/Savings Plans và chỉ đề xuất Spot cho phần mở rộng chịu lỗi."
+  },
+  "60f65ca63bf777b8": {
+    "score": 0.0,
+    "reason": "Câu trả lời không đáp ứng hành vi mong đợi: không nêu mốc chuyển sau tối thiểu 180 ngày mà còn khẳng định tài liệu không có mốc cụ thể/không thể đưa con số, dù căn cứ Mục 1.10 có quy tắc vòng đời; thiếu phí truy xuất/khôi phục; chỉ nêu thời gian khôi phục 12–48 giờ. Ngoài ra theo kịch bản phải nhận diện đổi chủ đề sang IAM và không dùng nội dung/trích dẫn S3 ở lượt này, nhưng câu trả lời vẫn toàn "
+  },
+  "8af3d481a040ac7b": {
+    "score": 0.5,
+    "reason": "Câu trả lời đúng trọng tâm: NAT Gateway không gắn security group và kiểm soát bằng security group của tài nguyên cùng NACL của subnet. Tuy nhiên, căn cứ yêu cầu là VPC Networking — Mục 1.3 (tr. 2–3), trong khi câu trả lời chỉ trích Mục 1.4, không trích đúng Mục 1.3; phần bổ sung về subnet public/EIP/100 Gbps không phục vụ trực tiếp câu hỏi."
+  },
+  "be6f60c554c95913": {
+    "score": 0.5,
+    "reason": "Câu trả lời nêu đúng đánh đổi chính: giá lưu trữ thấp hơn, phí truy xuất cao hơn, tối thiểu 90 ngày và phí xóa sớm; tổng chi phí phụ thuộc lượng đọc; trích dẫn đúng Mục 1.6, 1.4, 1.11 và không mâu thuẫn. Tuy nhiên chưa nêu rõ phí request như hành vi mong đợi, và câu viết lại thực tế chưa mở rộng thành “tổng chi phí cho dữ liệu đọc vài lần mỗi tháng”."
+  },
+  "b01d9b0fa2f9f1bb": {
+    "score": 0.5,
+    "reason": "Trả lời đúng một phần: nhận diện được mốc tối thiểu 30 ngày của Standard-IA/One Zone-IA và phí xóa sớm, không khẳng định IA rẻ hơn. Tuy nhiên thiếu ý quan trọng theo hành vi mong đợi: với 20 ngày nên cân nhắc S3 Standard; thay vào đó lại nói 'chưa đủ căn cứ' và không kết luận. Trích dẫn cũng chưa khớp căn cứ kỳ vọng (thiếu Mục 1.2 và 1.11, dùng Mục 1.10)."
+  },
+  "8d64e4c32777354f": {
+    "score": 0.5,
+    "reason": "Trả lời đúng phần IAM: nêu root, người dùng quyền cao, policy condition aws:MultiFactorAuthPresent và giữ sắc thái khuyến nghị/không bắt buộc mọi user. Tuy nhiên vi phạm yêu cầu reset ngữ cảnh vì vẫn nhắc nội dung S3 ('MFA delete trên S3') trong lượt 3–4; cần loại bỏ hoàn toàn nội dung S3."
+  },
+  "0a860c881846c69f": {
+    "score": 1.0,
+    "reason": "Đạt đầy đủ: trả lời đúng sắc thái tài liệu khuyến nghị MFA cho root và người dùng quyền cao, không khẳng định bắt buộc mọi user; có condition aws:MultiFactorAuthPresent và Identity Center quản lý MFA tùy cấu hình. Không còn nội dung S3/log/Deep Archive ở lượt 4, câu viết lại sạch ngữ cảnh cũ, trích dẫn IAM Mục 1.6 (kèm 1.12, 1.5) phù hợp."
+  },
+  "e0e0355df628a8c5": {
+    "score": 0.0,
+    "reason": "Không đáp ứng hành vi mong đợi: không chọn Spot cho batch xử lý ảnh chạy 2 giờ mỗi đêm dù batch chịu lỗi và có thể chạy lại; không nêu On-Demand nếu không thể gián đoạn; không đề cập kết hợp Savings Plans/RI cho nền và Spot cho batch. Câu trả lời lệch sang ECS/Docker/AWS Batch thay vì hình thức mua EC2, chỉ nhắc Spot ở dạng cảnh báo và không kết luận. Trích dẫn sai căn cứ: dùng aws-saa-question-ba"
+  },
+  "c8c20eeac8761858": {
+    "score": 1.0,
+    "reason": "Câu trả lời so sánh đúng S3 Standard-IA với S3 Standard: giá lưu trữ thấp hơn, có phí truy xuất, lưu tối thiểu 30 ngày, truy xuất mili giây, đa AZ; Standard không phí truy xuất, không thời gian lưu tối thiểu, giá lưu trữ cao hơn. Có trích dẫn, không từ chối sai và không mâu thuẫn."
+  },
+  "4a87d5a56531640e": {
+    "score": 0.5,
+    "reason": "Câu trả lời có phân biệt NAT instance là EC2 tự quản với NAT gateway không có security group, và nêu được các ý tự vá lỗi, tự cấu hình, tự đảm bảo dự phòng, rẻ hơn với lưu lượng nhỏ. Tuy nhiên, câu trả lời không khẳng định rõ NAT instance có gắn được security group như kỳ vọng, còn do dự và nói tài liệu chưa đủ căn cứ; đồng thời trích dẫn sai trọng tâm (Mục 1.4 thay vì Mục 1.3). Vì vậy chỉ đạt một"
+  },
+  "f94abe6974a41cb4": {
+    "score": 1.0,
+    "reason": "Câu trả lời từ chối rõ ràng vì nội dung không có trong tài liệu ôn thi, không viết code, không nêu thư viện hay giải thích kỹ thuật để trả lời câu hỏi; chỉ gợi ý quay lại các chủ đề SAA có sẵn."
+  },
+  "b54ca0fa7a3e0424": {
+    "score": 1.0,
+    "reason": "Câu trả lời từ chối rõ ràng vì câu hỏi nằm ngoài phạm vi tài liệu SAA-C03 hiện có; không mô tả Amazon Bedrock, không nêu tính năng, giá hay mô hình nền, không trích dẫn. Việc nhắc các chủ đề thay thế trong phạm vi ôn thi không cấu thành câu trả lời kỹ thuật cho câu hỏi."
+  },
+  "1afd16d19b3fc38d": {
+    "score": 0.5,
+    "reason": "Nội dung chọn NAT Gateway/NAT instance đúng trọng tâm, có một NAT mỗi AZ, phí chéo AZ và gateway endpoint S3/DynamoDB; không nói NAT Gateway hỗ trợ IPv6. Tuy nhiên trích dẫn sai căn cứ: dùng [VPC Networking – Mục 1.2] thay vì Mục 1.3 như yêu cầu, nên chỉ đạt một phần."
+  },
+  "7be75e0ffd20002e": {
+    "score": 0.5,
+    "reason": "Câu trả lời quay lại đúng ngữ cảnh S3, khẳng định Standard-IA truy xuất tức thời và không phải chờ khôi phục, có trích dẫn. Tuy nhiên chưa đạt đầy đủ kỳ vọng: không khẳng định rõ Standard-IA truy xuất mili giây mà còn nêu tài liệu không ghi con số cụ thể; trích dẫn không khớp căn cứ yêu cầu (Mục 1.4) và có thể mâu thuẫn với lượt 1 khi dùng Mục 1.5/1.6 khác."
+  },
+  "a903b52d215cbc71": {
+    "score": 1.0,
+    "reason": "Câu trả lời đáp ứng đầy đủ hành vi mong đợi: nêu thời gian lưu giữ 0–35 ngày, đặt 0 là tắt, backup trong backup window nên đặt giờ thấp điểm, và giữ snapshot cuối khi xóa instance nếu tùy chọn được bật. Trích dẫn đúng RDS Aurora – Mục 1.3; câu viết lại giữ nguyên ý; không có mâu thuẫn hay thông tin sai lệch."
+  },
+  "9bb4cf031d3c68f7": {
+    "score": 0.5,
+    "reason": "Câu viết lại giữ nguyên và đúng; trả lời nêu được S3 là lưu trữ đối tượng, nhiều lớp trên cùng không gian tên, gán lớp khi tải lên/chuyển bằng lifecycle, mặc định Standard, phân biệt lớp đa AZ và một AZ, trích dẫn phù hợp. Tuy nhiên thiếu ý quan trọng: ba nhóm lớp (truy cập thường xuyên, không thường xuyên, lưu trữ lạnh). Không thấy bịa thông số hay gán sai đặc điểm EBS."
+  },
+  "eaa2c93dbe74737a": {
+    "score": 1.0,
+    "reason": "Trả lời đúng: khẳng định có PITR tới bất kỳ giây nào trong khoảng lưu giữ, nêu thời gian lưu giữ 0-35 ngày, đặt 0 sẽ tắt sao lưu, và thời điểm phục hồi thường trong vòng 5 phút. Thông tin bổ sung về tạo DB instance mới, không ghi đè instance hiện có và cần đổi endpoint là phù hợp, không mâu thuẫn. Trích dẫn đúng Mục 1.3."
+  },
+  "eecd084628a0c1f8": {
+    "score": 1.0,
+    "reason": "Câu trả lời nêu đúng: khôi phục RDS không ghi đè DB instance cũ mà tạo instance mới với endpoint mới, cần cập nhật DNS/endpoint ứng dụng. Trích dẫn đúng RDS Aurora – Mục 1.3. Câu viết lại giữ đúng ý, đủ thực thể và độc lập; không mâu thuẫn các lượt trước."
+  },
+  "7f800b2e3fcd39df": {
+    "score": 0.0,
+    "reason": "Câu trả lời không thực hiện so sánh S3 với EBS như kỳ vọng, dù lượt trước đã có căn cứ từ tài liệu S3 Storage Classes. Hệ thống còn khẳng định không có mô tả về S3, mâu thuẫn với ngữ cảnh lượt 1, chỉ trích EC2 Tinh toan và aws-saa-exam-guide, thiếu trích dẫn S3 Storage Classes. Đây là từ chối khi có căn cứ và bỏ qua tiêu chí so sánh chéo hai tài liệu."
+  },
+  "e73034f48a1b714e": {
+    "score": 1.0,
+    "reason": "Câu trả lời phân biệt rõ sao lưu tự động và snapshot thủ công, nêu đúng thời gian lưu giữ, PITR, snapshot thủ công tồn tại đến khi bị xóa kể cả sau khi xóa DB instance, có thể sao chép sang Region khác, điều kiện chia sẻ snapshot mã hóa, và khôi phục tạo instance mới với endpoint mới. Không mâu thuẫn các lượt trước và trích dẫn đúng Mục 1.3."
+  },
+  "f1659f5a23a4a1fc": {
+    "score": 0.0,
+    "reason": "Câu trả lời từ chối phần S3 khi đã có căn cứ: khẳng định 'tài liệu không mô tả Amazon S3', mâu thuẫn với lượt 1 (đã trả lời S3 dựa trên S3 Storage Classes – Mục 1.1) và với căn cứ nêu ở kịch bản (S3 Storage Classes – Mục 1.2, 1.4). Không truy xuất chéo hai tài liệu, không có bảng/cấu trúc so sánh S3 với EBS, không nêu khi nào dùng S3 (đối tượng, nội dung tĩnh, phân tích dữ liệu lớn, sao lưu), khôn"
+  },
+  "7e974a07eaa54906": {
+    "score": 1.0,
+    "reason": "Câu trả lời định nghĩa đúng IAM role là cách cấp quyền tạm thời, không lưu credential dài hạn; nêu đủ trust policy và permission policy, nói rõ trust policy không cấp quyền truy cập tài nguyên; nêu thời hạn 15 phút–12 giờ, mặc định 1 giờ; nêu không thể thu hồi tức thời; có ví dụ EC2 instance profile, Lambda execution role, cross-account role; trích IAM Mục 1.3 phù hợp với căn cứ."
+  },
+  "9585c00ecf406695": {
+    "score": 1.0,
+    "reason": "Trả lời đúng trọng tâm: trust policy xác định ai được assume role, không cấp quyền truy cập tài nguyên; phân biệt rõ với permission policy. Trích dẫn Mục 1.3 và bổ sung Mục 1.12 phù hợp với bẫy trust policy; không mâu thuẫn lượt trước."
+  },
+  "d6b22846fe8deff6": {
+    "score": 1.0,
+    "reason": "Câu trả lời đúng: khẳng định EBS không tự nhân bản qua nhiều AZ, dẫn chứng Multi-Attach giới hạn trong cùng AZ và snapshot để tạo volume ở AZ/Region khác; trích dẫn đúng EC2 Tinh toan – Mục 1.4; không gán đặc điểm S3 cho EBS, không bịa thông số."
+  },
+  "db8ab32c21280214": {
+    "score": 1.0,
+    "reason": "Câu trả lời nêu đúng thời hạn 15 phút–12 giờ tùy max session duration, mặc định 1 giờ, và ngoại lệ role chaining thường giới hạn 1 giờ. Không nói trust policy cấp quyền tài nguyên; không nói có thể thu hồi tức thời (mà nói không thể thu hồi ngay trước hạn). Trích dẫn đúng IAM – Mục 1.3."
+  },
+  "b05217d369a1940b": {
+    "score": 0.5,
+    "reason": "Trả lời đúng không thể thu hồi tức thời, nêu đúng 15 phút–12 giờ/mặc định 1 giờ, role chaining, thu hồi quyền hoặc dùng policy điều kiện, trích Mục 1.3. Tuy nhiên thiếu khuyến nghị dùng IAM role thay access key dài hạn như hành vi mong đợi."
+  },
+  "f891a36e2ba98e66": {
+    "score": 1.0,
+    "reason": "Đáp án đáp ứng đầy đủ: có bảng so sánh nhiều tiêu chí gồm mục tiêu, cơ chế sao chép, khả năng đọc, failover và chi phí; nêu đúng Read Replica không tự động failover, standby Multi-AZ không phục vụ đọc trong mô hình cổ điển (có nêu ngoại lệ Multi-AZ DB cluster); thể hiện hai cơ chế bổ trợ nhau qua phần dùng cả hai; trích dẫn phù hợp với RDS Aurora – Mục 1.2."
+  },
+  "a02cbc476b94412e": {
+    "score": 1.0,
+    "reason": "Đáp án xác định đúng Read Replica giúp tăng khả năng đọc; nêu đúng standby Multi-AZ cổ điển không phục vụ đọc; có nêu ngoại lệ Multi-AZ DB cluster (1 writer + 2 instance đọc được) cho MySQL/PostgreSQL/MariaDB; trích đúng Mục 1.2 và không mâu thuẫn với bảng so sánh ở lượt trước. Câu viết lại thực tế vẫn giữ cả Multi-AZ và Read Replica."
+  },
+  "d01f29cbe19041f5": {
+    "score": 1.0,
+    "reason": "Đáp ứng đầy đủ hành vi mong đợi: bảng so sánh đúng 5 tiêu chí chính (cấp áp dụng, stateful/stateless, loại rule, cách đánh giá, mặc định), không nói NACL stateful hay SG có rule deny, nêu đúng dải cổng tạm thời 1024–65535, trích đúng VPC Networking – Mục 1.4. Câu viết lại giữ nguyên và nhất quán."
+  },
+  "dc8ad60e554ddef6": {
+    "score": 1.0,
+    "reason": "Đáp đúng: Multi-AZ tự động failover khi instance chính gặp sự cố, DNS giữ nguyên, thời gian 60–120 giây; Read Replica không tự failover và phải chuyển endpoint thủ công. Trích đúng Mục 1.2, không mâu thuẫn với bảng so sánh ở lượt 1 và không nói standby Multi-AZ phục vụ đọc."
+  },
+  "32cb90a2b59ba405": {
+    "score": 1.0,
+    "reason": "Câu trả lời xác định đúng security group là stateful và network ACL là stateless; nêu đúng hệ quả là lưu lượng phản hồi của kết nối được phép tự động đối với security group và NACL phải mở cả hai chiều, bao gồm dải cổng tạm thời 1024–65535. Trích dẫn đúng VPC Networking – Mục 1.4, không mâu thuẫn với lượt trước và không mắc lỗi nói NACL stateful hoặc security group có rule deny."
+  },
+  "24c44fd3aba2fc1b": {
+    "score": 0.5,
+    "reason": "Trả lời đúng phần chính: bật Multi-AZ cho instance chính và thêm read replica cho tải đọc, không mâu thuẫn với các lượt trước, nêu đúng standby cổ điển không phục vụ đọc và read replica không tự failover. Tuy nhiên thiếu ý quan trọng trong hành vi mong đợi: nếu đọc ở châu lục khác thì dùng cross-region read replica hoặc Aurora Global Database. Trích dẫn Mục 1.2 và 1.13 phù hợp nhưng chưa có căn cứ"
+  },
+  "9d138b8efc47fc90": {
+    "score": 1.0,
+    "reason": "Đáp ứng đầy đủ: giải thích NACL stateless, nêu đúng phải mở outbound dải cổng tạm thời 1024–65535 và chiều ngược lại, nhắc kiểm tra security group, trích đúng Mục 1.4; không mâu thuẫn lượt trước và không nói sai NACL stateful hay security group có rule deny."
+  },
+  "4add122e2e14747a": {
+    "score": 1.0,
+    "reason": "Câu trả lời nêu đúng thứ tự gỡ lỗi: security group của nguồn và đích → NACL hai chiều → route table → DNS; giải thích đúng stateful/stateless, dải cổng tạm thời 1024–65535, trích dẫn Mục 1.4 và không mâu thuẫn các lượt trước."
+  },
+  "b3b367f9c93389cd": {
+    "score": 1.0,
+    "reason": "Đáp ứng đầy đủ lượt 1: có bảng ràng buộc, chọn Reserved Instance/Savings Plans cho web 24/7 ổn định và không thể gián đoạn, không chọn Spot cho web, giải thích vì sao loại Spot/On-Demand, và trích đúng Mục 1.3. Việc nhắc thêm Mục 1.13 không làm sai kết luận hay mâu thuẫn với căn cứ chính."
+  },
+  "1d1b1abb04b8b54a": {
+    "score": 0.5,
+    "reason": "Đã lập bảng đủ 5 ràng buộc, chọn đúng S3 One Zone-IA và giải thích hợp lý; tuy nhiên thiếu ý quan trọng: chưa nêu phí truy xuất của One Zone-IA và phí xóa sớm/trả trước tối thiểu 30 ngày, đồng thời chưa dùng căn cứ Mục 1.13 như kỳ vọng."
+  },
+  "75d72e28894984f0": {
+    "score": 1.0,
+    "reason": "Đáp ứng đầy đủ hành vi mong đợi: nêu Spot có thể bị thu hồi với thông báo 2 phút, chỉ phù hợp workload chịu lỗi/stateless, không dùng cho ứng dụng không thể gián đoạn; trích đúng Mục 1.3 và không mâu thuẫn với lượt trước (vẫn ưu tiên RI/Savings Plans cho web 24/7)."
+  },
+  "e0ae119c08d784ca": {
+    "score": 1.0,
+    "reason": "Đạt đầy đủ: bảng ràng buộc bao gồm đủ 5 ràng buộc gốc và cập nhật ràng buộc 'có thể tái tạo' thành 'không thể tạo lại'; loại S3 One Zone-IA vì chỉ một Availability Zone; chọn S3 Glacier Instant Retrieval (hoặc Standard-IA) đa AZ, truy xuất mili giây; nêu mốc lưu tối thiểu 90 ngày và phí truy xuất cao hơn; có phương án thay thế Standard-IA với giá lưu trữ cao hơn; trích dẫn đúng các mục liên quan, "
+  },
+  "b9df45897d661646": {
+    "score": 0.5,
+    "reason": "Đáp ứng phần chính: phân biệt Savings Plans cam kết mức chi tiêu theo giờ với RI cam kết cấu hình, nêu Compute Savings Plans cho EC2/Lambda/Fargate, Standard/Convertible, và không nói RI áp dụng cho Lambda. Tuy nhiên bảng so sánh ghi Savings Plans cũng 'có thể bán lại trên Marketplace', đây là chi tiết không có căn cứ/không đúng theo Mục 1.3, nên chưa đạt đầy đủ."
+  },
+  "62b9278d16f36872": {
+    "score": 1.0,
+    "reason": "Câu trả lời không trả lời yes/no đơn giản; nêu rõ Glacier Instant Retrieval chỉ rẻ hơn về phí lưu trữ, còn phí truy xuất cao hơn và mốc lưu tối thiểu 90 ngày, đồng thời nhận diện Standard-IA có mốc 30 ngày và phí xóa sớm. Có bảng ràng buộc, giữ bối cảnh ảnh gốc không thể tạo lại, không mâu thuẫn lượt trước, và trích dẫn đúng các mục 1.1, 1.4, 1.6, 1.11; không dùng Mục 1.3."
+  },
+  "58ba457c9c7496c8": {
+    "score": 1.0,
+    "reason": "Đáp án chọn đúng Spot cho batch xử lý ảnh 2 giờ mỗi đêm vì đây là công việc chịu lỗi, có thể dừng và chạy lại; không áp Spot cho web và phân biệt rõ batch không phải tải ổn định 24/7 nên không thuộc nhóm ưu tiên Reserved Instance/Savings Plans. Trích dẫn đúng Mục 1.3, bổ sung Mục 1.12 phù hợp về xử lý gián đoạn, không mâu thuẫn các lượt trước."
+  },
+  "8376eea08fb20ea1": {
+    "score": 0.5,
+    "reason": "Câu trả lời nhận ra mốc tối thiểu 30 ngày của Standard-IA và phí xóa sớm, đồng thời không khẳng định chắc chắn Standard-IA rẻ hơn. Tuy nhiên, câu viết lại thực tế bám vào ngữ cảnh Glacier Instant Retrieval thay vì làm rõ Standard-IA/One Zone-IA; thiếu ràng buộc One Zone-IA cũng tối thiểu 30 ngày, thiếu khuyến nghị cân nhắc S3 Standard khi chỉ lưu 20 ngày, và vẫn nghiêng về Standard-IA là lựa chọn "
+  },
+  "2433b7cd9a21f338": {
+    "score": 1.0,
+    "reason": "Câu trả lời đúng trọng tâm: khẳng định NAT Gateway không cần/gắn security group vì là dịch vụ AWS quản lý; nêu kiểm soát bằng security group của tài nguyên và NACL của subnet; phân biệt thêm NAT instance là EC2 tự quản; trích đúng VPC Networking – Mục 1.3, không mâu thuẫn và không lái sang dịch vụ khác."
+  },
+  "19122db949bedad0": {
+    "score": 1.0,
+    "reason": "Câu trả lời đáp ứng đầy đủ hành vi mong đợi cho câu hỏi S3 hiện tại: dùng lifecycle để chuyển log cũ sang Standard-IA/Glacier/Deep Archive theo tần suất truy cập, nêu lifecycle chạy bất đồng bộ và có phí chuyển lớp, đồng thời kiểm tra bằng Storage Lens. Trích dẫn phù hợp với S3 Storage Classes các mục 1.10, 1.2–1.8. Câu viết lại giữ nguyên đúng kỳ vọng; không có lượt trước nên tiêu chí đổi chủ đề "
+  },
+  "47a8ba620778d950": {
+    "score": 0.0,
+    "reason": "Hệ thống từ chối trả lời dù có căn cứ (Mục 1.8, 1.10) và không đưa ra hành vi mong đợi: tối thiểu 180 ngày, chỉ nên dùng khi gần như không đọc, nêu phí truy xuất/khôi phục và thời gian khôi phục 12–48 giờ. Trích dẫn không có, không đáp ứng tiêu chí."
+  },
+  "089be1a761cd25f0": {
+    "score": 1.0,
+    "reason": "Câu trả lời xác nhận đúng NAT Gateway không gắn security group; giải thích kiểm soát và bảo vệ lưu lượng bằng security group của tài nguyên, NACL của subnet và route table; nêu đúng đặc tính NAT Gateway; trích dẫn Mục 1.3/1.4 phù hợp và không mâu thuẫn lượt trước."
+  },
+  "049e73ffc6956a65": {
+    "score": 0.5,
+    "reason": "Trả lời đúng trọng tâm IAM: nêu root, người dùng quyền cao, policy condition aws:MultiFactorAuthPresent, giữ sắc thái khuyến nghị và trích IAM Mục 1.6/1.12 phù hợp. Tuy nhiên vi phạm tiêu chí không có nội dung S3 trong lượt 3 khi nhắc “MFA delete trên S3”, nên chưa đạt 1.0."
+  },
+  "0e2f555979f86b88": {
+    "score": 1.0,
+    "reason": "Câu trả lời đáp ứng đúng trọng tâm: khẳng định NAT instance là EC2 tự quản nên có security group gắn ở ENI, đồng thời nêu rõ phải tự vá lỗi, tự cấu hình, tự đảm bảo dự phòng và rẻ hơn với lưu lượng nhỏ. Phân biệt rõ với NAT gateway không có security group, không lái sang dịch vụ khác, không nói NAT gateway hỗ trợ IPv6, và trích dẫn đúng Mục 1.3 kèm Mục 1.4."
+  },
+  "43a5b51c99239da7": {
+    "score": 0.0,
+    "reason": "Câu trả lời đúng phần lớn nội dung IAM và sắc thái khuyến nghị, nhưng vi phạm tiêu chí reset ngữ cảnh: lượt 4 vẫn nhắc 'MFA delete trên S3', tức có nội dung S3 sau khi đã đổi chủ đề. Tiêu chí yêu cầu không có nội dung S3 trong lượt 3–4, nên không đạt."
+  },
+  "0bfbc926c99b5d8d": {
+    "score": 1.0,
+    "reason": "Đáp ứng đầy đủ: nêu tiêu chí chọn NAT Gateway (AWS quản lý, sẵn sàng theo AZ, một NAT mỗi AZ), chọn NAT instance cho phát triển/lưu lượng nhỏ và tự quản trị; có phí chéo AZ và gateway endpoint cho S3/DynamoDB; không nói NAT Gateway hỗ trợ IPv6 mà nêu đúng là không hỗ trợ; trích dẫn Mục 1.3 và bổ sung Mục 4.4 phù hợp, không mâu thuẫn các lượt trước."
+  },
+  "0d0835d27b2cf31f": {
+    "score": 1.0,
+    "reason": "Câu trả lời so sánh đúng S3 Standard và Standard-IA theo hành vi mong đợi: Standard-IA có giá lưu trữ thấp hơn nhưng có phí truy xuất, thời gian lưu tối thiểu 30 ngày, truy xuất mili giây và đa AZ; Standard không có phí truy xuất, không có thời gian lưu tối thiểu, giá lưu trữ cao hơn. Câu viết lại giữ nguyên, có trích dẫn và không mâu thuẫn."
+  },
+  "1351e70be8281c66": {
+    "score": 1.0,
+    "reason": "Câu trả lời từ chối rõ ràng vì ngoài phạm vi tài liệu SAA-C03, không viết code Python, không nêu thư viện hay chi tiết kỹ thuật để trả lời câu hỏi; chỉ gợi ý quay lại các chủ đề S3 có trong kho tài liệu."
+  },
+  "fc01adfd5cd284ad": {
+    "score": 1.0,
+    "reason": "Câu trả lời từ chối rõ ràng vì tài liệu không đề cập Amazon Bedrock, không cung cấp mô tả kỹ thuật, tính năng, giá hay mô hình nền tảng, và không trích dẫn."
+  },
+  "585fc3e9f5e92922": {
+    "score": 1.0,
+    "reason": "Câu trả lời đúng trọng tâm: S3 Standard-IA có truy xuất trong mili giây, không cần chờ khôi phục, có trích dẫn S3 Storage Classes – Mục 1.4. Hội thoại quay lại đúng chủ đề S3 sau hai lượt từ chối ngoài phạm vi; không mâu thuẫn với các lượt trước."
+  },
+  "4b0b66134342f574": {
+    "score": 1.0,
+    "reason": "Trả lời đúng và đầy đủ hành vi mong đợi: nêu thời gian lưu giữ 0–35 ngày, đặt 0 là tắt, backup window nên đặt giờ thấp điểm, và giữ snapshot cuối khi xóa instance nếu tùy chọn được bật. Trích dẫn đúng RDS Aurora – Mục 1.3; câu viết lại giữ nguyên và không có mâu thuẫn."
+  },
+  "25d6900ffd7a0522": {
+    "score": 1.0,
+    "reason": "Đáp ứng đầy đủ hành vi mong đợi: định nghĩa IAM role là cấp quyền tạm thời, không lưu credential dài hạn; nêu trust policy và permission policy, nhấn mạnh trust policy không cấp quyền tài nguyên; có ví dụ EC2 instance profile, Lambda execution role, cross-account role; nêu đúng thời hạn 15 phút–12 giờ, mặc định 1 giờ; trích dẫn phù hợp Mục 1.3 (và 1.1 cho định nghĩa), không mâu thuẫn."
+  },
+  "320bab9b4c89ce9c": {
+    "score": 1.0,
+    "reason": "Câu viết lại giữ nguyên và độc lập. Câu trả lời nêu đúng S3 là lưu trữ đối tượng, nhiều lớp trên cùng không gian tên, lớp gán khi tải lên hoặc chuyển bằng lifecycle, mặc định Standard, ba nhóm lớp, và phân biệt lớp đa AZ với một AZ; trích dẫn S3 Storage Classes – Mục 1.1 phù hợp, không trộn đặc điểm EBS."
+  },
+  "550e7553f8320555": {
+    "score": 1.0,
+    "reason": "Trả lời đúng: trust policy xác định ai được assume role, không cấp quyền truy cập tài nguyên; permission policy mới quy định role được làm gì. Trích dẫn Mục 1.3 và bổ sung Mục 1.12 phù hợp căn cứ, không mâu thuẫn lượt trước."
+  },
+  "f3c02d37b3c4cc55": {
+    "score": 1.0,
+    "reason": "Câu trả lời xác nhận có thể PITR về một giờ trước vì nằm trong khoảng lưu giữ 0–35 ngày (nếu sao lưu tự động không bị tắt), nêu đúng khả năng khôi phục tới bất kỳ giây nào trong khoảng lưu giữ, thời gian thường trong vòng 5 phút, không hứa ngoài khoảng, và bổ sung đúng rằng khôi phục tạo DB instance mới/không ghi đè. Trích dẫn đúng Mục 1.3, không mâu thuẫn lượt trước."
+  },
+  "6ecd073035ddd253": {
+    "score": 1.0,
+    "reason": "Câu trả lời nêu đúng thời hạn 15 phút–12 giờ tùy max session duration, mặc định 1 giờ, và role chaining thường giới hạn 1 giờ; trích đúng IAM – Mục 1.3. Không nói trust policy cấp quyền tài nguyên và ở lượt 4 cũng không nói credential có thể thu hồi tức thời (mà nêu không thể thu hồi ngay)."
+  },
+  "a98a3fa2dfe088e1": {
+    "score": 1.0,
+    "reason": "Đáp án trả lời đúng trọng tâm: khôi phục RDS tạo DB instance mới, không ghi đè instance cũ, và cần cập nhật DNS/endpoint để ứng dụng trỏ sang instance mới. Trích dẫn đúng RDS Aurora – Mục 1.3; không mâu thuẫn với các lượt trước."
+  },
+  "52d1146ee6c2a000": {
+    "score": 0.5,
+    "reason": "Trả lời đúng trọng tâm: không thể thu hồi ngay thông tin xác thực tạm thời; phải thu hồi quyền của role hoặc dùng policy điều kiện; nêu đúng 15 phút–12 giờ, mặc định 1 giờ và trích Mục 1.3/1.12 phù hợp. Tuy nhiên thiếu khuyến nghị dùng role thay cho access key dài hạn như hành vi mong đợi yêu cầu."
+  },
+  "1d37aa0784b68ee3": {
+    "score": 1.0,
+    "reason": "Câu trả lời phân biệt rõ sao lưu tự động và snapshot thủ công: snapshot thủ công giữ đến khi bị xóa, kể cả sau khi xóa DB instance; có thể copy sang Region khác; snapshot mã hóa chỉ chia sẻ khi nguồn cho phép; khôi phục tạo instance mới với endpoint mới cần cập nhật ứng dụng. Trích dẫn đúng Mục 1.3, không mâu thuẫn các lượt trước, và câu viết lại giữ đúng ý người dùng."
+  },
+  "80e5a32b1ca8ab93": {
+    "score": 1.0,
+    "reason": "Đáp ứng đầy đủ hành vi mong đợi: có bảng so sánh nhiều tiêu chí gồm mục tiêu, cơ chế sao chép, khả năng đọc, failover và chi phí; nêu đúng Read Replica không tự động failover; standby Multi-AZ cổ điển không phục vụ đọc và có ngoại lệ Multi-AZ DB cluster; kết luận hai cơ chế không thay thế nhau; trích đúng RDS Aurora – Mục 1.2."
+  },
+  "8d7b3b89e39f6a6c": {
+    "score": 0.5,
+    "reason": "Trả lời đúng Read Replica và nêu standby Multi-AZ cổ điển không phục vụ đọc, trích đúng Mục 1.2, không mâu thuẫn. Tuy nhiên thiếu ngoại lệ Multi-AZ DB cluster (1 writer + 2 instance đọc được cho MySQL/PostgreSQL/MariaDB), là ý quan trọng trong hành vi mong đợi."
+  },
+  "0be4b4867b7b67d3": {
+    "score": 1.0,
+    "reason": "Đáp án cung cấp bảng so sánh đúng và đủ 5 tiêu chí: cấp áp dụng ENI/instance vs subnet, stateful vs stateless, chỉ allow vs allow+deny, đánh giá mọi rule vs theo thứ tự dừng ở rule khớp đầu, và hành vi mặc định. Không nói NACL stateful hoặc security group có rule deny; có nêu đúng dải cổng tạm thời 1024–65535 và trích đúng VPC Networking – Mục 1.4 cho các ý chính."
+  },
+  "81e706ca708afe9e": {
+    "score": 1.0,
+    "reason": "Đáp ứng đầy đủ: xác định Multi-AZ tự động failover khoảng 60–120 giây và DNS giữ nguyên; Read Replica không tự failover, phải chuyển endpoint thủ công. Giữ đúng cả hai đối tượng so sánh, không mâu thuẫn với các lượt trước, trích đúng RDS Aurora – Mục 1.2."
+  },
+  "49793ed8f01e6db2": {
+    "score": 1.0,
+    "reason": "Trả lời đúng: security group là stateful với lưu lượng phản hồi được phép tự động; network ACL là stateless và phải mở cả hai chiều, kể cả cổng tạm thời. Câu viết lại giữ đúng ý, đủ thực thể, độc lập; trích dẫn đúng VPC Networking – Mục 1.4; không mâu thuẫn lượt trước."
+  },
+  "71412e9bba8fb392": {
+    "score": 1.0,
+    "reason": "Câu trả lời đáp ứng đầy đủ: giải thích NACL stateless nên phải mở cả hai chiều, nêu đúng dải cổng tạm thời 1024-65535, nhắc kiểm tra security group và các lớp khác khi gỡ lỗi, trích đúng Mục 1.4 và không mâu thuẫn với các lượt trước."
+  },
+  "2d7fcafdb59f35db": {
+    "score": 0.5,
+    "reason": "Câu trả lời đúng hướng chính: bật Multi-AZ cho instance chính và thêm read replica để mở rộng đọc; không mâu thuẫn về failover hay standby phục vụ đọc; trích Mục 1.2 phù hợp. Tuy nhiên thiếu ý quan trọng trong hành vi mong đợi: nếu đọc ở châu lục khác thì dùng cross-region read replica hoặc Aurora Global Database."
+  },
+  "7de79b3500966f18": {
+    "score": 1.0,
+    "reason": "Câu viết lại giữ đúng ý, chứa cả S3 và EBS; câu trả lời có bảng so sánh rõ ràng, trích đúng cả S3 Storage Classes và EC2 Tinh toan (gồm Mục 1.4), phân biệt đúng S3 là lưu trữ đối tượng với nhiều lớp/đa AZ và EBS là volume gắn với EC2, snapshot lưu trên S3; không gán sai đặc điểm giữa hai dịch vụ và không bịa thông số IOPS/dung lượng."
+  },
+  "518881847b35cae9": {
+    "score": 1.0,
+    "reason": "Trả lời đúng thứ tự gỡ lỗi: security group của nguồn và đích → NACL hai chiều → route table → DNS; nêu NACL stateless cần mở cả hai chiều và cổng tạm thời; trích đúng Mục 1.4; không mâu thuẫn các lượt trước."
+  },
+  "733d059dc07c80d6": {
+    "score": 1.0,
+    "reason": "Đáp ứng đầy đủ: có bảng ràng buộc gồm tần suất, độ trễ, thời gian lưu, khả năng tái tạo, chi phí; chọn S3 One Zone-IA với lý do đúng (một AZ chấp nhận được vì dữ liệu tái tạo, truy xuất mili giây, tối thiểu 30 ngày, rẻ hơn Standard-IA); nêu phí truy xuất và phí xóa sớm; không bỏ ràng buộc tái tạo; trích dẫn phù hợp và không dùng Mục 1.3."
+  },
+  "4b48a6ece76be1a4": {
+    "score": 1.0,
+    "reason": "Đáp án lập bảng ràng buộc rõ ràng, chọn Reserved Instance Standard 1 năm hoặc Savings Plans cho tải 24/7 ổn định, loại Spot vì không thể gián đoạn, và nêu On-Demand cho tải ngắn/không dự đoán. Trích đúng Mục 1.3; không mâu thuẫn với kịch bản."
+  },
+  "3ca628fec4dbaf9f": {
+    "score": 1.0,
+    "reason": "Câu trả lời đáp ứng đúng hành vi mong đợi: phân biệt S3 cho lưu trữ đối tượng/nội dung tĩnh/phân tích dữ liệu lớn và EBS cho volume block gắn EC2, độ trễ thấp; có bảng so sánh rõ ràng, nêu kết hợp snapshot EBS được lưu trong S3. Câu viết lại giữ đúng S3 và EBS. Trích dẫn đúng S3 Storage Classes và EC2 Tinh toan, lượt hiện tại có trích EC2 Mục 1.4. Không gán đặc điểm EBS cho S3 hoặc ngược lại, khôn"
+  },
+  "eb294ed7809cadc2": {
+    "score": 1.0,
+    "reason": "Trả lời đúng trọng tâm: Spot rẻ hơn nhưng có thể bị thu hồi với thông báo 2 phút, chỉ phù hợp workload chịu lỗi/stateless, không dùng cho cơ sở dữ liệu chính hoặc ứng dụng không thể gián đoạn. Kết luận không dùng Spot cho website 24/7, giữ nhất quán với lượt trước và trích Mục 1.3 phù hợp."
+  },
+  "1ad599000f5ee553": {
+    "score": 1.0,
+    "reason": "Đáp án đáp ứng đầy đủ hành vi mong đợi: lập bảng 5 ràng buộc, cập nhật đúng ràng buộc dữ liệu không thể tái tạo, loại One Zone-IA vì chỉ một AZ, chọn Standard-IA đa AZ có truy xuất mili giây, nêu đánh đổi với Glacier Instant Retrieval gồm phí truy xuất cao hơn và mốc 90 ngày, nhắc mốc 30 ngày và phí xóa sớm của Standard-IA, trích dẫn đúng các mục liên quan và không trích Mục 1.3."
+  },
+  "d11950776cf60bc8": {
+    "score": 1.0,
+    "reason": "Câu trả lời trả lời đúng 'không' về EBS tự nhân bản qua nhiều AZ; nêu EBS gắn với một AZ, Multi-Attach chỉ trong cùng AZ, snapshot tăng dần lưu trong S3 do AWS quản lý và có thể tạo volume ở AZ/Region khác sau khi copy snapshot; trích đúng EC2 Tinh toan – Mục 1.4. Câu viết lại giữ thực thể EBS và ý hỏi về nhân bản qua nhiều AZ, đủ rõ trong ngữ cảnh."
+  },
+  "5b254b5bb0215296": {
+    "score": 0.5,
+    "reason": "Nội dung trả lời đạt hành vi mong đợi: không trả lời yes/no đơn giản, nêu giá lưu trữ thấp hơn nhưng phí truy xuất cao hơn, nêu mốc tối thiểu 90 ngày của Glacier Instant Retrieval và 30 ngày của Standard-IA kèm phí xóa sớm, liệt kê đủ phí truy xuất/request/chuyển lớp, kết luận cần tính tổng chi phí theo tần suất đọc; trích dẫn đúng Mục 1.6, 1.4, 1.11, 1.1 và không trích Mục 1.3, không mâu thuẫn lư"
+  },
+  "68bb4237bd7589cc": {
+    "score": 0.5,
+    "reason": "Phần cốt lõi đúng: phân biệt Savings Plans cam kết mức chi tiêu theo giờ 1/3 năm, Compute Savings Plans áp dụng cho EC2/Lambda/Fargate; RI cam kết cấu hình instance, Standard giảm sâu nhưng ít linh hoạt, Convertible đổi được họ instance; không nói RI áp dụng cho Lambda; trích Mục 1.3. Tuy nhiên có chi tiết sai/không có căn cứ: nói Savings Plans cũng có thể bán lại trên Marketplace, trong khi tiêu "
+  },
+  "7e4ebbba4110243b": {
+    "score": 1.0,
+    "reason": "Câu viết lại giữ nguyên đúng. Câu trả lời đáp ứng hành vi mong đợi: dùng lifecycle để chuyển log cũ sang Standard-IA/Glacier/Deep Archive theo nhu cầu truy cập, nêu lifecycle chạy bất đồng bộ, có phí chuyển lớp, và kiểm tra bằng Storage Lens; trích dẫn S3 Storage Classes phù hợp, không mâu thuẫn."
+  },
+  "cd809ee02bfbbe18": {
+    "score": 1.0,
+    "reason": "Chọn đúng Spot cho batch 2 giờ mỗi đêm vì chịu lỗi và có thể chạy lại; không áp Spot cho web; giải thích loại RI/Savings Plans và On-Demand; trích đúng Mục 1.3 và không mâu thuẫn các lượt trước."
+  },
+  "2748feed0bf06b97": {
+    "score": 1.0,
+    "reason": "Trả lời đúng trọng tâm: NAT Gateway là dịch vụ quản lý, không gắn security group; kiểm soát bằng security group của tài nguyên và NACL của subnet. Trích đúng VPC Networking – Mục 1.3, không lái sang dịch vụ khác và câu viết lại giữ nguyên ý."
+  },
+  "d235b54c251f8046": {
+    "score": 0.0,
+    "reason": "Câu trả lời từ chối khi có căn cứ trong tài liệu; không trả lời mốc tối thiểu 180 ngày, không nêu phí truy xuất/khôi phục và thời gian khôi phục 12–48 giờ, cũng không trích Mục 1.8/1.10 như kỳ vọng."
+  },
+  "bc75f670cd00ed53": {
+    "score": 1.0,
+    "reason": "Câu trả lời nhận đúng mốc lưu tối thiểu 30 ngày của Standard-IA và 90 ngày của Glacier Instant Retrieval, nêu phí xóa sớm, đề xuất S3 Standard cho vòng đời 20 ngày, không khẳng định Standard-IA rẻ hơn; trích dẫn phù hợp và không mâu thuẫn các lượt trước."
+  },
+  "f59acef7be601d99": {
+    "score": 1.0,
+    "reason": "Lượt 3 nhận diện đúng đổi chủ đề sang IAM; câu viết lại không chứa log/S3/Deep Archive. Lượt 4 trả lời đúng trọng tâm: root và người dùng có quyền cao, nêu policy condition aws:MultiFactorAuthPresent, giữ sắc thái khuyến nghị, không nhắc S3/log và trích dẫn IAM Mục 1.6 phù hợp. Phần bổ sung về Identity Center không làm sai lệch hay mâu thuẫn với căn cứ chính."
+  },
+  "d6d68c68f4fc0d7e": {
+    "score": 1.0,
+    "reason": "Trả lời đúng và đầy đủ hành vi mong đợi: so sánh Standard-IA với Standard về giá lưu trữ, phí truy xuất, thời gian lưu tối thiểu 30 ngày, độ trễ mili giây và đa AZ; nêu rõ Standard không có phí truy xuất và không có thời gian lưu tối thiểu. Trích dẫn phù hợp với tài liệu S3 Storage Classes. Câu viết lại giữ nguyên, không từ chối khi có căn cứ."
+  },
+  "6fd107b7fe3b358b": {
+    "score": 1.0,
+    "reason": "Câu trả lời xác nhận NAT Gateway không có security group, giải thích đúng trọng tâm cách kiểm soát bằng security group của tài nguyên và NACL của subnet, trích đúng Mục 1.3 và 1.4; các thông tin bổ sung về endpoint/egress-only/NAT instance không mâu thuẫn và vẫn giữ ngữ cảnh."
+  },
+  "a11fc21d2d6df4e2": {
+    "score": 1.0,
+    "reason": "Trả lời từ chối rõ ràng vì ngoài phạm vi tài liệu SAA-C03, không viết code, không nêu thư viện hay chi tiết kỹ thuật để upload lên S3; chỉ gợi ý quay lại chủ đề ôn thi có trong kho."
+  },
+  "5e6f027b9c2b44e7": {
+    "score": 1.0,
+    "reason": "Lượt 4 trả lời đúng sắc thái khuyến nghị/không tuyệt đối: tài liệu không nêu bắt buộc MFA cho mọi user, chỉ khuyến nghị cho root và người dùng quyền cao; có nêu condition aws:MultiFactorAuthPresent. Trích dẫn đúng IAM – Mục 1.6, không có nội dung S3/log/Deep Archive, không bịa chính sách bắt buộc toàn bộ user."
+  },
+  "3e7fd2090decd35d": {
+    "score": 1.0,
+    "reason": "Câu trả lời từ chối rõ ràng vì câu hỏi ngoài phạm vi tài liệu SAA-C03, không mô tả Bedrock, foundation model, giá hay tính năng, không trích dẫn, và có nêu chủ đề thay thế hợp lệ."
+  },
+  "8f6fd08b5f0494db": {
+    "score": 0.5,
+    "reason": "Trả lời đúng trọng tâm: NAT instance là EC2 tự quản nên gắn được security group; phân biệt với NAT gateway không có security group; nêu đúng trách nhiệm tự vá lỗi, tự cấu hình, tự đảm bảo dự phòng và trích dẫn phù hợp. Tuy nhiên thiếu ý mong đợi 'rẻ hơn với lưu lượng nhỏ' nên chưa đạt đầy đủ hành vi kỳ vọng."
+  },
+  "4c5d3be7c66daed7": {
+    "score": 1.0,
+    "reason": "Lượt 4 trả lời đúng trọng tâm: S3 Standard-IA có truy xuất trong mili giây, không cần chờ khôi phục; đúng ngữ cảnh S3 sau hai lượt ngoài phạm vi và có trích dẫn phù hợp với căn cứ S3 Storage Classes – Mục 1.4. Không mâu thuẫn với các lượt trước."
+  },
+  "b999a25c51d4868b": {
+    "score": 1.0,
+    "reason": "Câu trả lời đáp ứng đúng trọng tâm lượt 4: nêu khi nào chọn NAT Gateway (AWS quản lý, sẵn sàng theo AZ, một NAT mỗi AZ), khi nào chọn NAT instance (lưu lượng nhỏ/môi trường phát triển, chấp nhận tự quản), có nêu phí chéo AZ và VPC gateway endpoint cho S3/DynamoDB. Không mâu thuẫn các lượt trước: vẫn khẳng định NAT Gateway không có security group, NAT instance là EC2 tự quản. Không nói NAT Gateway "
+  },
+  "2ee17a02d452ff53": {
+    "score": 0.5,
+    "reason": "Trả lời đúng thời gian lưu giữ 0–35 ngày và đặt 0 là tắt, trích dẫn đúng Mục 1.3. Tuy nhiên thiếu ý backup chạy trong backup window nên đặt giờ thấp điểm và việc xóa instance giữ snapshot cuối nếu tùy chọn bật; chỉ đáp ứng một phần hành vi mong đợi."
+  },
+  "a6240a428f52db6a": {
+    "score": 0.5,
+    "reason": "Câu viết lại đúng và giữ nguyên ý. Câu trả lời nêu đúng S3 là lưu trữ đối tượng, nhiều lớp trên cùng không gian tên, gán lớp khi tải lên/chuyển bằng lifecycle, mặc định Standard, và trích S3 Storage Classes – Mục 1.1. Tuy nhiên thiếu các ý quan trọng trong hành vi mong đợi: ba nhóm lớp (truy cập thường xuyên, không thường xuyên, lưu trữ lạnh) và các lớp đa AZ/một AZ. Không có sai lệch hay bịa thôn"
+  },
+  "e2904c47440c4451": {
+    "score": 1.0,
+    "reason": "Câu trả lời đúng và đầy đủ: xác nhận có thể khôi phục về một giờ trước nếu mốc đó nằm trong khoảng lưu giữ, nêu PITR cho phép khôi phục tới bất kỳ giây nào trong khoảng lưu giữ, thường trong vòng 5 phút kể từ thời điểm gần nhất, nhắc khoảng lưu giữ 0–35 ngày và việc đặt 0 sẽ tắt sao lưu tự động. Câu trả lời cũng nêu bản khôi phục tạo DB instance mới, không nói ghi đè instance hiện có. Trích dẫn đú"
+  },
+  "47f1641fd0763248": {
+    "score": 1.0,
+    "reason": "Câu trả lời đúng trọng tâm lượt 3: khôi phục theo thời điểm không ghi đè DB instance cũ mà tạo DB instance mới, kèm endpoint mới và cần cập nhật DNS/endpoint ứng dụng. Trích dẫn đúng RDS Aurora – Mục 1.3; không mâu thuẫn các lượt trước."
+  },
+  "785b107a5ab5d0e0": {
+    "score": 1.0,
+    "reason": "Câu trả lời đáp ứng đầy đủ hành vi mong đợi: nêu IAM role là cách cấp quyền tạm thời cho ứng dụng/dịch vụ/tài khoản khác mà không cần credential dài hạn; trình bày đúng hai phần trust policy và permission policy, trong đó trust policy không cấp quyền tài nguyên; nêu đúng thời hạn 15 phút–12 giờ, mặc định 1 giờ; nói không thể thu hồi tức thời; trích dẫn Mục 1.3 phù hợp. Không có mâu thuẫn với lượt  [điểm 3 lần: [0.5, 1.0, 1.0]]"
+  },
+  "dc805c5560ebca2f": {
+    "score": 1.0,
+    "reason": "Trả lời đúng trọng tâm: trust policy xác định ai được assume role, không cấp quyền truy cập tài nguyên, permission policy mới quy định role được làm gì — khớp đầy đủ hành vi mong đợi. Trích dẫn đúng Mục 1.3 và bổ sung Mục 1.12 cho điểm phân biệt trust/permission policy; các trích dẫn thêm Mục 1.4 và 1.11 đều liên quan và không mâu thuẫn với căn cứ. Không có mâu thuẫn với lượt trước (định nghĩa rol"
+  },
+  "d0d6948d3f911d88": {
+    "score": 1.0,
+    "reason": "Câu trả lời phân biệt rõ sao lưu tự động/PITR với snapshot thủ công: snapshot thủ công giữ đến khi bị xóa, kể cả sau khi xóa DB instance; có thể sao chép sang Region khác; chia sẻ snapshot mã hóa phụ thuộc nguồn cho phép; khôi phục tạo instance mới với endpoint mới. Trích dẫn đúng Mục 1.3, không mâu thuẫn các lượt trước và không nói khôi phục ghi đè instance hiện có."
+  },
+  "81fc851fa0de1f9e": {
+    "score": 1.0,
+    "reason": "Trả lời đúng thời hạn 15 phút–12 giờ tùy max session duration, mặc định 1 giờ; nêu role chaining thường giới hạn 1 giờ; không nói trust policy cấp quyền tài nguyên; không nói có thể thu hồi tức thời; trích đúng IAM – Mục 1.3."
+  },
+  "bcb85104f93009f2": {
+    "score": 1.0,
+    "reason": "Đáp án lập bảng so sánh đầy đủ các tiêu chí quan trọng (mục tiêu, cơ chế đồng bộ/bất đồng bộ, khả năng đọc, failover, chi phí), nêu rõ Read Replica không tự động failover và standby Multi-AZ không phục vụ đọc trừ ngoại lệ Multi-AZ DB cluster; kết luận hai cơ chế không thay thế nhau và trích đúng Mục 1.2. Câu viết lại giữ nguyên, không mâu thuẫn."
+  },
+  "011c63ee2ac47fa1": {
+    "score": 0.5,
+    "reason": "Câu trả lời đúng ý chính: không thể thu hồi ngay thông tin xác thực tạm thời; nêu đúng cách thu hồi quyền của role hoặc dùng policy điều kiện; trích đúng Mục 1.3 và 1.12; nêu đúng thời hạn 15 phút–12 giờ, mặc định 1 giờ. Tuy nhiên thiếu khuyến nghị dùng IAM role thay cho access key dài hạn như hành vi mong đợi yêu cầu."
+  },
+  "170de76e0446d4ad": {
+    "score": 0.5,
+    "reason": "Câu viết lại đạt: chứa cả S3 và EBS, không chỉ dùng từ 'khác'. Bảng so sánh rõ và trích cả S3 Storage Classes lẫn EC2 Tinh toan, không gán sai đặc điểm EBS cho S3 hay nói EBS tự nhân bản nhiều AZ. Tuy nhiên, hàng 'Kiểu lưu trữ' lại nói tài liệu không nêu rõ S3 thuộc kiểu object và EBS thuộc kiểu block, trong khi hành vi mong đợi yêu cầu nêu S3 là lưu trữ đối tượng và EBS là ổ đĩa khối; đồng thời c [điểm 3 lần: [0.5, 0.5, 1.0]]"
+  },
+  "9a077c62f74a269b": {
+    "score": 1.0,
+    "reason": "Trả lời đúng Read Replica giúp tăng khả năng đọc; nêu rõ standby Multi-AZ cổ điển không phục vụ đọc và có nêu ngoại lệ Multi-AZ DB cluster cho MySQL/PostgreSQL/MariaDB; không nói Read Replica tự động failover; giữ đúng hai đối tượng so sánh; trích dẫn đúng Mục 1.2 và không mâu thuẫn lượt trước."
+  },
+  "00dbfd6b7fcdf57c": {
+    "score": 1.0,
+    "reason": "Đáp án giữ đúng câu hỏi, có bảng so sánh đủ 5 tiêu chí bắt buộc: cấp ENI/instance vs subnet, stateful vs stateless, chỉ allow vs allow+deny, đánh giá mọi rule vs theo thứ tự dừng ở rule khớp đầu, và hành vi mặc định. Không mâu thuẫn, không nói NACL stateful hay security group có deny; có nêu dải cổng tạm thời 1024–65535 và trích đúng VPC Networking – Mục 1.4."
+  },
+  "f335292028c6bb26": {
+    "score": 1.0,
+    "reason": "Câu trả lời đúng và đầy đủ: xác định Multi-AZ tự động failover khoảng 60–120 giây, DNS giữ nguyên; Read Replica không tự động failover và phải chuyển endpoint thủ công. Giữ đúng hai đối tượng so sánh, không mâu thuẫn với lượt trước, trích đúng Mục 1.2; ngoại lệ Multi-AZ DB cluster được nêu phù hợp."
+  },
+  "fb198e4c35b829ee": {
+    "score": 0.0,
+    "reason": "Hệ thống từ chối trả lời với lý do 'no_evidence' trong khi kho tri thức có căn cứ rõ ràng tại Mục 1.4 (tr. 3–4) và lượt 1 đã trả lời đúng: security group là stateful, network ACL là stateless. Đây là từ chối khi có căn cứ, đồng thời mâu thuẫn với lượt trước, không đáp ứng hành vi mong đợi (nêu security group stateful, phản hồi tự động được phép; NACL stateless phải mở cả hai chiều kể cả cổng tạm t"
+  },
+  "0279512caf26e0f9": {
+    "score": 1.0,
+    "reason": "Câu trả lời đáp ứng đầy đủ hành vi mong đợi: khuyến nghị bật Multi-AZ cho instance chính và thêm Read Replica cho tải đọc; nêu đúng cross-region read replica/Aurora Global Database khi cần đọc ở châu lục khác. Không mâu thuẫn các lượt trước, không nói Read Replica tự động failover, không nói standby Multi-AZ phục vụ đọc (có nêu ngoại lệ Multi-AZ DB cluster). Trích dẫn chủ yếu đúng Mục 1.2."
+  },
+  "fef9e2108838c041": {
+    "score": 0.5,
+    "reason": "Câu viết lại đúng và cấu trúc so sánh rõ, trích được cả S3 Storage Classes và EC2 Tinh toan, không gán sai đặc điểm nhiều AZ cho EBS và có nêu snapshot EBS lưu trong S3. Tuy nhiên câu trả lời chưa đáp ứng đầy đủ hành vi mong đợi: thiếu các trường hợp dùng S3 cho đối tượng/nội dung tĩnh/phân tích dữ liệu lớn/sao lưu, và thiếu nêu EBS cho ổ đĩa khối EC2, workload cần IOPS/độ trễ thấp. Vì thiếu ý qua"
+  },
+  "8d6a64aedb0fb2eb": {
+    "score": 0.0,
+    "reason": "Câu trả lời từ chối sai vì tài liệu có căn cứ EC2 Tinh toan – Mục 1.4 để trả lời EBS không tự nhân bản qua nhiều AZ; EBS gắn với một AZ, snapshot là bản sao tăng dần trong S3 do AWS quản lý và có thể tạo volume ở AZ/Region khác sau khi copy snapshot, Multi-Attach chỉ trong cùng AZ. Hệ thống cũng mâu thuẫn với các lượt trước khi đã trích EC2 Mục 1.4 về EBS."
+  },
+  "48a4b2585011ac72": {
+    "score": 1.0,
+    "reason": "Đáp án nêu đúng NACL là stateless, phải mở cả inbound 443 và outbound dải cổng tạm thời 1024–65535 (và ngược lại), đồng thời nhắc kiểm tra security group; trích Mục 1.4 phù hợp. Không có lỗi sai hoặc mâu thuẫn đáng kể trong lượt này."
+  },
+  "e2cf75f34ea4ec4b": {
+    "score": 1.0,
+    "reason": "Đáp ứng đầy đủ: lập bảng 5 ràng buộc gồm tần suất, độ trễ, thời gian lưu, khả năng tái tạo, chi phí; không bỏ ràng buộc 'có thể tái tạo'; chọn đúng S3 One Zone-IA với lý do dữ liệu tái tạo được, truy xuất mili giây, tối thiểu 30 ngày, rẻ hơn Standard-IA; nêu phí truy xuất và phí xóa sớm; trích dẫn đúng các mục liên quan và không trích Mục 1.3."
+  },
+  "95b662b360ac1a89": {
+    "score": 1.0,
+    "reason": "Đáp án lập bảng ràng buộc rõ ràng, chọn Reserved Instance/Savings Plans cho tải 24/7 ổn định, loại Spot cho website không thể gián đoạn, nêu đúng thông báo 2 phút của Spot, phân biệt Savings Plans với RI và không nói RI áp dụng cho Lambda. Trích dẫn đúng Mục 1.3 (và bổ sung 1.13), không mâu thuẫn với lượt trước."
+  },
+  "bf776dea9c96277b": {
+    "score": 1.0,
+    "reason": "Câu trả lời nêu đúng thứ tự cần kiểm tra: security group của nguồn và đích → NACL hai chiều → route table → DNS; nhấn đúng NACL là stateless và cần mở dải cổng tạm thời 1024–65535; trích dẫn Mục 1.4 phù hợp với căn cứ và không có chi tiết sai."
+  },
+  "3669240269f00f53": {
+    "score": 1.0,
+    "reason": "Đạt đầy đủ: giải thích Spot có thể bị thu hồi với thông báo 2 phút, chỉ phù hợp workload chịu lỗi/stateless, không dùng cho ứng dụng không thể gián đoạn; trích đúng Mục 1.3 và không mâu thuẫn lượt trước. Câu viết lại giữ đúng ý và đủ thực thể."
+  },
+  "ec27b61fba192c41": {
+    "score": 1.0,
+    "reason": "Đáp án chuyển khỏi One Zone-IA đúng lý do (dữ liệu không tái tạo được, chỉ một AZ), chọn Glacier Instant Retrieval là lớp đa AZ có truy xuất mili giây; có bảng 5 ràng buộc, nêu rõ phí truy xuất cao hơn Standard-IA, mốc lưu tối thiểu 90 ngày và không mâu thuẫn lượt trước. Trích dẫn đúng các mục liên quan, không dùng Mục 1.3."
+  },
+  "d828fa86e027e97a": {
+    "score": 1.0,
+    "reason": "Câu trả lời đáp ứng đầy đủ hành vi mong đợi cho câu hỏi hiện tại: dùng lifecycle để chuyển log cũ sang Standard-IA/Glacier/Deep Archive theo tần suất truy cập, nêu lifecycle chạy bất đồng bộ và có phí chuyển lớp, kiểm tra bằng Storage Lens. Câu viết lại giữ nguyên đúng. Chưa có lượt đổi chủ đề sang IAM nên các tiêu chí lượt 3–4 không áp dụng; không có mâu thuẫn hay bịa đặt."
+  },
+  "89d389d416b4069f": {
+    "score": 0.5,
+    "reason": "Trả lời phân biệt đúng các ý chính: Savings Plans cam kết chi tiêu theo giờ 1/3 năm, Compute Savings Plans áp dụng cho EC2/Lambda/Fargate; RI cam kết cấu hình 1/3 năm, Standard giảm sâu nhưng ít linh hoạt, Convertible đổi được họ instance; không nói RI áp dụng cho Lambda. Tuy nhiên có chi tiết sai/không có trong KB: nói Savings Plans có thể bán lại trên Marketplace và gán căn cứ Mục 1.3 cho ý này. [điểm 3 lần: [0.0, 0.5, 0.5]]"
+  },
+  "4eadc684982d0b43": {
+    "score": 1.0,
+    "reason": "Trả lời đúng trọng tâm: không khẳng định 'có' vô điều kiện; nêu rõ giá lưu trữ thấp hơn nhưng phí truy xuất cao hơn, mốc tối thiểu 90 ngày và ảnh hưởng của lượng đọc đến tổng chi phí; có nhắc xóa sớm và cách tính 128 KB. Trích dẫn đúng Mục 1.4, 1.6, 1.11 (và 1.1), không dùng Mục 1.3, không mâu thuẫn các lượt trước. [điểm 3 lần: [0.5, 1.0, 1.0]]"
+  },
+  "c22b6ae9792b21df": {
+    "score": 0.5,
+    "reason": "Câu trả lời đúng một phần: nêu được thời gian lưu tối thiểu 180 ngày và phí xóa sớm, trích Mục 1.8/1.1 phù hợp. Tuy nhiên thiếu các ý quan trọng của hành vi mong đợi: chỉ nên dùng khi gần như không đọc, phí truy xuất/khôi phục và thời gian khôi phục 12–48 giờ; đồng thời chưa trả lời dứt khoát mốc chuyển sang Deep Archive theo câu hỏi. Không sai nghiêm trọng nên đạt một phần."
+  },
+  "bd18d885f8bc0c2d": {
+    "score": 1.0,
+    "reason": "Câu trả lời chọn Spot cho batch xử lý ảnh 2 giờ/đêm vì batch chịu lỗi và có thể chạy lại, đồng thời không áp Spot cho web 24/7; nêu đúng thông báo thu hồi trước 2 phút, rủi ro gián đoạn và cách bền vững hóa dữ liệu. Trích dẫn Mục 1.3 phù hợp với căn cứ và không mâu thuẫn các lượt trước."
+  },
+  "ca78adfef346d368": {
+    "score": 1.0,
+    "reason": "Câu trả lời xác nhận đúng NAT Gateway không có security group, giải thích kiểm soát bằng security group của tài nguyên và NACL của subnet, trích đúng Mục 1.3; không lái sang dịch vụ khác và không mâu thuẫn."
+  },
+  "82889c6179e63399": {
+    "score": 1.0,
+    "reason": "Đạt: lượt 3 chuyển hẳn sang IAM, câu viết lại không chứa log/S3/Deep Archive; trả lời đúng root và người dùng quyền cao, nêu policy condition aws:MultiFactorAuthPresent; trích IAM Mục 1.6 và 1.12; không có nội dung S3 và không bịa yêu cầu bắt buộc MFA cho mọi người dùng."
+  },
+  "690e9d7bc2a95bc2": {
+    "score": 1.0,
+    "reason": "Đáp án nhận diện đúng chủ đề IAM, không còn nội dung S3/log/Deep Archive; câu viết lại độc lập và không chứa từ khóa S3. Trả lời đúng sắc thái khuyến nghị/không tuyệt đối: không bắt buộc MFA cho mọi IAM user, nêu root, người dùng quyền cao, condition aws:MultiFactorAuthPresent và Identity Center tùy cấu hình. Trích dẫn đúng IAM Mục 1.6, có thêm Mục 1.12; không bịa chính sách bắt buộc toàn bộ user."
+  },
+  "961f7e632d8a57f2": {
+    "score": 0.0,
+    "reason": "Câu trả lời xử lý đúng phần lớn mốc 30 ngày/90 ngày, phí xóa sớm và gợi ý S3 Standard, nhưng mâu thuẫn với lượt 2: lượt 2 đã đặt ràng buộc 'không thể tạo lại từ nguồn gốc', sang lượt 4 lại khẳng định 'ảnh thumbnail là dữ liệu có thể tạo lại' và không giữ ràng buộc an toàn dữ liệu. Đây là bỏ/mâu thuẫn ràng buộc đã cập nhật (W2), nên không đạt."
+  },
+  "e95c802c5a7bb15e": {
+    "score": 1.0,
+    "reason": "Đạt: xác nhận NAT Gateway không có security group; giải thích kiểm soát lưu lượng bằng security group của tài nguyên và NACL của subnet, có nhắc route table khi kiểm tra/gỡ lỗi; giữ đúng ngữ cảnh câu hỏi làm rõ, không lái sang dịch vụ khác; trích Mục 1.3 và 1.4 phù hợp, không mâu thuẫn lượt trước."
+  },
+  "5a98b966db9cb97f": {
+    "score": 1.0,
+    "reason": "Câu trả lời so sánh đúng và đủ các điểm chính: Standard-IA giá lưu trữ thấp hơn, có phí truy xuất, thời gian lưu tối thiểu 30 ngày, truy xuất mili giây, đa AZ; Standard không phí truy xuất, không thời gian lưu tối thiểu, giá lưu trữ cao hơn. Có trích dẫn phù hợp với căn cứ, không từ chối khi có tài liệu, và câu viết lại giữ nguyên ý."
+  },
+  "2468153bc5fd471f": {
+    "score": 1.0,
+    "reason": "Câu trả lời từ chối rõ ràng vì ngoài phạm vi tài liệu SAA-C03, không viết code, không nêu thư viện hay hướng dẫn kỹ thuật để upload lên S3; chỉ nêu tên chủ đề có sẵn và mời quay lại câu hỏi phù hợp."
+  },
+  "d7d010f8c8edd36d": {
+    "score": 0.5,
+    "reason": "Câu trả lời xác định đúng NAT instance là EC2 tự quản nên có thể gắn security group, đồng thời phân biệt với NAT gateway không có security group và trích đúng Mục 1.3/1.4. Tuy nhiên chưa nêu đầy đủ hành vi mong đợi: thiếu ý NAT instance rẻ hơn với lưu lượng nhỏ, và mở đầu bằng 'tài liệu không phát biểu trực tiếp' nên chưa trả lời 'có' dứt khoát như kỳ vọng."
+  },
+  "ff5e4bb2d3d4c140": {
+    "score": 1.0,
+    "reason": "Câu trả lời từ chối rõ ràng do câu hỏi nằm ngoài phạm vi tài liệu SAA-C03; không mô tả foundation model, giá hay tính năng của Amazon Bedrock và không trích dẫn."
+  },
+  "3cc7c7deed9fa168": {
+    "score": 1.0,
+    "reason": "Lượt 4 trả lời đúng trọng tâm: S3 Standard-IA truy xuất trong mili giây, không cần chờ khôi phục, kèm trích dẫn [S3 Storage Classes – Mục 1.4] phù hợp với căn cứ (Mục 1.4). Câu viết lại giữ đúng ý, đủ thực thể và độc lập. Không mâu thuẫn với các lượt trước (lượt 2–3 đã từ chối đúng ngoài phạm vi, không có citation), thể hiện hội thoại phục hồi về đúng chủ đề S3. Không dùng dịch vụ trong kho làm câ"
+  },
+  "49aa2ca438509fe1": {
+    "score": 1.0,
+    "reason": "Câu trả lời nêu đúng tiêu chí chọn NAT Gateway (dịch vụ quản lý, sẵn sàng trong AZ, một NAT mỗi AZ) và NAT instance (môi trường phát triển/lưu lượng nhỏ, chấp nhận tự quản), có nêu phí chéo AZ và gateway endpoint cho S3/DynamoDB; không nói NAT Gateway hỗ trợ IPv6; trích đúng Mục 1.3 và không mâu thuẫn các lượt trước."
+  },
+  "85754344b4bf0290": {
+    "score": 0.5,
+    "reason": "Trả lời đúng thời gian lưu giữ 0–35 ngày, đặt 0 là tắt và trích dẫn đúng Mục 1.3; tuy nhiên thiếu ý backup chạy trong backup window nên đặt giờ thấp điểm và xóa instance vẫn giữ snapshot cuối nếu tùy chọn bật. Việc nêu thêm PITR không sai nhưng chưa đủ hành vi mong đợi của lượt 1."
+  },
+  "381ac69d81c446d6": {
+    "score": 0.5,
+    "reason": "Câu viết lại giữ nguyên và trích dẫn đúng S3 Storage Classes – Mục 1.1/1.2; trả lời đúng S3 là lưu trữ đối tượng, nhiều lớp trên cùng không gian tên, gán lớp khi tải lên hoặc lifecycle, mặc định Standard, có lớp đa AZ và một AZ. Tuy nhiên thiếu ý quan trọng: ba nhóm lớp (truy cập thường xuyên, không thường xuyên, lưu trữ lạnh). Không thấy bịa thông số hay mâu thuẫn."
+  },
+  "9cc3e4ef2f71b8c2": {
+    "score": 1.0,
+    "reason": "Đáp án nêu đúng IAM role là cách cấp quyền tạm thời, không lưu credential dài hạn; trình bày đủ trust policy và permission policy, nêu rõ trust policy không cấp quyền tài nguyên; có ví dụ EC2 instance profile, Lambda execution role, cross-account role; nêu đúng thời hạn 15 phút–12 giờ, mặc định 1 giờ; nói không thể thu hồi tức thời; trích dẫn chính Mục 1.3 phù hợp căn cứ."
+  },
+  "97c92b71c66a21f1": {
+    "score": 1.0,
+    "reason": "Câu trả lời đáp ứng đúng hành vi mong đợi: khẳng định có thể PITR về một giờ trước nếu sao lưu tự động bật và thời gian lưu giữ bao phủ; nêu PITR tới bất kỳ giây nào trong khoảng lưu giữ, thường trong vòng 5 phút; nêu đúng giới hạn 0–35 ngày và 0 là tắt sao lưu; không hứa khôi phục ngoài khoảng. Cũng nêu đúng khôi phục tạo DB instance mới, không ghi đè instance hiện có, cần đổi endpoint/DNS. Trích"
+  },
+  "a5d44a5a2a3d81f3": {
+    "score": 1.0,
+    "reason": "Trả lời đúng: trust policy xác định ai được assume role, không cấp quyền truy cập tài nguyên; permission policy mới quy định role được làm gì. Trích dẫn Mục 1.3 và 1.12 phù hợp căn cứ, không mâu thuẫn lượt trước."
+  },
+  "8921e1cdcd627b9c": {
+    "score": 1.0,
+    "reason": "Câu trả lời đúng: khôi phục RDS không ghi đè instance cũ mà tạo DB instance mới với endpoint mới, cần cập nhật DNS/endpoint ứng dụng; trích dẫn đúng Mục 1.3 và không mâu thuẫn các lượt trước. Câu viết lại giữ đúng ý và đủ thực thể."
+  },
+  "489d0a9bf40f9bb9": {
+    "score": 1.0,
+    "reason": "Câu trả lời nêu đúng thời hạn 15 phút–12 giờ tùy max session duration, mặc định 1 giờ, role chaining thường giới hạn 1 giờ; không nói có thể thu hồi tức thời; trích đúng IAM – Mục 1.3. Câu viết lại giữ đúng ý và đủ thực thể chính (IAM role, thông tin xác thực tạm thời, EC2 instance profile), không mâu thuẫn các lượt trước."
+  },
+  "f3974c8018beefb3": {
+    "score": 1.0,
+    "reason": "Đáp ứng đầy đủ: phân biệt rõ sao lưu tự động và snapshot thủ công; nêu snapshot thủ công tồn tại đến khi bị xóa, giữ được sau khi xóa DB instance, có thể sao chép sang Region khác, snapshot mã hóa chỉ chia sẻ khi nguồn cho phép, và khôi phục tạo instance mới. Trích dẫn đúng Mục 1.3; câu viết lại đúng ý và độc lập; không mâu thuẫn các lượt trước."
+  },
+  "7032672a5b84f9cf": {
+    "score": 1.0,
+    "reason": "Đáp án đáp ứng đầy đủ: câu viết lại chứa cả \"S3\" và \"EBS\"; có bảng so sánh rõ S3 và EBS; phân biệt đúng S3 là lưu trữ đối tượng nhiều lớp/đa AZ và EBS là ổ đĩa khối gắn với EC2 trong cùng AZ, không gán sai đặc điểm; trích dẫn cả S3 Storage Classes và EC2 Tinh toan, gồm EC2 Mục 1.4; không thấy bịa thông số IOPS/dung lượng ngoài tài liệu. [điểm 3 lần: [0.5, 1.0, 1.0]]"
+  },
+  "a2413803ede6187e": {
+    "score": 0.5,
+    "reason": "Trả lời đúng trọng tâm: không thể thu hồi ngay thông tin xác thực tạm thời; muốn thu hồi hiệu quả phải thu hồi quyền của role hoặc dùng policy điều kiện; trích đúng Mục 1.3 và 1.12, không mâu thuẫn lượt trước. Tuy nhiên thiếu ý mong đợi: nêu khuyến nghị dùng IAM role thay cho access key dài hạn."
+  },
+  "bd3eca5e3c43312c": {
+    "score": 1.0,
+    "reason": "Câu trả lời giữ đúng câu hỏi, cung cấp bảng so sánh đúng 5 tiêu chí cốt lõi: cấp áp dụng, stateful/stateless, loại rule, cách đánh giá, mặc định. Không nói NACL stateful hay security group có rule deny. Trích dẫn đúng VPC Networking – Mục 1.4. Đáp ứng đầy đủ hành vi mong đợi."
+  },
+  "8a519ca9167f86a2": {
+    "score": 1.0,
+    "reason": "Trả lời đúng: Security group stateful, phản hồi tự động được phép; Network ACL stateless, phải mở cả hai chiều kể cả cổng tạm thời; nêu đúng dải cổng tạm thời 1024–65535 và trích đúng Mục 1.4. Không mâu thuẫn lượt trước."
+  },
+  "bac04a4077a20f5c": {
+    "score": 1.0,
+    "reason": "Đáp án nêu đúng nguyên nhân NACL stateless, chỉ rõ cần mở outbound dải cổng tạm thời 1024–65535 và chiều ngược lại, nhắc kiểm tra security group, trích đúng Mục 1.4; không mâu thuẫn các lượt trước và không mắc lỗi stateful/rule deny."
+  },
+  "27d6d1ad64eaf1df": {
+    "score": 1.0,
+    "reason": "Câu trả lời có bảng so sánh nhiều tiêu chí (mục tiêu, cơ chế đồng bộ/bất đồng bộ, khả năng đọc, failover, chi phí...), nêu đúng Read Replica không tự động failover và standby Multi-AZ không phục vụ đọc (trừ ngoại lệ Multi-AZ DB cluster), trích Mục 1.2 và thể hiện hai cơ chế bổ trợ chứ không thay thế; câu viết lại giữ nguyên đúng."
+  },
+  "fad46146e13dad6f": {
+    "score": 1.0,
+    "reason": "Câu trả lời nêu đúng thứ tự gỡ lỗi: security group của nguồn và đích → Network ACL hai chiều → route table → DNS; giải thích NACL stateless và dải cổng tạm thời 1024-65535 chính xác; trích đúng VPC Networking – Mục 1.4, không mâu thuẫn các lượt trước."
+  },
+  "5feb2049211c5e16": {
+    "score": 1.0,
+    "reason": "Câu trả lời xác định đúng Read Replica giúp tăng khả năng đọc; nêu rõ standby của Multi-AZ cổ điển không phục vụ đọc; nêu đúng ngoại lệ Multi-AZ DB cluster cho MySQL/PostgreSQL/MariaDB với 1 writer và 2 instance đọc được; không nói Read Replica tự động failover; trích đúng Mục 1.2 và không mâu thuẫn với bảng so sánh ở lượt 1. Câu viết lại thực tế vẫn giữ cả Multi-AZ và Read Replica."
+  },
+  "4ec3720fea1d95c6": {
+    "score": 0.5,
+    "reason": "Câu trả lời có bảng so sánh rõ, giữ đúng câu viết lại, nêu S3 là lưu trữ đối tượng, EBS là ổ đĩa khối gắn EC2 cùng AZ, có nhắc snapshot EBS lưu trong S3 và trích EC2 Mục 1.4. Tuy nhiên thiếu các ý quan trọng trong hành vi mong đợi: S3 cho nội dung tĩnh, phân tích dữ liệu lớn, sao lưu; EBS cho workload cần IOPS/độ trễ thấp. Phần trích dẫn S3 dùng Mục 1.13/1.12 thay vì căn cứ nêu Mục 1.2/1.4, nên ch"
+  },
+  "5751bb0450a84c75": {
+    "score": 1.0,
+    "reason": "Trả lời đúng trọng tâm: Multi-AZ tự động failover khoảng 60–120 giây và DNS giữ nguyên; Read Replica không tự động failover, phải chuyển endpoint thủ công. Giữ đúng cả hai đối tượng so sánh, không mâu thuẫn với các lượt trước, không nói Read Replica tự failover, và nêu ngoại lệ Multi-AZ DB cluster đúng phạm vi cho phép. Trích dẫn Mục 1.2 phù hợp."
+  },
+  "36ea703f33dd2ac3": {
+    "score": 1.0,
+    "reason": "Câu trả lời trả lời đúng 'Không', nêu EBS gắn với một AZ và chỉ gắn cho instance cùng AZ; snapshot là bản sao tăng dần lưu trong S3 do AWS quản lý; có thể tạo volume ở AZ/Region khác sau khi copy snapshot. Trích dẫn đúng EC2 Tinh toan – Mục 1.4, không mâu thuẫn các lượt trước và không bịa thông số."
+  },
+  "c04e96c12154d840": {
+    "score": 1.0,
+    "reason": "Câu trả lời đáp ứng đúng hành vi mong đợi: kết hợp Multi-AZ cho instance chính để đạt sẵn sàng cao và thêm read replica cho tải đọc; có nêu cross-region read replica khi cần đọc khác Region. Không mâu thuẫn với bảng so sánh ở lượt trước: nói rõ Read Replica không tự động failover, standby Multi-AZ cổ điển không phục vụ đọc và có nêu ngoại lệ Multi-AZ DB cluster. Trích dẫn Mục 1.2 phù hợp với căn c"
+  },
+  "4d038fa26d10aa4b": {
+    "score": 0.5,
+    "reason": "Chọn đúng S3 One Zone-IA, có bảng đủ 5 ràng buộc và không bỏ ràng buộc 'có thể tái tạo'; tuy nhiên chưa nêu rõ One Zone-IA truy xuất mili giây và mốc lưu tối thiểu 30 ngày, đồng thời trích Mục 1.4/1.2 thay vì Mục 1.5/1.13 theo căn cứ, nên chỉ đạt một phần. [điểm 3 lần: [0.5, 0.5, 1.0]]"
+  },
+  "ea9d0989eb0c84a1": {
+    "score": 1.0,
+    "reason": "Đáp ứng đúng lượt 1: có bảng ràng buộc, chọn Reserved Instance/Savings Plans cho tải 24/7 ổn định, loại Spot cho web không thể gián đoạn, nêu On-Demand cho tải không dự đoán/ngắn hạn, trích đúng Mục 1.3."
+  },
+  "efc2d1956498ae26": {
+    "score": 1.0,
+    "reason": "Trả lời đúng trọng tâm: Spot có thể bị thu hồi với thông báo 2 phút, chỉ phù hợp workload chịu lỗi/stateless, không dùng cho ứng dụng không thể gián đoạn; có trích Mục 1.3 và không mâu thuẫn lượt trước. [điểm 3 lần: [0.0, 1.0, 1.0]]"
+  },
+  "c899c30d0646d4e9": {
+    "score": 1.0,
+    "reason": "Đáp ứng đầy đủ hành vi mong đợi: dùng lifecycle để chuyển log cũ sang Standard-IA/Glacier/Deep Archive theo tần suất truy cập; nêu lifecycle chạy bất đồng bộ (có thể đến 48 giờ) và có phí chuyển lớp; khuyến nghị kiểm tra bằng Storage Lens. Câu viết lại giữ nguyên đúng kỳ vọng. Các tiêu chí về đổi chủ đề sang IAM không áp dụng vì chưa có lượt trước và câu hỏi hiện tại vẫn là S3."
+  },
+  "502ce160422ba344": {
+    "score": 0.0,
+    "reason": "judge lỗi: FallbackExhausted: Toàn bộ provider đều thất bại — deepseek_fallback: Endpoint tương thích OpenAI trả HTTP 402: Insufficient Balance (request_id: bf176ce0-cb73-4a0f-b42d-247bd68a3952) [điểm 3 lần: [0.0, 0.0, 1.0]]"
+  }
+}

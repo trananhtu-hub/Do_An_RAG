@@ -53,8 +53,10 @@ rerank:
   device: auto
   precision: fp16
   warmup: true
-  # Đưa nội dung mục cha (kèm tài liệu/mục/tiêu đề) vào cross-encoder.
-  content_scope: parent
+  # Chấm điểm trên đúng chunk con được truy xuất; mục cha chỉ dùng để mở rộng ngữ
+  # cảnh sinh câu trả lời. Mục cha có thể gộp nhiều mục và bị cắt ở 512 token, làm
+  # cross-encoder không thấy phần nội dung trả lời nằm cuối mục.
+  content_scope: child
   context_header: true
   # Ngân hàng câu hỏi là nguồn phụ khi hỏi lý thuyết; vẫn dùng khi hỏi số câu cụ thể.
   source_filter:

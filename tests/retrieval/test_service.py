@@ -60,20 +60,21 @@ class FakeStore:
         self.vector_calls = 0
         self.parent_calls: list[list[str]] = []
 
-    def vector_search(self, vector, limit, threshold):  # noqa: ANN001
+    def vector_search(self, vector, limit, threshold, exclude_kinds=()):  # noqa: ANN001
         self.vector_calls += 1
+        self.exclude_kinds = tuple(exclude_kinds)
         records = [replace(record) for record in self.vector[:limit]]
         for index, record in enumerate(records):
             record.vector_score = 1.0 - index / 10
         return records
 
-    def lexical_search(self, tsquery, limit):  # noqa: ANN001
+    def lexical_search(self, tsquery, limit, exclude_kinds=()):  # noqa: ANN001
         records = [replace(record) for record in self.lexical[:limit]]
         for index, record in enumerate(records):
             record.lexical_score = 1.0 - index / 10
         return records
 
-    def trigram_search(self, terms, limit, min_matched_terms):  # noqa: ANN001
+    def trigram_search(self, terms, limit, min_matched_terms, exclude_kinds=()):  # noqa: ANN001
         records = [replace(record) for record in self.trigram[:limit]]
         for index, record in enumerate(records):
             record.trigram_score = 1.0 - index / 10
@@ -184,12 +185,54 @@ def test_rerank_scores_parent_content_with_context_header() -> None:
     store = FakeStore(vector=[_record("a"), _record("b")])
     fake = FakeReranker([0.9, 0.1])
     reranker = TimeoutReranker(fake, timeout_ms=1000)
-    service = _service(_config(rerank={"enabled": True}), store, reranker=reranker)
+    service = _service(
+        _config(rerank={"enabled": True, "content_scope": "parent"}),
+        store,
+        reranker=reranker,
+    )
     try:
         service.retrieve("truy vấn")
     finally:
         service.close()
     assert fake.documents[0] == "doc.pdf - Mục a\nparent p-a"
+
+
+def test_rerank_scores_child_content_when_scope_is_child() -> None:
+    store = FakeStore(vector=[_record("a")], parents={"p-a": "parent p-a"})
+    fake = FakeReranker([0.9])
+    reranker = TimeoutReranker(fake, timeout_ms=1000)
+    service = _service(
+        _config(rerank={"enabled": True, "content_scope": "child"}),
+        store,
+        reranker=reranker,
+    )
+    try:
+        service.retrieve("truy vấn")
+    finally:
+        service.close()
+    assert fake.documents[0] == "doc.pdf - Mục a\nchild a"
+
+
+def test_rerank_winner_is_kept_when_same_section_is_deduplicated() -> None:
+    store = FakeStore(
+        vector=[
+            _record("a", section="Mục 1"),
+            _record("b", section="Mục 1"),
+        ]
+    )
+    fake = FakeReranker([0.1, 0.9])
+    reranker = TimeoutReranker(fake, timeout_ms=1000)
+    service = _service(
+        _config(rerank={"enabled": True, "content_scope": "child"}),
+        store,
+        reranker=reranker,
+    )
+    try:
+        result = service.retrieve("truy vấn")
+    finally:
+        service.close()
+    assert [chunk.child_id for chunk in result.chunks] == ["b"]
+    assert result.chunks[0].score == 0.9
 
 
 def _kind_record(child_id: str, kind: str):
@@ -220,7 +263,7 @@ def test_source_filter_excludes_question_chunks_from_rerank_pool() -> None:
         result = service.retrieve("So sánh chi phí lưu trữ S3")
     finally:
         service.close()
-    assert fake.documents == ["doc.pdf - Mục t\nparent p-t"]
+    assert fake.documents == ["doc.pdf - Mục t\nchild t"]
     assert [chunk.child_id for chunk in result.chunks] == ["t"]
 
 
@@ -299,6 +342,33 @@ def test_parent_chunks_are_deduplicated_per_section() -> None:
         service.close()
     assert [chunk.child_id for chunk in result.chunks] == ["a", "c"]
     assert store.parent_calls == [["p-shared", "p-c"]]
+
+
+def test_comparison_adds_uncovered_documents() -> None:
+    store = FakeStore(
+        vector=[
+            _record("a", document="EC2.pdf"),
+            _record("b", document="EC2.pdf"),
+            _record("c", document="S3.pdf"),
+        ]
+    )
+    service = _service(_config(top_k={"adaptive": False, "default": 1, "min": 1}), store)
+    try:
+        result = service.retrieve("So sánh Amazon S3 và Amazon EBS")
+    finally:
+        service.close()
+    assert [chunk.document for chunk in result.chunks] == ["EC2.pdf", "S3.pdf"]
+    assert [chunk.rank for chunk in result.chunks] == [1, 2]
+
+
+def test_explicit_top_k_skips_comparison_coverage() -> None:
+    store = FakeStore(vector=[_record("a", document="EC2.pdf"), _record("c", document="S3.pdf")])
+    service = _service(_config(top_k={"adaptive": False, "default": 1, "min": 1}), store)
+    try:
+        result = service.retrieve("So sánh Amazon S3 và Amazon EBS", top_k=1)
+    finally:
+        service.close()
+    assert [chunk.document for chunk in result.chunks] == ["EC2.pdf"]
 
 
 def test_empty_query_is_rejected() -> None:

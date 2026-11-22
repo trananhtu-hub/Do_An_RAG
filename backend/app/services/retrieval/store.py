@@ -24,6 +24,7 @@ join public.documents d on d.id = c.document_id
 left join public.chunks p on p.id = c.parent_id
 where c.content_type = 'child'
   and c.embedding is not null
+  {kind_clause}
   and 1 - (c.embedding <=> %s::vector) >= %s
 order by c.embedding <=> %s::vector
 limit %s
@@ -47,13 +48,20 @@ join public.documents d on d.id = c.document_id
 left join public.chunks p on p.id = c.parent_id
 cross join parsed
 where c.content_type = 'child'
+  {kind_clause}
   and c.search_vector_unaccented @@ parsed.query
 order by score desc, c.id
 limit %s
 """
 
 
-def _trigram_query(term_count: int) -> str:
+def _kind_filter(exclude_kinds: Sequence[str]) -> tuple[str, list[str]]:
+    if not exclude_kinds:
+        return "", []
+    return "and coalesce(c.metadata->>'kind', '') <> all(%s)", [list(exclude_kinds)]
+
+
+def _trigram_query(term_count: int, kind_clause: str = "") -> str:
     # Lọc bằng ILIKE để tận dụng chỉ mục GIN trigram; chỉ chấm điểm trên dòng khớp.
     matched = " + ".join(
         "(case when c.search_text ilike %s then 1 else 0 end)" for _ in range(term_count)
@@ -73,6 +81,7 @@ from public.chunks c
 join public.documents d on d.id = c.document_id
 left join public.chunks p on p.id = c.parent_id
 where c.content_type = 'child'
+  {kind_clause}
   and ({filters})
 order by score desc, c.id
 limit %s
@@ -145,20 +154,30 @@ class PgChunkStore:
         self._local = threading.local()
 
     def vector_search(
-        self, vector: Sequence[float], limit: int, threshold: float
+        self,
+        vector: Sequence[float],
+        limit: int,
+        threshold: float,
+        exclude_kinds: Sequence[str] = (),
     ) -> list[ChunkRecord]:
         literal = vector_literal(vector)
+        kind_clause, kind_params = _kind_filter(exclude_kinds)
+        sql = _VECTOR_SEARCH.format(kind_clause=kind_clause)
         with self._connection().cursor() as cursor:
-            cursor.execute(_VECTOR_SEARCH, (literal, literal, threshold, literal, limit))
+            cursor.execute(sql, (literal, *kind_params, literal, threshold, literal, limit))
             rows = cursor.fetchall()
         records = [_to_record(row) for row in rows]
         for record, row in zip(records, rows, strict=True):
             record.vector_score = float(row["score"])
         return records
 
-    def lexical_search(self, tsquery: str, limit: int) -> list[ChunkRecord]:
+    def lexical_search(
+        self, tsquery: str, limit: int, exclude_kinds: Sequence[str] = ()
+    ) -> list[ChunkRecord]:
+        kind_clause, kind_params = _kind_filter(exclude_kinds)
+        sql = _LEXICAL_SEARCH.format(kind_clause=kind_clause)
         with self._connection().cursor() as cursor:
-            cursor.execute(_LEXICAL_SEARCH, (tsquery, limit))
+            cursor.execute(sql, (tsquery, *kind_params, limit))
             rows = cursor.fetchall()
         records = [_to_record(row) for row in rows]
         for record, row in zip(records, rows, strict=True):
@@ -166,14 +185,19 @@ class PgChunkStore:
         return records
 
     def trigram_search(
-        self, terms: Sequence[str], limit: int, min_matched_terms: int
+        self,
+        terms: Sequence[str],
+        limit: int,
+        min_matched_terms: int,
+        exclude_kinds: Sequence[str] = (),
     ) -> list[ChunkRecord]:
         if not terms:
             return []
         patterns = [_like_pattern(term) for term in terms]
-        sql = _trigram_query(len(patterns))
+        kind_clause, kind_params = _kind_filter(exclude_kinds)
+        sql = _trigram_query(len(patterns), kind_clause)
         # Lấy dư rồi lọc ngưỡng trong Python để không lặp biểu thức khớp trong SQL.
-        params = [*patterns, len(patterns), *patterns, limit * 2]
+        params = [*patterns, len(patterns), *kind_params, *patterns, limit * 2]
         with self._connection().cursor() as cursor:
             cursor.execute(sql, params)
             rows = cursor.fetchall()

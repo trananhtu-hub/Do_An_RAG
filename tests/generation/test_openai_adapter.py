@@ -113,6 +113,23 @@ def test_empty_content_raises() -> None:
         _adapter(handler, model="deepseek-chat").complete(MESSAGES)
 
 
+def test_empty_content_is_retried() -> None:
+    calls = {"count": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls["count"] += 1
+        if calls["count"] == 1:
+            return httpx.Response(
+                200,
+                json={"choices": [{"message": {"content": ""}, "finish_reason": "length"}]},
+            )
+        return httpx.Response(200, json=SUCCESS)
+
+    response = _adapter(handler, model="deepseek-chat", max_retries=1).complete(MESSAGES)
+    assert response.text
+    assert calls["count"] == 2
+
+
 def test_list_content_parts_supported() -> None:
     def handler(request: httpx.Request) -> httpx.Response:
         return httpx.Response(

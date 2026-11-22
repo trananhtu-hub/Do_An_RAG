@@ -37,22 +37,31 @@ class QueryLogWriter:
         *,
         session_id: str | None = None,
         rewritten_query: str | None = None,
+        user_id: str | None = None,
+        ttft_ms: int | None = None,
+        total_latency_ms: int | None = None,
+        streaming: bool | None = None,
+        status: str | None = None,
+        conversation_tokens: int | None = None,
     ) -> bool:
         if not self.enabled:
             return False
         try:
-            import psycopg
+            from ..sessions.pool import get_pool
 
-            with psycopg.connect(self.database_url, connect_timeout=10) as connection:
+            with get_pool(self.database_url).connection() as connection:
                 with connection.cursor() as cursor:
                     cursor.execute(
                         f"""
                         insert into public.{self.table} (
                             session_id, question, rewritten_query, retrieved_chunk_ids,
                             latency_ms, prompt_tokens, completion_tokens, model,
-                            metadata, prompt_version, cost_usd, fallback_used
+                            metadata, prompt_version, cost_usd, fallback_used,
+                            ttft_ms, total_latency_ms, streaming, user_id, status,
+                            conversation_tokens
                         ) values (
-                            %s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb, %s, %s, %s
+                            %s, %s, %s, %s, %s, %s, %s, %s, %s::jsonb, %s, %s, %s,
+                            %s, %s, %s, %s, %s, %s
                         )
                         """,
                         (
@@ -68,6 +77,20 @@ class QueryLogWriter:
                             result.prompt_version,
                             result.cost_usd,
                             result.fallback_used,
+                            _int_or_none(ttft_ms if ttft_ms is not None else result.ttft_ms),
+                            _int_or_none(
+                                total_latency_ms
+                                if total_latency_ms is not None
+                                else result.latency_ms
+                            ),
+                            result.streaming if streaming is None else streaming,
+                            _uuid_or_none(user_id),
+                            status or result.status,
+                            (
+                                conversation_tokens
+                                if conversation_tokens is not None
+                                else result.conversation_tokens
+                            ),
                         ),
                     )
             return True
@@ -96,6 +119,12 @@ def _metadata(result: GenerationResult) -> dict[str, Any]:
         "context_tokens_estimate": result.context_tokens_estimate,
         "total_tokens": result.usage_input_tokens + result.usage_output_tokens,
     }
+
+
+def _int_or_none(value: float | int | None) -> int | None:
+    if value is None:
+        return None
+    return int(round(value))
 
 
 def _uuid_or_none(value: str | None) -> str | None:

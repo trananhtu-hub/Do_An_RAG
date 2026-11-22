@@ -4,7 +4,9 @@ from .base import (
     LLMMessage,
     LLMProvider,
     LLMResponse,
+    StreamDelta,
     Usage,
+    estimate_usage,
 )
 from .factory import build_provider_chain
 from .fallback import FallbackChain, FallbackExhausted
@@ -21,6 +23,8 @@ __all__ = [
     "LLMProvider",
     "LLMResponse",
     "OpenAICompatAdapter",
+    "StreamDelta",
     "Usage",
     "build_provider_chain",
+    "estimate_usage",
 ]

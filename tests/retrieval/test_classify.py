@@ -45,8 +45,17 @@ def test_heuristic_detects_multi_constraint_question() -> None:
 
 
 def test_heuristic_detects_english_term_mix() -> None:
-    result = _classifier().classify("S3 Glacier Deep Archive khác S3 Standard ở điểm nào?")
+    result = _classifier().classify("Giải thích IAM role, STS và KMS")
     assert result.query_type == "tron_thuat_ngu"
+
+
+def test_comparison_phrasings_with_english_terms() -> None:
+    classifier = _classifier()
+    for query in (
+        "Amazon S3 khác Amazon EBS ở những điểm nào?",
+        "Khi nào nên dùng Amazon S3 và khi nào nên dùng Amazon EBS?",
+    ):
+        assert classifier.classify(query).query_type == "so_sanh"
 
 
 def test_low_confidence_calls_llm_and_uses_its_label() -> None:

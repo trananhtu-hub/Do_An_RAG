@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import threading
 import time
-from collections.abc import Sequence
+from collections.abc import Iterator, Sequence
+from dataclasses import dataclass
 from pathlib import Path
 
 from ..retrieval.types import RetrievalResult, RetrievedChunk
@@ -13,11 +14,13 @@ from .logger import QueryLogWriter
 from .prompts import PromptLibrary, mode_for_query_type
 from .providers import (
     FallbackChain,
+    LLMError,
     LLMMessage,
     LLMResponse,
     build_provider_chain,
 )
 from .schema import SchemaError, parse_answer, repair_message
+from .streaming import AnswerStreamExtractor
 from .types import AnswerPayload, GenerationResult
 
 SCHEMA_TEMPLATE = """{
@@ -29,6 +32,14 @@ SCHEMA_TEMPLATE = """{
   "abstention_type": "none",
   "nearest_topics": []
 }"""
+
+
+@dataclass(frozen=True)
+class AnswerDelta:
+    """Một mẩu trả lời khi stream; delta có `result` là mẩu cuối cùng."""
+
+    text: str = ""
+    result: GenerationResult | None = None
 
 
 class GenerationService:
@@ -59,6 +70,10 @@ class GenerationService:
         thinking_level: str | None = None,
         session_id: str | None = None,
         write_log: bool = True,
+        conversation: str | None = None,
+        conversation_tokens: int = 0,
+        user_id: str | None = None,
+        rewritten_query: str | None = None,
     ) -> GenerationResult:
         started = time.perf_counter()
         if chunks is None:
@@ -92,8 +107,15 @@ class GenerationService:
                 schema_retries=0,
                 warnings=("Không có đoạn ngữ cảnh nào được truy xuất.",),
                 citation_report=check_citations(payload, (), ()),
+                conversation_tokens=conversation_tokens,
             )
-            self._write_log(result, session_id, retrieval_result)
+            self._write_log(
+                result,
+                session_id,
+                retrieval_result,
+                user_id=user_id,
+                rewritten_query=rewritten_query,
+            )
             return result
 
         messages = self.prompts.build(
@@ -101,6 +123,7 @@ class GenerationService:
             context_text=context.text,
             mode=prompt_mode,
             use_cot=use_cot,
+            conversation=conversation,
         )
         payload, response, retries = self._complete_with_schema(messages, thinking_level=level)
         if payload.abstained:
@@ -123,9 +146,296 @@ class GenerationService:
             schema_retries=retries,
             warnings=warnings,
             citation_report=citation_report,
+            conversation_tokens=conversation_tokens,
         )
-        self._write_log(result, session_id, retrieval_result)
+        self._write_log(
+            result, session_id, retrieval_result, user_id=user_id, rewritten_query=rewritten_query
+        )
         return result
+
+    def answer_stream(
+        self,
+        question: str,
+        *,
+        chunks: Sequence[RetrievedChunk] | None = None,
+        retrieval_result: RetrievalResult | None = None,
+        top_k: int | None = None,
+        mode: str | None = None,
+        use_cot: bool = True,
+        thinking_level: str | None = None,
+        session_id: str | None = None,
+        write_log: bool = True,
+        conversation: str | None = None,
+        conversation_tokens: int = 0,
+        user_id: str | None = None,
+        rewritten_query: str | None = None,
+    ) -> Iterator[AnswerDelta]:
+        """Stream từng mẩu nội dung của trường answer.
+
+        Phần JSON còn lại (trích dẫn, độ tin cậy) chỉ có sau khi mô hình sinh
+        xong, nên sự kiện cuối cùng mang `result` đầy đủ. Nếu client ngắt giữa
+        chừng, log được ghi với status tương ứng và không ném lỗi 500.
+        """
+        started = time.perf_counter()
+        if chunks is None:
+            if self.retrieval is None:
+                raise ValueError("Cần chunks hoặc một RetrievalService để truy xuất")
+            retrieval_result = self.retrieval.retrieve(question, top_k=top_k)  # type: ignore[attr-defined]
+            chunks = retrieval_result.chunks
+        chunks = list(chunks)
+        query_type = retrieval_result.query_type if retrieval_result else None
+
+        context = build_context(
+            chunks,
+            max_context_tokens=self.config.max_context_tokens,
+            chars_per_token=self.config.chars_per_token,
+        )
+        prompt_mode = mode or mode_for_query_type(query_type)
+        level = thinking_level or self.config.default_thinking_level
+
+        if context.is_empty:
+            payload = self._empty_context_payload()
+            latency = (time.perf_counter() - started) * 1000
+            result = self._result(
+                question=question,
+                payload=payload,
+                response=None,
+                prompt_mode="abstain",
+                thinking_level=level,
+                latency_ms=latency,
+                context=context,
+                chunks=chunks,
+                query_type=query_type,
+                schema_retries=0,
+                warnings=("Không có đoạn ngữ cảnh nào được truy xuất.",),
+                citation_report=check_citations(payload, (), ()),
+                ttft_ms=latency,
+                streaming=True,
+                conversation_tokens=conversation_tokens,
+            )
+            if write_log:
+                self._write_log(
+                    result,
+                    session_id,
+                    retrieval_result,
+                    user_id=user_id,
+                    rewritten_query=rewritten_query,
+                )
+            yield AnswerDelta(result=result)
+            return
+
+        messages = self.prompts.build(
+            question=question,
+            context_text=context.text,
+            mode=prompt_mode,
+            use_cot=use_cot,
+            conversation=conversation,
+        )
+        extractor = AnswerStreamExtractor()
+        parts: list[str] = []
+        response: LLMResponse | None = None
+        first_token_at: float | None = None
+        schema_retries = 0
+        extra_warnings: list[str] = []
+        finished = False
+        failed = False
+        try:
+            try:
+                for delta in self.chain.complete_stream(
+                    messages,
+                    thinking_level=level,
+                    max_output_tokens=self.config.max_output_tokens,
+                    json_mode=True,
+                ):
+                    if delta.done:
+                        response = delta.response
+                        continue
+                    parts.append(delta.text)
+                    emitted = extractor.feed(delta.text)
+                    if emitted:
+                        if first_token_at is None:
+                            first_token_at = time.perf_counter()
+                        yield AnswerDelta(text=emitted)
+            except LLMError:
+                failed = True
+                raise
+
+            raw_text = "".join(parts)
+            if response is not None and len(response.text) > len(raw_text):
+                raw_text = response.text
+            try:
+                payload = parse_answer(raw_text)
+            except SchemaError as exc:
+                if extractor.answer.strip():
+                    payload = AnswerPayload(
+                        answer=extractor.answer.strip(),
+                        reasoning_steps=[],
+                        citations=[],
+                        confidence=0.0,
+                    )
+                    extra_warnings.append(
+                        "Đầu ra streaming không đúng schema JSON; chỉ giữ được phần nội dung "
+                        f"trả lời ({type(exc).__name__})."
+                    )
+                else:
+                    payload, response, schema_retries = self._retry_streaming_failure(
+                        messages,
+                        thinking_level=level,
+                        streamed=response,
+                    )
+                    if first_token_at is None:
+                        first_token_at = time.perf_counter()
+                    yield AnswerDelta(text=payload.answer)
+
+            if first_token_at is None and payload.answer:
+                # Provider chỉ trả kết quả cuối, không phát delta văn bản nào;
+                # vẫn chuyển nội dung cho client thành một mẩu duy nhất.
+                first_token_at = time.perf_counter()
+                yield AnswerDelta(text=payload.answer)
+
+            if payload.abstained:
+                payload = payload.model_copy(update={"citations": []})
+                if payload.confidence > 0.2:
+                    payload = payload.model_copy(update={"confidence": 0.2})
+
+            citation_report = check_citations(payload, context.blocks, chunks)
+            warnings = list(self._warnings(payload, citation_report, context))
+            warnings.extend(extra_warnings)
+            if response is not None and response.finish_reason == "max_tokens":
+                warnings.append("Mô hình chạm giới hạn token; câu trả lời có thể bị cắt.")
+            latency = (time.perf_counter() - started) * 1000
+            ttft = (first_token_at - started) * 1000 if first_token_at else latency
+            result = self._result(
+                question=question,
+                payload=payload,
+                response=response,
+                prompt_mode=prompt_mode,
+                thinking_level=level,
+                latency_ms=latency,
+                context=context,
+                chunks=chunks,
+                query_type=query_type,
+                schema_retries=schema_retries,
+                warnings=tuple(warnings),
+                citation_report=citation_report,
+                ttft_ms=ttft,
+                streaming=True,
+                conversation_tokens=conversation_tokens,
+            )
+            if write_log:
+                self._write_log(
+                    result,
+                    session_id,
+                    retrieval_result,
+                    user_id=user_id,
+                    rewritten_query=rewritten_query,
+                )
+            finished = True
+            yield AnswerDelta(result=result)
+        except Exception:
+            failed = True
+            raise
+        finally:
+            if not finished and write_log:
+                self._log_unfinished(
+                    question=question,
+                    partial=extractor.answer,
+                    response=response,
+                    prompt_mode=prompt_mode,
+                    thinking_level=level,
+                    started=started,
+                    context=context,
+                    chunks=chunks,
+                    query_type=query_type,
+                    session_id=session_id,
+                    user_id=user_id,
+                    rewritten_query=rewritten_query,
+                    conversation_tokens=conversation_tokens,
+                    status="error" if failed else "interrupted",
+                )
+
+    def _retry_streaming_failure(
+        self,
+        messages: list[LLMMessage],
+        *,
+        thinking_level: str,
+        streamed: LLMResponse | None,
+    ) -> tuple[AnswerPayload, LLMResponse, int]:
+        payload, retry_response, retries = self._complete_with_schema(
+            messages, thinking_level=thinking_level
+        )
+        if streamed is None:
+            return payload, retry_response, retries + 1
+        usage = retry_response.usage.__class__.from_counts(
+            retry_response.usage.input_tokens + streamed.usage.input_tokens,
+            retry_response.usage.output_tokens + streamed.usage.output_tokens,
+        )
+        combined = LLMResponse(
+            text=retry_response.text,
+            model=retry_response.model,
+            provider=retry_response.provider,
+            usage=usage,
+            latency_ms=round(retry_response.latency_ms + streamed.latency_ms, 2),
+            cost_usd=round(retry_response.cost_usd + streamed.cost_usd, 8),
+            finish_reason=retry_response.finish_reason,
+            fallback_used=retry_response.fallback_used or streamed.fallback_used,
+            attempts=retry_response.attempts or streamed.attempts,
+            raw=retry_response.raw,
+        )
+        return payload, combined, retries + 1
+
+    def _log_unfinished(
+        self,
+        *,
+        question: str,
+        partial: str,
+        response: LLMResponse | None,
+        prompt_mode: str,
+        thinking_level: str,
+        started: float,
+        context: BuiltContext,
+        chunks: Sequence[RetrievedChunk],
+        query_type: str | None,
+        session_id: str | None,
+        user_id: str | None,
+        rewritten_query: str | None,
+        conversation_tokens: int,
+        status: str,
+    ) -> None:
+        latency = (time.perf_counter() - started) * 1000
+        payload = AnswerPayload(
+            answer=partial.strip() or "[chưa có nội dung]",
+            reasoning_steps=[],
+            citations=[],
+            confidence=0.0,
+            abstained=True,
+            abstention_type="unknown",
+        )
+        result = self._result(
+            question=question,
+            payload=payload,
+            response=response,
+            prompt_mode=prompt_mode,
+            thinking_level=thinking_level,
+            latency_ms=latency,
+            context=context,
+            chunks=chunks,
+            query_type=query_type,
+            schema_retries=0,
+            warnings=("Stream kết thúc trước khi hoàn tất.",),
+            citation_report=check_citations(payload, (), ()),
+            ttft_ms=latency,
+            streaming=True,
+            status=status,
+            conversation_tokens=conversation_tokens,
+        )
+        self._write_log(
+            result,
+            session_id,
+            None,
+            user_id=user_id,
+            rewritten_query=rewritten_query,
+        )
 
     def _complete_with_schema(
         self,
@@ -199,6 +509,10 @@ class GenerationService:
         schema_retries: int,
         warnings: tuple[str, ...],
         citation_report,
+        ttft_ms: float = 0.0,
+        streaming: bool = False,
+        status: str = "complete",
+        conversation_tokens: int = 0,
     ) -> GenerationResult:
         return GenerationResult(
             question=question,
@@ -222,6 +536,10 @@ class GenerationService:
             context_tokens_estimate=context.estimated_tokens,
             raw_text=response.text if response else "",
             extra={"provider_latency_ms": response.latency_ms if response else 0.0},
+            ttft_ms=round(ttft_ms, 2),
+            streaming=streaming,
+            status=status,
+            conversation_tokens=conversation_tokens,
         )
 
     def _warnings(
@@ -268,13 +586,20 @@ class GenerationService:
         result: GenerationResult,
         session_id: str | None,
         retrieval_result: RetrievalResult | None,
+        *,
+        user_id: str | None = None,
+        rewritten_query: str | None = None,
     ) -> None:
         if self.log_writer is None:
             return
+        query = rewritten_query
+        if query is None and retrieval_result is not None:
+            query = retrieval_result.normalized_query
         self.log_writer.write(
             result,
             session_id=session_id,
-            rewritten_query=retrieval_result.normalized_query if retrieval_result else None,
+            rewritten_query=query,
+            user_id=user_id,
         )
 
     def close(self) -> None:

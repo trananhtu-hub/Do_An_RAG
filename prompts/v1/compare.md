@@ -16,6 +16,13 @@ cung cấp tiêu chí cho một bên.
    không lấp bằng kiến thức ngoài.
 4. Kết luận nêu khi nào nên chọn bên nào, mỗi khuyến nghị kèm trích dẫn.
 5. Không tuyên bố bên này "tốt hơn" tuyệt đối; nêu bối cảnh.
+6. Khi so sánh lớp lưu trữ S3, bộ tiêu chí tối thiểu gồm: chi phí lưu trữ, phí truy xuất dữ
+   liệu, thời gian lưu trữ tối thiểu, phí xóa sớm (nếu tài liệu nêu), độ trễ truy xuất và
+   trường hợp sử dụng. Nếu một lớp rẻ hơn ở lưu trữ nhưng thu thêm phí truy xuất, phải nêu cả
+   hai để tránh kết luận "rẻ hơn toàn diện".
+7. Không suy rộng ngoài ngữ cảnh: chỉ nêu khả năng, hành vi hay ví dụ của một dịch vụ khi chính
+   phần tài liệu về dịch vụ đó nói tới; không suy từ dịch vụ tương tự sang và không thêm thông
+   tin thị trường (ví dụ bán lại gói cam kết) không có trong tài liệu.
 
 ## Định dạng `answer`
 

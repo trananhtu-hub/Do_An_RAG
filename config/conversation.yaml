@@ -1,0 +1,31 @@
+version: 1
+prompt_version: v1
+
+# Viết lại câu hỏi phụ thuộc ngữ cảnh thành câu hỏi độc lập.
+condensation:
+  enabled: true
+  history_turns: 4
+  max_output_tokens: 256
+  timeout_ms: 8000
+  thinking_level: low
+  max_rewrite_chars: 2000
+
+# Tóm tắt phần cũ khi hội thoại dài; giữ 6 lượt gần nhất nguyên văn.
+summary:
+  enabled: true
+  trigger_turns: 10
+  trigger_tokens: 4000
+  keep_recent_turns: 6
+  min_messages: 4
+  max_output_tokens: 512
+  timeout_ms: 20000
+  thinking_level: low
+  max_summary_tokens: 400
+  workers: 2
+
+# Ngân sách ngữ cảnh hội thoại đưa vào prompt sinh câu trả lời.
+context:
+  max_conversation_tokens: 1500
+  # Tiếng Việt tốn token hơn tiếng Anh; 3.0 ký tự/token là ước lượng thận trọng.
+  chars_per_token: 3.0
+  max_message_chars: 4000
