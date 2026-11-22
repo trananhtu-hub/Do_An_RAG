@@ -1,0 +1,521 @@
+{
+  "timestamp": "20261122-130909",
+  "provider_chain": [
+    "deepseek_fallback"
+  ],
+  "judge": "auto",
+  "judge_tokens": 54976,
+  "judge_cost_usd": 0.0,
+  "elapsed_seconds": 292.0,
+  "passed": 0,
+  "total": 1,
+  "results": [
+    {
+      "code": "KB-01",
+      "title": "Tra cứu nối tiếp: từ S3 sang so sánh với EBS",
+      "kind": "Tra cứu nối tiếp",
+      "session_id": "71cca1f9-0103-4d0f-aea9-200ad34bc1a8",
+      "turns": 4,
+      "passed_turns": 2,
+      "passed": false,
+      "notes": "lượt 1: Câu viết lại đúng (giữ nguyên) và câu trả lời nêu đúng S3 là lưu trữ đối tượng, nhiều lớp trên cùng không gian tên, gán lớp khi tải lên hoặc lifecycle, mặc định; lượt 3: Câu trả lời đúng hướng, có bảng so sánh S3/EBS, nêu EBS snapshot lưu trong S3 và trích EC2 Mục 1.4. Tuy nhiên thiếu các ý quan trọng trong hành vi mong đợi cho ",
+      "records": [
+        {
+          "number": 1,
+          "question": "Amazon S3 là gì?",
+          "rewritten_query": "Amazon S3 là gì?",
+          "rewrite_source": "none",
+          "depends_on_context": false,
+          "conversation_tokens": 0,
+          "answer": "Dựa trên ngữ cảnh hiện có, Amazon S3 là dịch vụ lưu trữ đối tượng cung cấp **nhiều lớp lưu trữ (storage class) trên cùng một không gian tên đối tượng**, trong đó mỗi lớp được thiết kế cho một mẫu truy cập và một mức chi phí khác nhau; lớp được gán khi tải đối tượng lên hoặc khi chuyển lớp bằng quy tắc vòng đời, và nếu không chỉ định thì S3 dùng lớp Standard [S3 Storage Classes – Mục 1.1].\n\nMọi lớp đều được truy cập qua API S3; có thể chuyển lớp mà không đổi khóa đối tượng và không cần thay đổi ứng dụng đọc dữ liệu [S3 Storage Classes – Mục 1.1].\n\nVề độ bền và dư thừa: các lớp đa Availability Zone được thiết kế cho độ bền 99,999999999% (11 số 9) và lưu dữ liệu trên tối thiểu ba Availability Zone, còn các lớp một Availability Zone chỉ lưu dữ liệu trong một AZ nên chỉ dùng cho dữ liệu có thể tái tạo [S3 Storage Classes – Mục 1.1].\n\nLưu ý: ngữ cảnh hiện có mô tả S3 chủ yếu qua các lớp lưu trữ và đặc điểm chung của chúng, nên phần định nghĩa trên là tổng hợp từ các mô tả đó.",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.6,
+          "citations": [
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Amazon S3 cung cấp nhiều lớp lưu trữ (storage class) trên cùng một không gian tên đối tượng."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Mỗi lớp được thiết kế cho một mẫu truy cập và một mức chi phí khác nhau; lớp được gán khi tải đối tượng lên hoặc khi chuyển lớp bằng quy tắc vòng đời."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Nếu không chỉ định, S3 dùng lớp Standard."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Mọi lớp đều truy cập qua API S3; có thể chuyển lớp mà không đổi khóa đối tượng và không cần thay đổi ứng dụng đọc dữ liệu."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Các lớp đa Availability Zone (Standard, Intelligent-Tiering, Standard-IA, Glacier Instant Retrieval, Glacier Flexible Retrieval, Glacier Deep Archive) được thiết kế cho độ bền 99,999999999% (11 số 9) và lưu dữ liệu trên tối thiểu ba Availability Zone."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Các lớp một Availability Zone (One Zone-IA, Express One Zone) chỉ lưu dữ liệu trong một AZ; dữ liệu mất nếu AZ đó bị phá hủy, nên chỉ dùng cho dữ liệu có thể tái tạo."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 12292,
+          "output_tokens": 1857,
+          "latency_ms": 12976.3,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "8389dfd3-7e7d-56f5-86a7-3b7e2f9696b0",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.9137
+            },
+            {
+              "rank": 2,
+              "child_id": "987623b1-c64b-58b0-926f-550b8b8146f0",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.2",
+              "page": 2,
+              "score": 0.9053
+            },
+            {
+              "rank": 3,
+              "child_id": "20c9bb5e-684a-5b23-b107-38d1bce34f7b",
+              "document": "IAM",
+              "section": "Mục 1.8",
+              "page": 7,
+              "score": 0.7628
+            },
+            {
+              "rank": 4,
+              "child_id": "1883efa8-1770-5fb2-b9f8-db4036f41750",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.7",
+              "page": 5,
+              "score": 0.7547
+            },
+            {
+              "rank": 5,
+              "child_id": "27558084-6ef7-5ebb-bd1e-2465f43d06ba",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.5",
+              "page": 4,
+              "score": 0.7044
+            }
+          ],
+          "judge_score": 0.5,
+          "judge_reason": "Câu viết lại đúng (giữ nguyên) và câu trả lời nêu đúng S3 là lưu trữ đối tượng, nhiều lớp trên cùng không gian tên, gán lớp khi tải lên hoặc lifecycle, mặc định Standard, có lớp đa AZ và một AZ, trích đúng S3 Storage Classes Mục 1.1. Tuy nhiên thiếu ý quan trọng trong hành vi mong đợi: ba nhóm lớp (truy cập thường xuyên, không thường xuyên, lưu trữ lạnh). Không có bịa đặc điểm EBS hay thông số ngo",
+          "auto_checks": [
+            {
+              "label": "câu viết lại giữ nguyên",
+              "passed": true,
+              "detail": "viết lại=Amazon S3 là gì?"
+            },
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['S3 Storage Classes – Mục 1.1', 'S3 Storage Classes – Mục 1.1', 'S3 Storage Classes – Mục 1.1', 'S3 Storage Classes – Mục 1.1']"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 2,
+          "question": "So với EBS thì khác ở đâu?",
+          "rewritten_query": "Amazon S3 khác Amazon EBS ở những điểm nào?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 348,
+          "answer": "**Tóm tắt:** S3 là lưu trữ **đối tượng (object)** với nhiều lớp lưu trữ trên cùng không gian tên và truy cập qua API, còn EBS là **ổ đĩa khối (block)** gắn với instance trong cùng một Availability Zone [S3 Storage Classes – Mục 1.1][EC2 Tinh toan – Mục 1.4].\n\n| Tiêu chí | Amazon S3 | Amazon EBS |\n| :--- | :--- | :--- |\n| Kiểu lưu trữ | Object – “nhiều lớp lưu trữ (storage class) trên cùng một không gian tên đối tượng”, gán lớp khi tải lên hoặc chuyển lớp bằng quy tắc vòng đời [S3 Storage Classes – Mục 1.1] | Block – “ổ đĩa khối gắn với instance” [EC2 Tinh toan – Mục 1.4]; tài liệu ôn thi nêu cần phân biệt object/file/block [aws-saa-exam-guide – Mục 3.1] |\n| Cách truy cập | Mọi lớp đều truy cập qua API S3, chuyển lớp không đổi khóa đối tượng và không cần đổi ứng dụng đọc [S3 Storage Classes – Mục 1.1] | Gắn với instance; volume chỉ gắn được cho instance trong cùng AZ [EC2 Tinh toan – Mục 1.4] |\n| Phạm vi AZ / dư thừa | Các lớp đa AZ thiết kế cho độ bền 99,999999999% (11 số 9) và lưu trên tối thiểu ba AZ; lớp một AZ chỉ lưu trong một AZ [S3 Storage Classes – Mục 1.1] | “EBS gắn với một AZ; volume chỉ gắn được cho instance trong cùng AZ” [EC2 Tinh toan – Mục 1.4] |\n| Chia sẻ giữa nhiều instance | Không có trong tài liệu | Multi-Attach cho phép gắn một volume io1/io2 cho tối đa 16 instance trong cùng AZ [EC2 Tinh toan – Mục 1.4] |\n| Vòng đời dữ liệu | Không có trong tài liệu (chỉ nêu quy tắc vòng đời để chuyển lớp) [S3 Storage Classes – Mục 1.1] | Dữ liệu EBS tồn tại độc lập với vòng đời instance và có thể sao lưu bằng snapshot lên S3 [EC2 Tinh toan – Mục 1.4] |\n| Sao lưu / khôi phục | Không có trong tài liệu | Snapshot là bản sao lưu tăng dần, lưu trong S3 do AWS quản lý; lần đầu đầy đủ, các lần sau chỉ lưu phần thay đổi [EC2 Tinh toan – Mục 1.4]; có thể tạo volume mới từ snapshot ở AZ khác hoặc Region khác sau khi copy snapshot [EC2 Tinh toan – Mục 1.4] |\n| Thay đổi cấu hình khi đang chạy | Không có trong tài liệu | Có thể thay đổi loại và kích thước volume khi đang chạy (elastic volumes) mà không cần dừng instance [EC2 Tinh toan – Mục 1.4] |\n| Mã hóa | Không có trong tài liệu | Mã hóa EBS bằng KMS có thể bật mặc định ở cấp tài khoản/Region; snapshot của volume đã mã hóa cũng được mã hóa [EC2 Tinh toan – Mục 1.4] |\n| Độ trễ | Độ trễ truy xuất mili giây, phù hợp yêu cầu truy cập tức thời [S3 Storage Classes – Mục 1.2] | io2/io2 Block Express là “SSD hiệu năng cao, IOPS cao và độ trễ thấp” [EC2 Tinh toan – Mục 1.4]; con số độ trễ cụ thể: không có trong tài liệu |\n| Phí truy xuất | S3 Standard không có phí truy xuất, không có thời gian lưu tối thiểu [S3 Storage Classes – Mục 1.2]; các lớp không thường xuyên và lưu trữ lạnh có phí truy xuất theo GB [S3 Storage Classes – Mục 1.4][S3 Storage Classes – Mục 1.6] | Không có trong tài liệu |\n| Phân loại bên trong | Nhiều storage class: nhóm truy cập thường xuyên, nhóm không thường xuyên, nhóm lưu trữ lạnh [S3 Storage Classes – Mục 1.1] | Nhiều loại volume: gp3, gp2, io2/io2 Block Express, st1, sc1 [EC2 Tinh toan – Mục 1.4] |\n\n**Khi nào chọn S3:** khi cần lưu trữ đối tượng trong một không gian tên chung, truy cập qua API S3 và chuyển lớp theo mẫu truy cập/chi phí mà không đổi ứng dụng đọc dữ liệu [S3 Storage Classes – Mục 1.1]; việc chọn lớp dựa trên tần suất truy cập, thời gian truy xuất chấp nhận được, thời gian lưu dự kiến, khả năng tái tạo dữ liệu và chi phí đầy đủ [S3 Storage Classes – Mục 1.1].\n\n**Khi nào chọn EBS:** khi cần ổ đĩa khối gắn với instance trong cùng AZ, dữ liệu tồn tại độc lập với vòng đời instance và sao lưu bằng snapshot [EC2 Tinh toan – Mục 1.4]; tài liệu ôn thi cũng nêu yêu cầu chọn dịch vụ lưu trữ (ví dụ S3, EFS, EBS) phù hợp trường hợp sử dụng và kiểu lưu trữ object/file/block [aws-saa-exam-guide – Mục 3.1].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.85,
+          "citations": [
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Amazon S3 cung cấp nhiều lớp lưu trữ (storage class) trên cùng một không gian tên đối tượng."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "EBS gắn với một AZ; volume chỉ gắn được cho instance trong cùng AZ."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Dữ liệu EBS tồn tại độc lập với vòng đời instance và có thể sao lưu bằng snapshot lên S3."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Snapshot là bản sao lưu tăng dần, lưu trong S3 do AWS quản lý; lần đầu đầy đủ, các lần sau chỉ lưu phần thay đổi."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Có thể thay đổi loại và kích thước volume khi đang chạy (elastic volumes) mà không cần dừng instance."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Multi-Attach cho phép gắn một volume io1/io2 cho tối đa 16 instance trong cùng AZ"
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Mã hóa EBS bằng KMS có thể bật mặc định ở cấp tài khoản/Region; snapshot của volume đã mã hóa cũng được mã hóa."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Có thể tạo volume mới từ snapshot ở AZ khác hoặc Region khác (sau khi copy snapshot)."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "io2 (và io2 Block Express): SSD hiệu năng cao, IOPS cao và độ trễ thấp"
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "Mọi lớp đều truy cập qua API S3; có thể chuyển lớp mà không đổi khóa đối tượng và không cần thay đổi ứng dụng đọc dữ liệu."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.1",
+              "quote": "được thiết kế cho độ bền 99,999999999% (11 số 9) và lưu dữ liệu trên tối thiểu ba Availability Zone"
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.2",
+              "quote": "Lớp này không có phí truy xuất, không có thời gian lưu tối thiểu và hỗ trợ đầy đủ các tính năng của S3."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.2",
+              "quote": "Độ trễ truy xuất mili giây, phù hợp yêu cầu truy cập tức thời."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.4",
+              "quote": "Có phí truy xuất theo GB; đối tượng nhỏ hơn 128 KB được tính như 128 KB."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.6",
+              "quote": "Có phí truy xuất theo GB cao hơn Standard-IA; đối tượng nhỏ hơn 128 KB tính như 128 KB."
+            },
+            {
+              "source": "aws-saa-exam-guide – Mục 3.1",
+              "quote": "Các kiểu lưu trữ kèm đặc điểm, ví dụ object, file, block."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 14925,
+          "output_tokens": 5786,
+          "latency_ms": 35862.6,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "704e40e1-02eb-5563-bc6a-1810d5eb5ccf",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.7851
+            },
+            {
+              "rank": 2,
+              "child_id": "27771026-1288-5f01-8746-cb1f4dea6ddd",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.3",
+              "page": 2,
+              "score": 0.6866
+            },
+            {
+              "rank": 3,
+              "child_id": "27558084-6ef7-5ebb-bd1e-2465f43d06ba",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.5",
+              "page": 4,
+              "score": 0.3613
+            },
+            {
+              "rank": 4,
+              "child_id": "99887e3c-b847-5e1f-bc04-6a85073804f8",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.3395
+            },
+            {
+              "rank": 5,
+              "child_id": "8389dfd3-7e7d-56f5-86a7-3b7e2f9696b0",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.1",
+              "page": 1,
+              "score": 0.3319
+            },
+            {
+              "rank": 6,
+              "child_id": "e22211fe-a39a-5a1b-969e-9b51026736e5",
+              "document": "aws-saa-exam-guide",
+              "section": "Mục 3.1",
+              "page": 6,
+              "score": 0.3076
+            },
+            {
+              "rank": 7,
+              "child_id": "0411696d-5eeb-504a-9f0a-18d7d0242cc2",
+              "document": "IAM",
+              "section": "Mục 1.9",
+              "page": 7,
+              "score": 0.0938
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Đáp án lập bảng so sánh rõ S3 và EBS, câu viết lại chứa cả “S3” và “EBS”, trích đúng S3 Storage Classes Mục 1.1/1.2 và EC2 Tinh toan Mục 1.4; không gán sai đặc điểm EBS cho S3 hoặc ngược lại, không bịa thông số IOPS/dung lượng ngoài tài liệu.",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['S3 Storage Classes – Mục 1.1', 'EC2 Tinh toan – Mục 1.4', 'EC2 Tinh toan – Mục 1.4', 'EC2 Tinh toan – Mục 1.4']"
+            },
+            {
+              "label": "viết lại chứa S3 và EBS",
+              "passed": true,
+              "detail": "Amazon S3 khác Amazon EBS ở những điểm nào?"
+            }
+          ],
+          "passed": true
+        },
+        {
+          "number": 3,
+          "question": "Vậy khi nào dùng cái nào?",
+          "rewritten_query": "Khi nào nên dùng Amazon S3 và khi nào nên dùng Amazon EBS?",
+          "rewrite_source": "llm",
+          "depends_on_context": true,
+          "conversation_tokens": 1269,
+          "answer": "**Tóm tắt:** Chọn **Amazon S3** khi dữ liệu được truy cập dưới dạng đối tượng và ưu tiên chọn lớp theo tần suất truy cập, độ trễ truy xuất cho phép, thời gian lưu và khả năng tái tạo dữ liệu rồi mới so sánh chi phí [S3 Storage Classes – Mục 1.13]; chọn **Amazon EBS** khi cần **ổ đĩa khối gắn với instance trong cùng Availability Zone**, dữ liệu tồn tại độc lập với vòng đời instance và sao lưu bằng snapshot [EC2 Tinh toan – Mục 1.4].\n\n| Tiêu chí | Amazon S3 | Amazon EBS |\n| :--- | :--- | :--- |\n| Kiểu lưu trữ | Lưu trữ đối tượng: đọc theo phạm vi byte của một phần đối tượng, phân tán yêu cầu trên nhiều tiền tố (prefix) [S3 Storage Classes – Mục 1.12]; tài liệu ôn thi yêu cầu phân biệt object/file/block và chọn dịch vụ lưu trữ theo trường hợp sử dụng [aws-saa-exam-guide – Mục 3.1] | Block: “ổ đĩa khối gắn với instance trong cùng Availability Zone” [EC2 Tinh toan – Mục 1.4] |\n| Phạm vi AZ | Dữ liệu một Availability Zone cần có bản sao ở nơi khác nếu không thể tái tạo [S3 Storage Classes – Mục 1.12] | “EBS gắn với một AZ; volume chỉ gắn được cho instance trong cùng AZ” [EC2 Tinh toan – Mục 1.4] |\n| Vòng đời dữ liệu | Không có trong tài liệu (chỉ nêu câu hỏi cần xét thời gian lưu) [S3 Storage Classes – Mục 1.13] | “Dữ liệu EBS tồn tại độc lập với vòng đời instance và có thể sao lưu bằng snapshot lên S3” [EC2 Tinh toan – Mục 1.4] |\n| Sao lưu / khôi phục | Không có trong tài liệu | Snapshot là “bản sao lưu tăng dần, lưu trong S3 do AWS quản lý”; có thể tạo volume mới từ snapshot ở AZ khác hoặc Region khác sau khi copy snapshot [EC2 Tinh toan – Mục 1.4] |\n| Chia sẻ cho nhiều instance | Không có trong tài liệu | Multi-Attach cho phép gắn một volume io1/io2 cho tối đa 16 instance trong cùng AZ [EC2 Tinh toan – Mục 1.4] |\n| Thay đổi cấu hình khi đang chạy | Không có trong tài liệu | Có thể thay đổi loại và kích thước volume khi đang chạy (elastic volumes) mà không cần dừng instance [EC2 Tinh toan – Mục 1.4] |\n| Mã hóa | Không có trong tài liệu | Mã hóa bằng KMS có thể bật mặc định ở cấp tài khoản/Region; snapshot của volume đã mã hóa cũng được mã hóa [EC2 Tinh toan – Mục 1.4] |\n| Độ trễ / hiệu năng | Chọn lớp theo độ trễ chấp nhận được: đọc hằng ngày cần mili giây → S3 Standard; lưu dài hạn chấp nhận chờ vài phút đến vài giờ → S3 Glacier Flexible Retrieval [S3 Storage Classes – Mục 1.13]; các lớp Glacier không cho đọc trực tiếp, phải khôi phục tạm thời [S3 Storage Classes – Mục 1.12] | gp3 baseline 3.000 IOPS và 125 MiB/s, tăng tới 16.000 IOPS và 1.000 MiB/s; io2 Block Express đạt tới 256.000 IOPS và 4.000 MiB/s [EC2 Tinh toan – Mục 1.4]; “EBS: bền vững, snapshot được, gắn lại được, độ trễ thấp vừa phải” [EC2 Tinh toan – Mục 1.5] |\n| Mô hình chi phí | Tổng chi phí cần xét gồm lưu trữ, truy xuất, request, chuyển lớp và xóa sớm [S3 Storage Classes – Mục 1.13] | Không có trong tài liệu |\n\n**Khi nào chọn S3:** khi dữ liệu là đối tượng và việc chọn lớp bắt đầu từ tần suất truy cập, yêu cầu độ trễ, thời gian lưu và khả năng tái tạo dữ liệu, sau đó mới so sánh chi phí [S3 Storage Classes – Mục 1.13]; ví dụ dữ liệu đọc hằng ngày cần độ trễ mili giây dùng S3 Standard, dữ liệu lưu trữ dài hạn chấp nhận chờ vài phút đến vài giờ dùng S3 Glacier Flexible Retrieval [S3 Storage Classes – Mục 1.13]. Đây cũng là hướng phù hợp với yêu cầu chọn dịch vụ lưu trữ, tầng lưu trữ và vòng đời dữ liệu với chi phí thấp nhất nhưng vẫn đáp ứng hiệu năng và độ bền [aws-saa-exam-guide – Mục 4.1].\n\n**Khi nào chọn EBS:** khi cần ổ đĩa khối gắn với instance trong cùng Availability Zone, dữ liệu tồn tại độc lập với vòng đời instance và sao lưu bằng snapshot [EC2 Tinh toan – Mục 1.4]; chọn loại volume theo nhu cầu — gp3 là mặc định nên chọn cho hầu hết khối lượng công việc, io2/io2 Block Express cho khối lượng công việc đòi hỏi IOPS cao và độ trễ thấp, st1/sc1 là HDD cho dữ liệu lớn tuần tự hoặc dữ liệu ít truy cập [EC2 Tinh toan – Mục 1.4]. Nếu cần chia sẻ khối dữ liệu cho nhiều instance trong cùng AZ, Multi-Attach io1/io2 đáp ứng [EC2 Tinh toan – Mục 1.4].\n\n*Lưu ý:* tài liệu hiện có không nêu mô hình giá chi tiết của EBS, nên không thể so sánh chi phí S3 và EBS bằng con số.",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.75,
+          "citations": [
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Amazon Elastic Block Store (EBS) cung cấp ổ đĩa khối gắn với instance trong cùng Availability Zone."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Dữ liệu EBS tồn tại độc lập với vòng đời instance và có thể sao lưu bằng snapshot lên S3."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "EBS gắn với một AZ; volume chỉ gắn được cho instance trong cùng AZ."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Multi-Attach cho phép gắn một volume io1/io2 cho tối đa 16 instance trong cùng AZ, dùng cho ứng dụng cluster cần truy cập khối chia sẻ."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Có thể thay đổi loại và kích thước volume khi đang chạy (elastic volumes) mà không cần dừng instance."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Mã hóa EBS bằng KMS có thể bật mặc định ở cấp tài khoản/Region; snapshot của volume đã mã hóa cũng được mã hóa."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "gp3: SSD đa dụng thế hệ mới, baseline 3.000 IOPS và 125 MiB/s"
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "io2 Block Express đạt tới 256.000 IOPS và 4.000 MiB/s cho khối lượng công việc đòi hỏi cao."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Snapshot là bản sao lưu tăng dần, lưu trong S3 do AWS quản lý"
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.5",
+              "quote": "EBS: bền vững, snapshot được, gắn lại được, độ trễ thấp vừa phải."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.13",
+              "quote": "Nguyên tắc chung là bắt đầu từ tần suất truy cập, yêu cầu độ trễ, thời gian lưu và khả năng tái tạo dữ liệu, sau đó mới so sánh chi phí."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.13",
+              "quote": "Dữ liệu được đọc hằng ngày, cần độ trễ mili giây và không có ràng buộc đặc biệt: S3 Standard."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.13",
+              "quote": "Dữ liệu lưu trữ dài hạn, chấp nhận chờ vài phút đến vài giờ: S3 Glacier Flexible Retrieval."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.13",
+              "quote": "Tổng chi phí gồm lưu trữ, truy xuất, request, chuyển lớp và xóa sớm là bao nhiêu?"
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.12",
+              "quote": "Đọc theo phạm vi byte (byte-range GET) khi chỉ cần một phần đối tượng."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.12",
+              "quote": "Phân tán yêu cầu trên nhiều tiền tố (prefix) để tận dụng khả năng mở rộng của S3."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.12",
+              "quote": "Các lớp Glacier không cho đọc trực tiếp; phải khôi phục tạm thời và chờ theo mức đã chọn."
+            },
+            {
+              "source": "S3 Storage Classes – Mục 1.12",
+              "quote": "Dữ liệu một Availability Zone cần có bản sao ở nơi khác nếu không thể tái tạo."
+            },
+            {
+              "source": "aws-saa-exam-guide – Mục 3.1",
+              "quote": "Các kiểu lưu trữ kèm đặc điểm, ví dụ object, file, block."
+            },
+            {
+              "source": "aws-saa-exam-guide – Mục 4.1",
+              "quote": "Task statement 4.1 yêu cầu chọn dịch vụ lưu trữ, tầng lưu trữ, vòng đời dữ liệu và phương án sao lưu/lưu trữ dài hạn với chi phí thấp nhất nhưng vẫn đáp ứng yêu cầu về hiệu năng và độ bền."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 14724,
+          "output_tokens": 6773,
+          "latency_ms": 43172.7,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "27771026-1288-5f01-8746-cb1f4dea6ddd",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.3",
+              "page": 2,
+              "score": 0.237
+            },
+            {
+              "rank": 2,
+              "child_id": "f3c91557-53d6-59a3-ac7e-6281e7c13a55",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.5",
+              "page": 4,
+              "score": 0.2232
+            },
+            {
+              "rank": 3,
+              "child_id": "e22211fe-a39a-5a1b-969e-9b51026736e5",
+              "document": "aws-saa-exam-guide",
+              "section": "Mục 3.1",
+              "page": 6,
+              "score": 0.2217
+            },
+            {
+              "rank": 4,
+              "child_id": "ae4f016d-85dd-502a-a4f9-3f2237c25ee3",
+              "document": "aws-saa-exam-guide",
+              "section": "Mục 4.1",
+              "page": 9,
+              "score": 0.1992
+            },
+            {
+              "rank": 5,
+              "child_id": "3a3c5198-6aa2-54b3-ac59-271a76c71ddc",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.12",
+              "page": 9,
+              "score": 0.1227
+            },
+            {
+              "rank": 6,
+              "child_id": "6e9b7c4a-2c95-54df-b307-1c6734b48d68",
+              "document": "S3 Storage Classes",
+              "section": "Mục 1.12",
+              "page": 9,
+              "score": 0.0463
+            }
+          ],
+          "judge_score": 0.5,
+          "judge_reason": "Câu trả lời đúng hướng, có bảng so sánh S3/EBS, nêu EBS snapshot lưu trong S3 và trích EC2 Mục 1.4. Tuy nhiên thiếu các ý quan trọng trong hành vi mong đợi cho S3: nội dung tĩnh, phân tích dữ liệu lớn, sao lưu. Ngoài ra một số dòng ghi 'Không có trong tài liệu' cho S3 (như vòng đời dữ liệu) chưa chính xác so với ngữ cảnh tài liệu đã dùng ở lượt trước.",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['EC2 Tinh toan – Mục 1.4', 'EC2 Tinh toan – Mục 1.4', 'EC2 Tinh toan – Mục 1.4', 'EC2 Tinh toan – Mục 1.4']"
+            }
+          ],
+          "passed": false
+        },
+        {
+          "number": 4,
+          "question": "EBS có tự nhân bản qua nhiều AZ không?",
+          "rewritten_query": "EBS có tự nhân bản qua nhiều AZ không?",
+          "rewrite_source": "llm",
+          "depends_on_context": false,
+          "conversation_tokens": 1356,
+          "answer": "**Không.** EBS gắn với một Availability Zone: \"EBS gắn với một AZ; volume chỉ gắn được cho instance trong cùng AZ\" [EC2 Tinh toan – Mục 1.4]. Vì vậy một volume EBS không tự nhân bản hay trải dữ liệu sang nhiều AZ.\n\nMuốn có dữ liệu ở AZ khác (hoặc Region khác), phải dựa vào snapshot: snapshot là \"bản sao lưu tăng dần, lưu trong S3 do AWS quản lý\", và \"có thể tạo volume mới từ snapshot ở AZ khác hoặc Region khác (sau khi copy snapshot)\" [EC2 Tinh toan – Mục 1.4].",
+          "abstained": false,
+          "abstention_type": "none",
+          "confidence": 0.95,
+          "citations": [
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "EBS gắn với một AZ; volume chỉ gắn được cho instance trong cùng AZ."
+            },
+            {
+              "source": "EC2 Tinh toan – Mục 1.4",
+              "quote": "Có thể tạo volume mới từ snapshot ở AZ khác hoặc Region khác (sau khi copy snapshot)."
+            }
+          ],
+          "citation_validity": 1.0,
+          "unmatched_citations": [],
+          "provider": "deepseek_fallback",
+          "model": "deepseek-flash",
+          "fallback_used": null,
+          "input_tokens": 10234,
+          "output_tokens": 768,
+          "latency_ms": 8894.3,
+          "retrieved": [
+            {
+              "rank": 1,
+              "child_id": "704e40e1-02eb-5563-bc6a-1810d5eb5ccf",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.4",
+              "page": 3,
+              "score": 0.3903
+            },
+            {
+              "rank": 2,
+              "child_id": "27771026-1288-5f01-8746-cb1f4dea6ddd",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.3",
+              "page": 2,
+              "score": 0.2746
+            },
+            {
+              "rank": 3,
+              "child_id": "3a3c5198-6aa2-54b3-ac59-271a76c71ddc",
+              "document": "EC2 Tinh toan",
+              "section": "Mục 1.12",
+              "page": 9,
+              "score": 0.2026
+            }
+          ],
+          "judge_score": 1.0,
+          "judge_reason": "Câu trả lời đúng trọng tâm: EBS không tự nhân bản qua nhiều AZ, volume gắn với một AZ và chỉ gắn cho instance cùng AZ; snapshot là bản sao tăng dần lưu trong S3 do AWS quản lý, có thể tạo volume ở AZ/Region khác sau khi copy snapshot. Trích dẫn EC2 Tinh toan – Mục 1.4 phù hợp với căn cứ. Câu viết lại giữ đúng thực thể EBS và AZ, đúng ý câu hỏi; không có thông tin bịa hoặc mâu thuẫn với lượt trước. [điểm 3 lần: [0.5, 1.0, 1.0]]",
+          "auto_checks": [
+            {
+              "label": "trích dẫn đúng tài liệu/mục",
+              "passed": true,
+              "detail": "nguồn=['EC2 Tinh toan – Mục 1.4', 'EC2 Tinh toan – Mục 1.4']"
+            },
+            {
+              "label": "khẳng định EBS không tự nhân bản nhiều AZ",
+              "passed": true,
+              "detail": "**Không.** EBS gắn với một Availability Zone: \"EBS gắn với một AZ; volume chỉ gắn được cho instance trong cùng AZ\" [EC2 Tinh toan – Mục 1.4]. Vì vậy một volume "
+            }
+          ],
+          "passed": true
+        }
+      ]
+    }
+  ]
+}

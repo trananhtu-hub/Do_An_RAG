@@ -902,5 +902,21 @@
   "58555d45a33845c7": {
     "score": 1.0,
     "reason": "Lượt 4 trả lời đúng trọng tâm: S3 Standard-IA có truy xuất mili giây và không cần chờ khôi phục, phù hợp hành vi mong đợi. Câu trả lời có trích dẫn [S3 Storage Classes – Mục 1.4] và Mục 1.12, không mâu thuẫn các lượt trước; hội thoại đã quay lại đúng chủ đề S3 sau hai lượt từ chối ngoài phạm vi."
+  },
+  "128c2c73560f909d": {
+    "score": 0.5,
+    "reason": "Câu viết lại đúng (giữ nguyên) và câu trả lời nêu đúng S3 là lưu trữ đối tượng, nhiều lớp trên cùng không gian tên, gán lớp khi tải lên hoặc lifecycle, mặc định Standard, có lớp đa AZ và một AZ, trích đúng S3 Storage Classes Mục 1.1. Tuy nhiên thiếu ý quan trọng trong hành vi mong đợi: ba nhóm lớp (truy cập thường xuyên, không thường xuyên, lưu trữ lạnh). Không có bịa đặc điểm EBS hay thông số ngo"
+  },
+  "6aeda3e8c81eae18": {
+    "score": 1.0,
+    "reason": "Đáp án lập bảng so sánh rõ S3 và EBS, câu viết lại chứa cả “S3” và “EBS”, trích đúng S3 Storage Classes Mục 1.1/1.2 và EC2 Tinh toan Mục 1.4; không gán sai đặc điểm EBS cho S3 hoặc ngược lại, không bịa thông số IOPS/dung lượng ngoài tài liệu."
+  },
+  "508680e4bfaeab9e": {
+    "score": 0.5,
+    "reason": "Câu trả lời đúng hướng, có bảng so sánh S3/EBS, nêu EBS snapshot lưu trong S3 và trích EC2 Mục 1.4. Tuy nhiên thiếu các ý quan trọng trong hành vi mong đợi cho S3: nội dung tĩnh, phân tích dữ liệu lớn, sao lưu. Ngoài ra một số dòng ghi 'Không có trong tài liệu' cho S3 (như vòng đời dữ liệu) chưa chính xác so với ngữ cảnh tài liệu đã dùng ở lượt trước."
+  },
+  "e88cd955f27e0854": {
+    "score": 1.0,
+    "reason": "Câu trả lời đúng trọng tâm: EBS không tự nhân bản qua nhiều AZ, volume gắn với một AZ và chỉ gắn cho instance cùng AZ; snapshot là bản sao tăng dần lưu trong S3 do AWS quản lý, có thể tạo volume ở AZ/Region khác sau khi copy snapshot. Trích dẫn EC2 Tinh toan – Mục 1.4 phù hợp với căn cứ. Câu viết lại giữ đúng thực thể EBS và AZ, đúng ý câu hỏi; không có thông tin bịa hoặc mâu thuẫn với lượt trước. [điểm 3 lần: [0.5, 1.0, 1.0]]"
   }
 }
