@@ -4,6 +4,7 @@ import re
 import unicodedata
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 from ..retrieval.types import RetrievedChunk
 from .context import ContextBlock
@@ -139,6 +140,162 @@ def check_citations(
         quotes_checked=checked,
         quotes_found=found,
     )
+
+
+@dataclass(frozen=True)
+class _EnrichmentCandidate:
+    document: str
+    document_title: str
+    section: str
+    page: int | None
+    aliases: frozenset[str]
+    sections: frozenset[str]
+
+
+def enrich_citations(
+    payload: AnswerPayload,
+    blocks: tuple[ContextBlock, ...],
+    chunks: list[RetrievedChunk] | tuple[RetrievedChunk, ...] = (),
+) -> list[dict[str, Any]]:
+    """Bổ sung tài liệu, mục và trang cho từng trích dẫn để UI mở đúng chỗ.
+
+    Mô hình chỉ trả về chuỗi ``[tài liệu – mục]``; các trường còn lại được đối
+    chiếu với ngữ cảnh đã truy xuất. Trích dẫn không khớp vẫn giữ nguyên chuỗi
+    gốc để người dùng thấy thay vì bị ẩn đi.
+    """
+    candidates = _enrichment_candidates(blocks, chunks)
+    entries: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for citation in payload.citations:
+        source = citation.source.strip()
+        if not source or source in seen:
+            continue
+        seen.add(source)
+        entries.append(_enrich_entry(source, citation.quote, candidates))
+    # Câu trả lời có thể nhắc trích dẫn dạng inline mà không khai lại ở trường
+    # citations; vẫn hiện chip để người dùng lần được tới tài liệu.
+    for source in inline_citation_sources(payload.answer):
+        if source in seen:
+            continue
+        seen.add(source)
+        entries.append(_enrich_entry(source, "", candidates))
+    return entries
+
+
+def _enrich_entry(
+    source: str,
+    quote: str,
+    candidates: tuple[_EnrichmentCandidate, ...],
+) -> dict[str, Any]:
+    parsed = _parse_citation(source)
+    match: _EnrichmentCandidate | None = None
+    if parsed is not None:
+        document, sections = parsed
+        match = _match_candidate(document, sections, candidates)
+    return {
+        "source": source,
+        "quote": quote,
+        "document": match.document if match else None,
+        "document_title": match.document_title if match else None,
+        "section": match.section if match else None,
+        "page": match.page if match else None,
+    }
+
+
+def _parse_citation(source: str) -> tuple[str, list[str]] | None:
+    parts = _DASH.split(source.strip(), maxsplit=1)
+    if len(parts) != 2:
+        return None
+    document = _normalize(_PREFIX.sub("", parts[0].strip()).strip())
+    if not document:
+        return None
+    sections = [
+        _norm_section(_PREFIX.sub("", piece.strip()).strip())
+        for piece in re.split(r"[,;]", _PAGE.sub("", parts[1]))
+        if piece.strip()
+    ]
+    sections = [section for section in sections if section]
+    return (document, sections) if sections else None
+
+
+def _match_candidate(
+    document: str,
+    sections: list[str],
+    candidates: tuple[_EnrichmentCandidate, ...],
+) -> _EnrichmentCandidate | None:
+    scored: list[tuple[int, int, _EnrichmentCandidate]] = []
+    for index, candidate in enumerate(candidates):
+        if not _document_matches(document, candidate):
+            continue
+        section_match = any(_section_matches(section, candidate) for section in sections)
+        if not section_match:
+            continue
+        score = 0 if candidate.page is not None else 1
+        scored.append((score, index, candidate))
+    if scored:
+        scored.sort(key=lambda item: (item[0], item[1]))
+        return scored[0][2]
+    # Không khớp mục nhưng khớp tài liệu: vẫn mở được tài liệu, chỉ thiếu số trang.
+    for candidate in candidates:
+        if _document_matches(document, candidate) and candidate.page is not None:
+            return candidate
+    return None
+
+
+def _enrichment_candidates(
+    blocks: tuple[ContextBlock, ...],
+    chunks: list[RetrievedChunk] | tuple[RetrievedChunk, ...],
+) -> tuple[_EnrichmentCandidate, ...]:
+    by_id = {chunk.child_id: chunk for chunk in chunks}
+    candidates: list[_EnrichmentCandidate] = []
+    for chunk in chunks:
+        aliases = {
+            _normalize(chunk.document),
+            _normalize(chunk.document.replace("_", " ")),
+            _normalize(Path(chunk.document).stem),
+        }
+        title = chunk.document_title or Path(chunk.document).stem
+        aliases.add(_normalize(title))
+        sections = {
+            _norm_section(value)
+            for value in (chunk.section, chunk.heading)
+            if value and value.strip()
+        }
+        sections.update(_normalize(number) for number in _SECTION_IN_TEXT.findall(chunk.content))
+        candidates.append(
+            _EnrichmentCandidate(
+                document=chunk.document,
+                document_title=title,
+                section=chunk.section or chunk.heading or "",
+                page=chunk.page,
+                aliases=frozenset(alias for alias in aliases if alias),
+                sections=frozenset(section for section in sections if section),
+            )
+        )
+    for block in blocks:
+        link = next((by_id[chunk_id] for chunk_id in block.chunk_ids if chunk_id in by_id), None)
+        title = block.document if link is None else link.document_title or block.document
+        aliases = {
+            _normalize(block.document),
+            _normalize(block.document.replace("_", " ")),
+            _normalize(Path(block.document).stem),
+            _normalize(title),
+        }
+        sections = {_norm_section(block.section)}
+        if block.heading:
+            sections.add(_norm_section(block.heading))
+        sections.update(_normalize(number) for number in _SECTION_IN_TEXT.findall(block.content))
+        candidates.append(
+            _EnrichmentCandidate(
+                document=block.document,
+                document_title=title,
+                section=block.section,
+                page=link.page if link is not None else None,
+                aliases=frozenset(alias for alias in aliases if alias),
+                sections=frozenset(section for section in sections if section),
+            )
+        )
+    return tuple(candidates)
 
 
 def _starts_with_quote(quote: str, haystack: str) -> bool:

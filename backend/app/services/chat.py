@@ -5,7 +5,7 @@ import threading
 import time
 from collections.abc import Iterator
 from concurrent.futures import Future, ThreadPoolExecutor
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import Any
 from uuid import UUID
 
@@ -37,6 +37,36 @@ _HISTORY_MESSAGES = 80
 
 
 @dataclass(frozen=True)
+class ChatOptions:
+    """Tùy chọn người dùng cho một lượt hỏi.
+
+    ``mode=None`` giữ nguyên hành vi cũ (tự chọn prompt theo loại câu hỏi);
+    giao diện luôn gửi rõ ``fast`` hoặc ``step_by_step``.
+    """
+
+    mode: str | None = None
+    language: str | None = None
+    model: str | None = None
+
+    @property
+    def use_cot(self) -> bool:
+        return self.mode != "fast"
+
+    @property
+    def thinking_level(self) -> str | None:
+        return "none" if self.mode == "fast" else None
+
+    @property
+    def extra_instruction(self) -> str | None:
+        if self.language == "en":
+            return (
+                "Người học chọn trả lời bằng tiếng Anh: viết phần answer bằng tiếng Anh, "
+                "giữ nguyên thuật ngữ AWS và định dạng trích dẫn [tài liệu – mục Y]."
+            )
+        return None
+
+
+@dataclass(frozen=True)
 class StreamEvent:
     event: str
     data: dict[str, Any]
@@ -62,6 +92,7 @@ class PreparedTurn:
     prepare_ms: float = 0.0
     summary_source: str | None = None
     summary_latency_ms: float = 0.0
+    options: ChatOptions = field(default_factory=ChatOptions)
 
     @property
     def is_replay(self) -> bool:
@@ -152,8 +183,10 @@ class ChatService:
         question: str,
         *,
         request_id: UUID | None = None,
+        options: ChatOptions | None = None,
     ) -> PreparedTurn:
         started = time.perf_counter()
+        options = options or ChatOptions()
         session = self.get_session(user_id, session_id)
         question = question.strip()
         if not question:
@@ -162,7 +195,7 @@ class ChatService:
         if request_id is not None:
             existing = self.repository.get_message_by_request(user_id, session_id, request_id)
             if existing is not None:
-                return self._prepare_existing(session, question, existing, started)
+                return self._prepare_existing(session, question, existing, started, options=options)
 
         session, summary_refresh = self._refresh_summary(user_id, session_id, session)
         history = _trim_after_topic_shift(
@@ -197,7 +230,9 @@ class ChatService:
             if request_id is not None:
                 existing = self.repository.get_message_by_request(user_id, session_id, request_id)
                 if existing is not None:
-                    return self._prepare_existing(session, question, existing, started)
+                    return self._prepare_existing(
+                        session, question, existing, started, options=options
+                    )
             raise
         if pair is None:
             raise SessionNotFound("Phiên không tồn tại hoặc không thuộc người dùng hiện tại.")
@@ -226,6 +261,7 @@ class ChatService:
             prepare_ms=round((time.perf_counter() - started) * 1000, 2),
             summary_source=summary_refresh.source if summary_refresh else None,
             summary_latency_ms=summary_refresh.latency_ms if summary_refresh else 0.0,
+            options=options,
         )
 
     def _prepare_existing(
@@ -234,6 +270,8 @@ class ChatService:
         question: str,
         existing: MessageRecord,
         started: float,
+        *,
+        options: ChatOptions | None = None,
     ) -> PreparedTurn:
         if _is_complete(existing):
             return PreparedTurn(
@@ -253,6 +291,7 @@ class ChatService:
                 assistant_message=existing,
                 replay=existing,
                 prepare_ms=round((time.perf_counter() - started) * 1000, 2),
+                options=options or ChatOptions(),
             )
         raw = self.repository.list_messages(
             session.user_id,
@@ -291,6 +330,7 @@ class ChatService:
             user_message=user_message,
             assistant_message=existing,
             prepare_ms=round((time.perf_counter() - started) * 1000, 2),
+            options=options or ChatOptions(),
         )
 
     def answer(
@@ -300,8 +340,9 @@ class ChatService:
         question: str,
         *,
         request_id: UUID | None = None,
+        options: ChatOptions | None = None,
     ) -> ChatAnswer:
-        turn = self.prepare(user_id, session_id, question, request_id=request_id)
+        turn = self.prepare(user_id, session_id, question, request_id=request_id, options=options)
         if turn.replay is not None:
             return ChatAnswer(session_id, turn.replay, None, turn, replayed=True)
         try:
@@ -312,6 +353,9 @@ class ChatService:
                 rewritten_query=turn.rewritten,
                 conversation=turn.conversation.text or None,
                 conversation_tokens=turn.conversation.tokens,
+                use_cot=turn.options.use_cot,
+                thinking_level=turn.options.thinking_level,
+                extra_instruction=turn.options.extra_instruction,
             )
         except LLMError as exc:
             self._finalize(turn, content="", status="error", error=str(exc))
@@ -328,8 +372,9 @@ class ChatService:
         question: str,
         *,
         request_id: UUID | None = None,
+        options: ChatOptions | None = None,
     ) -> Iterator[StreamEvent]:
-        turn = self.prepare(user_id, session_id, question, request_id=request_id)
+        turn = self.prepare(user_id, session_id, question, request_id=request_id, options=options)
         yield from self.stream_turn(turn)
 
     def stream_turn(self, turn: PreparedTurn) -> Iterator[StreamEvent]:
@@ -368,6 +413,9 @@ class ChatService:
             rewritten_query=turn.rewritten,
             conversation=turn.conversation.text or None,
             conversation_tokens=turn.conversation.tokens,
+            use_cot=turn.options.use_cot,
+            thinking_level=turn.options.thinking_level,
+            extra_instruction=turn.options.extra_instruction,
         )
         try:
             try:
@@ -454,12 +502,17 @@ class ChatService:
             "summary_latency_ms": turn.summary_latency_ms,
             "replayed": turn.is_replay,
             "prepare_ms": turn.prepare_ms,
+            "answer_mode": turn.options.mode or "auto",
+            "answer_language": turn.options.language or "vi",
         }
 
     @staticmethod
     def _citations_data(result: GenerationResult) -> dict[str, Any]:
+        items = result.extra.get("citations_enriched")
+        if not isinstance(items, list):
+            items = [citation.model_dump() for citation in result.payload.citations]
         return {
-            "items": [citation.model_dump() for citation in result.payload.citations],
+            "items": items,
             "citation_validity": result.citation_report.citation_validity,
             "unmatched": [
                 {"citation": issue.citation, "reason": issue.reason}
@@ -525,10 +578,17 @@ class ChatService:
             "summary_used": turn.conversation.summary_used,
             "summary_source": turn.summary_source,
             "summary_latency_ms": turn.summary_latency_ms,
+            "answer_mode": turn.options.mode or "auto",
+            "answer_language": turn.options.language or "vi",
         }
         citations: list[dict[str, Any]] = []
         if result is not None:
-            citations = [citation.model_dump() for citation in result.payload.citations]
+            enriched = result.extra.get("citations_enriched")
+            citations = (
+                enriched
+                if isinstance(enriched, list)
+                else [citation.model_dump() for citation in result.payload.citations]
+            )
             metadata.update(
                 {
                     "provider": result.provider,

@@ -26,6 +26,10 @@ export interface ChatStreamMeta {
 export interface ChatCitation {
   source: string;
   quote: string;
+  document?: string | null;
+  document_title?: string | null;
+  section?: string | null;
+  page?: number | null;
 }
 
 export interface ChatStreamCitations {
@@ -61,6 +65,9 @@ export interface SendChatOptions {
   question: string;
   sessionId?: string | null;
   requestId?: string;
+  mode?: "fast" | "step_by_step";
+  language?: "vi" | "en";
+  model?: string;
 }
 
 export interface UseChatStreamOptions {
@@ -276,14 +283,24 @@ export function useChatStream(options: UseChatStreamOptions = {}): UseChatStream
             headers.Authorization = `Bearer ${token}`;
           }
 
+          const body: Record<string, unknown> = {
+            question: sendOptions.question,
+            session_id: state.sessionId,
+            request_id: request,
+          };
+          if (sendOptions.mode) {
+            body.mode = sendOptions.mode;
+          }
+          if (sendOptions.language) {
+            body.language = sendOptions.language;
+          }
+          if (sendOptions.model) {
+            body.model = sendOptions.model;
+          }
           const response = await (fetchImpl ?? fetch)(endpoint, {
             method: "POST",
             headers,
-            body: JSON.stringify({
-              question: sendOptions.question,
-              session_id: state.sessionId,
-              request_id: request,
-            }),
+            body: JSON.stringify(body),
             signal: controller.signal,
           });
           if (!response.ok) {

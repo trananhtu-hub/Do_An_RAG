@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Any
+from typing import Any, Literal
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
@@ -94,6 +94,9 @@ class ChatRequest(BaseModel):
     session_id: UUID | None = None
     question: str = Field(min_length=1, max_length=MAX_QUESTION_CHARS)
     request_id: UUID | None = None
+    mode: Literal["fast", "step_by_step"] | None = None
+    language: Literal["vi", "en"] | None = None
+    model: str | None = Field(default=None, max_length=100)
 
     @field_validator("question")
     @classmethod

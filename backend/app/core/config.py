@@ -25,6 +25,14 @@ class Settings(BaseSettings):
     supabase_anon_key: str = ""
     supabase_service_role_key: str = ""
     database_url: str = ""
+    # Danh sách email quản trị, phân tách bằng dấu phẩy; rỗng nghĩa là không ai.
+    admin_emails: str = ""
+
+    @property
+    def admin_email_set(self) -> frozenset[str]:
+        return frozenset(
+            email.strip().lower() for email in self.admin_emails.split(",") if email.strip()
+        )
 
     @property
     def has_gemini_api_key(self) -> bool:

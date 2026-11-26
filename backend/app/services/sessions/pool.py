@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import queue
 import threading
+import time
 from collections.abc import Iterator
 from contextlib import contextmanager
 
@@ -16,7 +17,9 @@ class ConnectionPool:
     """Pool kết nối PostgreSQL tối giản, không phụ thuộc thư viện ngoài.
 
     Mỗi kết nối mới tới Supabase mất ~300 ms; giữ kết nối ấm giúp TTFT không
-    bị cộng thêm độ trễ bắt tay TCP/TLS ở mỗi lượt hỏi.
+    bị cộng thêm độ trễ bắt tay TCP/TLS ở mỗi lượt hỏi. Kết nối để lâu có thể
+    bị máy chủ đóng mà client chưa biết, nên trước khi tái sử dụng sau một
+    khoảng nghỉ, pool kiểm tra bằng SELECT 1 và thay kết nối hỏng.
     """
 
     def __init__(
@@ -26,6 +29,7 @@ class ConnectionPool:
         max_size: int = 8,
         connect_timeout: int = 10,
         acquire_timeout: float = 15.0,
+        liveness_interval: float = 30.0,
     ) -> None:
         if not dsn.strip():
             raise ValueError("Thiếu DSN cho ConnectionPool")
@@ -33,7 +37,8 @@ class ConnectionPool:
         self._max_size = max(1, max_size)
         self._connect_timeout = connect_timeout
         self._acquire_timeout = acquire_timeout
-        self._idle: queue.LifoQueue[psycopg.Connection] = queue.LifoQueue()
+        self._liveness_interval = liveness_interval
+        self._idle: queue.LifoQueue[tuple[psycopg.Connection, float]] = queue.LifoQueue()
         self._slots = threading.BoundedSemaphore(self._max_size)
         self._closed = False
         self._lock = threading.Lock()
@@ -58,13 +63,24 @@ class ConnectionPool:
         if not self._slots.acquire(timeout=self._acquire_timeout):
             raise SessionStoreError("Hết kết nối sẵn có trong pool")
         try:
-            conn = self._idle.get_nowait()
+            conn, released_at = self._idle.get_nowait()
         except queue.Empty:
-            conn = None
-        if conn is not None and not conn.closed:
-            return conn
+            conn, released_at = None, 0.0
         if conn is not None:
-            conn.close()
+            idle_for = time.monotonic() - released_at
+            stale = (
+                conn.closed
+                or conn.broken
+                or (idle_for > self._liveness_interval and not self._is_alive(conn))
+            )
+            if stale:
+                try:
+                    conn.close()
+                except Exception:  # noqa: BLE001 - đóng best-effort
+                    pass
+                conn = None
+        if conn is not None:
+            return conn
         try:
             return psycopg.connect(
                 self._dsn,
@@ -76,12 +92,20 @@ class ConnectionPool:
             self._slots.release()
             raise SessionStoreError(f"Không kết nối được PostgreSQL: {type(exc).__name__}") from exc
 
+    @staticmethod
+    def _is_alive(conn: psycopg.Connection) -> bool:
+        try:
+            conn.execute("SELECT 1").fetchone()
+            return True
+        except psycopg.Error:
+            return False
+
     def _release(self, conn: psycopg.Connection) -> None:
         try:
             if self._closed or conn.closed:
                 conn.close()
             else:
-                self._idle.put(conn)
+                self._idle.put((conn, time.monotonic()))
         finally:
             self._slots.release()
 
@@ -97,7 +121,7 @@ class ConnectionPool:
             self._closed = True
         while True:
             try:
-                conn = self._idle.get_nowait()
+                conn, _ = self._idle.get_nowait()
             except queue.Empty:
                 break
             try:

@@ -4,10 +4,13 @@ from fastapi import APIRouter, Depends, Query, Request, Response, status
 from fastapi.responses import StreamingResponse
 from starlette.concurrency import run_in_threadpool
 
-from app.api.deps import get_current_user, get_runtime
+from app.api.deps import api_error, get_current_user, get_runtime
 from app.api.sse import SSE_HEADERS, sse_event_stream
+from app.core.admin import is_admin
 from app.core.auth import AuthUser
+from app.core.config import get_settings
 from app.models.chat_schemas import (
+    MAX_QUESTION_CHARS,
     ChatRequest,
     ChatResponse,
     DeleteAllSessionsResponse,
@@ -19,6 +22,8 @@ from app.models.chat_schemas import (
     SessionUpdateRequest,
 )
 from app.models.schemas import HealthResponse
+from app.models.user_schemas import AppMetaResponse, MeResponse, MetaOption
+from app.services.chat import ChatOptions
 
 router = APIRouter(tags=["health"])
 
@@ -26,6 +31,43 @@ router = APIRouter(tags=["health"])
 @router.get("/health", response_model=HealthResponse, summary="Kiểm tra tình trạng backend")
 async def health() -> HealthResponse:
     return HealthResponse(status="ok")
+
+
+@router.get("/me", response_model=MeResponse, summary="Thông tin người dùng đang đăng nhập")
+def me(user: AuthUser = Depends(get_current_user)) -> MeResponse:
+    return MeResponse(id=user.id, email=user.email, is_admin=is_admin(user))
+
+
+@router.get("/meta", response_model=AppMetaResponse, summary="Tùy chọn giao diện đang hỗ trợ")
+def app_meta(user: AuthUser = Depends(get_current_user)) -> AppMetaResponse:
+    settings = get_settings()
+    return AppMetaResponse(
+        models=[
+            MetaOption(
+                code=settings.deepseek_model,
+                label=settings.deepseek_model,
+                description="Mô hình DeepSeek đang cấu hình cho mọi tác vụ sinh văn bản.",
+            )
+        ],
+        default_model=settings.deepseek_model,
+        modes=[
+            MetaOption(
+                code="fast",
+                label="Trả lời nhanh",
+                description="Trả lời trực tiếp, ít suy luận từng bước.",
+            ),
+            MetaOption(
+                code="step_by_step",
+                label="Giải thích từng bước",
+                description="Trình bày lập luận có kiểm chứng trước khi kết luận.",
+            ),
+        ],
+        languages=[
+            MetaOption(code="vi", label="Tiếng Việt"),
+            MetaOption(code="en", label="English"),
+        ],
+        max_question_chars=MAX_QUESTION_CHARS,
+    )
 
 
 # -- phiên hội thoại ---------------------------------------------------------
@@ -104,8 +146,6 @@ def delete_session(
     user: AuthUser = Depends(get_current_user),
     service=Depends(get_runtime),
 ) -> Response:
-    from app.api.deps import api_error
-
     if not service.delete_session(user.id, _uuid(session_id)):
         raise api_error(404, "session_not_found", "Không tìm thấy phiên cần xóa.")
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -130,6 +170,7 @@ def chat(
     user: AuthUser = Depends(get_current_user),
     service=Depends(get_runtime),
 ) -> ChatResponse:
+    options = _chat_options(payload)
     session_id = payload.session_id
     if session_id is None:
         session = service.create_session(user.id, title=payload.question[:80])
@@ -139,6 +180,7 @@ def chat(
         session_id,
         payload.question,
         request_id=payload.request_id,
+        options=options,
     )
     message = outcome.message
     result = outcome.result
@@ -190,6 +232,7 @@ async def chat_stream(
     user: AuthUser = Depends(get_current_user),
     service=Depends(get_runtime),
 ) -> StreamingResponse:
+    options = _chat_options(payload)
     session_id = payload.session_id
     if session_id is None:
         session = await run_in_threadpool(
@@ -202,6 +245,7 @@ async def chat_stream(
         session_id,
         payload.question,
         request_id=payload.request_id,
+        options=options,
     )
     events = service.stream_turn(turn)
     return StreamingResponse(
@@ -211,12 +255,17 @@ async def chat_stream(
     )
 
 
+def _chat_options(payload: ChatRequest) -> ChatOptions:
+    model = (payload.model or "").strip() or None
+    if model is not None and model != get_settings().deepseek_model:
+        raise api_error(422, "unsupported_model", "Mô hình không được hỗ trợ.")
+    return ChatOptions(mode=payload.mode, language=payload.language, model=model)
+
+
 def _uuid(value: str):
     from uuid import UUID
 
     try:
         return UUID(value)
     except ValueError:
-        from app.api.deps import api_error
-
         raise api_error(400, "invalid_session_id", "Mã phiên không hợp lệ.") from None

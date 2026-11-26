@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ..retrieval.types import RetrievalResult, RetrievedChunk
-from .citations import check_citations, inline_citation_sources
+from .citations import check_citations, enrich_citations, inline_citation_sources
 from .config import GenerationConfig, load_generation_config
 from .context import BuiltContext, build_context, fit_context_to_tokens
 from .logger import QueryLogWriter
@@ -80,6 +80,7 @@ class GenerationService:
         conversation_tokens: int = 0,
         user_id: str | None = None,
         rewritten_query: str | None = None,
+        extra_instruction: str | None = None,
     ) -> GenerationResult:
         started = time.perf_counter()
         if chunks is None:
@@ -143,6 +144,7 @@ class GenerationService:
             prompt_mode=prompt_mode,
             use_cot=use_cot,
             conversation=conversation,
+            extra_instruction=extra_instruction,
         )
         prompt_ms = (time.perf_counter() - prompt_started) * 1000
         payload, response, retries = self._complete_with_schema(messages, thinking_level=level)
@@ -202,6 +204,7 @@ class GenerationService:
         conversation_tokens: int = 0,
         user_id: str | None = None,
         rewritten_query: str | None = None,
+        extra_instruction: str | None = None,
     ) -> Iterator[AnswerDelta]:
         """Stream từng mẩu nội dung của trường answer.
 
@@ -274,6 +277,7 @@ class GenerationService:
             prompt_mode=prompt_mode,
             use_cot=use_cot,
             conversation=conversation,
+            extra_instruction=extra_instruction,
         )
         prompt_done_at = time.perf_counter()
         prompt_ms = (prompt_done_at - prompt_started) * 1000
@@ -437,6 +441,7 @@ class GenerationService:
         prompt_mode: str,
         use_cot: bool,
         conversation: str | None,
+        extra_instruction: str | None = None,
     ) -> tuple[list[LLMMessage], BuiltContext, PromptAudit, list[str]]:
         """Dựng prompt và ép trần ``max_prompt_tokens`` bằng tokenizer DeepSeek.
 
@@ -448,6 +453,15 @@ class GenerationService:
         warnings: list[str] = []
 
         def build(ctx: BuiltContext, conv: str | None) -> list[LLMMessage]:
+            if extra_instruction:
+                return self.prompts.build(
+                    question=question,
+                    context_text=ctx.text,
+                    mode=prompt_mode,
+                    use_cot=use_cot,
+                    conversation=conv,
+                    extra_instruction=extra_instruction,
+                )
             return self.prompts.build(
                 question=question,
                 context_text=ctx.text,
@@ -723,6 +737,7 @@ class GenerationService:
                 "provider_latency_ms": response.latency_ms if response else 0.0,
                 "judge_provider": self.config.judge_provider,
                 "prompt_audit": prompt_audit.as_dict() if prompt_audit is not None else None,
+                "citations_enriched": enrich_citations(payload, context.blocks, chunks),
             },
             ttft_ms=round(ttft_ms, 2),
             streaming=streaming,

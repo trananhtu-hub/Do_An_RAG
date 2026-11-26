@@ -4,6 +4,9 @@ from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
+from app.api.admin_routes import router as admin_router
+from app.api.document_routes import router as document_router
+from app.api.quiz_routes import router as quiz_router
 from app.api.routes import router
 from app.core.logging import configure_logging
 from app.services.generation.providers import LLMError
@@ -28,6 +31,9 @@ def create_app() -> FastAPI:
     app.add_exception_handler(SessionStoreError, _session_store_error)
     app.add_exception_handler(LLMError, _llm_error)
     app.include_router(router)
+    app.include_router(quiz_router)
+    app.include_router(admin_router)
+    app.include_router(document_router)
     logger.info("Khởi tạo ứng dụng FastAPI")
     return app
 
