@@ -17,7 +17,9 @@ jobs:
         with:
           python-version: "3.11"
           cache: pip
-          cache-dependency-path: backend/requirements-dev.txt
+          cache-dependency-path: |
+            backend/requirements-dev.txt
+            backend/requirements.txt
       - name: Cài phụ thuộc
         run: pip install -r requirements-dev.txt
       - name: Lint (ruff)
